@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		78078C8D2E78FB3B0017E5D3 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 78078C8C2E78FB3B0017E5D3 /* .gitignore */; };
 		78078CA02E78FB960017E5D3 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = 78078C9F2E78FB960017E5D3 /* LICENSE.md */; };
+		78078DA22E7928CA0017E5D3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 78078DA12E7928CA0017E5D3 /* SnapKit */; };
+		78078DA52E7928DC0017E5D3 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 78078DA42E7928DC0017E5D3 /* Alamofire */; };
+		78078DA82E7928E40017E5D3 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 78078DA72E7928E40017E5D3 /* Toast */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +46,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78078DA82E7928E40017E5D3 /* Toast in Frameworks */,
+				78078DA22E7928CA0017E5D3 /* SnapKit in Frameworks */,
+				78078DA52E7928DC0017E5D3 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +93,9 @@
 			);
 			name = bookbook;
 			packageProductDependencies = (
+				78078DA12E7928CA0017E5D3 /* SnapKit */,
+				78078DA42E7928DC0017E5D3 /* Alamofire */,
+				78078DA72E7928E40017E5D3 /* Toast */,
 			);
 			productName = bookbook;
 			productReference = 78078C742E78FA200017E5D3 /* bookbook.app */;
@@ -116,6 +125,11 @@
 			);
 			mainGroup = 78078C6B2E78FA200017E5D3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				78078DA02E7928CA0017E5D3 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				78078DA32E7928DC0017E5D3 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				78078DA62E7928E40017E5D3 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78078C752E78FA200017E5D3 /* Products */;
 			projectDirPath = "";
@@ -358,6 +372,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		78078DA02E7928CA0017E5D3 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+		78078DA32E7928DC0017E5D3 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+		78078DA62E7928E40017E5D3 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scalessec/Toast-Swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		78078DA12E7928CA0017E5D3 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78078DA02E7928CA0017E5D3 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		78078DA42E7928DC0017E5D3 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78078DA32E7928DC0017E5D3 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		78078DA72E7928E40017E5D3 /* Toast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78078DA62E7928E40017E5D3 /* XCRemoteSwiftPackageReference "Toast-Swift" */;
+			productName = Toast;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 78078C6C2E78FA200017E5D3 /* Project object */;
 }
