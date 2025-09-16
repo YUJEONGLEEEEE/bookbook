@@ -21,8 +21,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         mainVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "house"), tag: 0)
         let mainNav = UINavigationController(rootViewController: mainVC)
 
+        let searchVC = SearchViewController()
+        searchVC.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), tag: 1)
+        let searchNav = UINavigationController(rootViewController: searchVC)
+
+        let bookmarkVC = BookmarkViewController()
+        bookmarkVC.tabBarItem = UITabBarItem(title: "Bookmark", image: UIImage(systemName: "bookmark"), tag: 2)
+        let bookmarkNav = UINavigationController(rootViewController: bookmarkVC)
+
+        let myPageVC = MyPageViewController()
+        myPageVC.tabBarItem = UITabBarItem(title: "MyPage", image: UIImage(systemName: "person.circle"), tag: 3)
+        let myPageNav = UINavigationController(rootViewController: myPageVC)
+
         let tabBarController = UITabBarController()
-        tabBarController.viewControllers = [mainNav]
+        tabBarController.tabBar.tintColor = .black
+        tabBarController.viewControllers = [mainNav, searchNav, bookmarkNav, myPageNav]
+
+        UINavigationBar.appearance().tintColor = .black
 
         window?.rootViewController = tabBarController
         window?.backgroundColor = .white
