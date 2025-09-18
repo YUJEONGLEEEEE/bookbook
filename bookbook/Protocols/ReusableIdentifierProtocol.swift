@@ -17,13 +17,7 @@ extension UIViewController: ReusableIdentifierProtocol {
     }
 }
 
-extension UICollectionViewCell: ReusableIdentifierProtocol {
-    static var identifier: String {
-        return String(describing: self)
-    }
-}
-
-extension UITableViewCell: ReusableIdentifierProtocol {
+extension UIView: ReusableIdentifierProtocol {
     static var identifier: String {
         return String(describing: self)
     }
