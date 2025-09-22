@@ -11,6 +11,8 @@ import SnapKit
 
 class BookmarkViewController: UIViewController {
 
+    var bookmarkedBooks: [BookData] = []
+
     let filterView = BookFilterView()
     let sortButton: UIButton = {
         let button = UIButton()
@@ -72,6 +74,17 @@ extension BookmarkViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
+    }
+
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            bookmarkedBooks.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
     }
 
 }
