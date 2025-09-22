@@ -7,6 +7,7 @@
 
 import UIKit
 import Alamofire
+import Kingfisher
 import SnapKit
 
 class SecondHeaderView: UICollectionReusableView {
@@ -27,7 +28,7 @@ class SecondHeaderView: UICollectionReusableView {
         layout.minimumInteritemSpacing = 10
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
-        view.register(RecommendationCollectionViewCell.self, forCellWithReuseIdentifier: "RecommendationCollectionViewCell")
+        view.register(MainCollectionViewCell.self, forCellWithReuseIdentifier: "MainCollectionViewCell")
         return view
     }()
 
@@ -61,7 +62,7 @@ extension SecondHeaderView: UICollectionViewDelegate, UICollectionViewDataSource
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RecommendationCollectionViewCell", for: indexPath) as! RecommendationCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as! MainCollectionViewCell
         return cell
     }
 
