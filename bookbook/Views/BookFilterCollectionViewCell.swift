@@ -29,11 +29,8 @@ class BookFilterCollectionViewCell: UICollectionViewCell {
     private func configureFilter() {
         contentView.layer.cornerRadius = 11
         contentView.addSubview(filterTitle)
-        contentView.snp.makeConstraints { make in
-            make.height.equalTo(22)
-        }
         filterTitle.snp.makeConstraints { make in
-            make.horizontalEdges.verticalEdges.equalToSuperview().inset(3)
+            make.edges.equalToSuperview().inset(3)
         }
     }
 

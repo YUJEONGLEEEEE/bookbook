@@ -13,7 +13,7 @@ class MainCollectionViewCell: UICollectionViewCell {
     let bookStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        view.spacing = 10
+        view.spacing = 5
         view.alignment = .center
         view.distribution = .fill
         return view
@@ -30,8 +30,16 @@ class MainCollectionViewCell: UICollectionViewCell {
     let bookTitle: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.textAlignment = .center
+        label.textAlignment = .left
         label.font = .systemFont(ofSize: 17)
+        return label
+    }()
+
+    let bookAuthor: UILabel = {
+        let label = UILabel()
+        label.textColor = .lightGray
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 13)
         return label
     }()
 
@@ -46,7 +54,7 @@ class MainCollectionViewCell: UICollectionViewCell {
 
     private func configureUI() {
         contentView.addSubview(bookStackView)
-        bookStackView.addArrangedSubviews([bookImage, bookTitle])
+        bookStackView.addArrangedSubviews([bookImage, bookTitle, bookAuthor])
         bookImage.snp.makeConstraints { make in
             make.height.equalTo(60)
             make.width.equalTo(40)
