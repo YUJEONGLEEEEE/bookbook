@@ -6,12 +6,20 @@
 //
 
 import UIKit
+import SnapKit
 
 extension UIView {
 
     func addSubviews(_ views: [UIView]) {
         for view in views {
             self.addSubview(view)
+        }
+    }
+
+    func addUnderline() {
+        backgroundColor = .systemGray3
+        snp.makeConstraints { make in
+            make.height.equalTo(1)
         }
     }
 }
