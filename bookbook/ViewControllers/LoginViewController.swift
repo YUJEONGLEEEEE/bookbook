@@ -10,6 +10,11 @@ import SnapKit
 
 class LoginViewController: UIViewController {
 
+    private var nicknameDelegate: AccountValidationDelegate!
+    private var passwordDelegate: AccountValidationDelegate!
+    private var isNicknameValid = false
+    private var isPasswordValid = false
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "지금 로그인하고\n북북을 시작하세요"
@@ -27,11 +32,13 @@ class LoginViewController: UIViewController {
 
     private let nicknameField: UITextField = {
         let field = UITextField()
+        field.clearButtonMode = .whileEditing
         field.placeholder = "사용할 닉네임을 만들어주세요"
         field.textColor = .black
         field.textAlignment = .left
         field.keyboardType = .default
         field.font = .systemFont(ofSize: 17)
+        field.backgroundColor = .clear
         return field
     }()
 
@@ -43,11 +50,15 @@ class LoginViewController: UIViewController {
 
     private let passwordField: UITextField = {
         let field = UITextField()
+        field.textContentType = .password
+        field.clearButtonMode = .whileEditing
         field.placeholder = "비밀번호를 입력해주세요"
         field.textColor = .black
         field.textAlignment = .left
         field.keyboardType = .default
         field.font = .systemFont(ofSize: 17)
+        field.backgroundColor = .clear
+        field.isSecureTextEntry = true
         return field
     }()
 
@@ -57,6 +68,7 @@ class LoginViewController: UIViewController {
         return view
     }()
 
+    // password 유효성검사 -> 로그인버튼 색상변환
     private let statusLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
@@ -72,7 +84,8 @@ class LoginViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = .boldSystemFont(ofSize: 17)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = .lightGray
+        button.isEnabled = false
         button.layer.cornerRadius = 10
         button.clipsToBounds = true
         return button
@@ -86,7 +99,39 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        configureUI()
+        setupKeyboardDismissMode()
+        loginButton.addTarget(self, action: #selector(login), for: .touchUpInside)
 
+        nicknameDelegate = AccountValidationDelegate(statusLabel: statusLabel, account: .nickname)
+        nicknameDelegate.validationResultHandler = { [weak self] isValid in
+            self?.isNicknameValid = isValid
+            self?.activateLoginButton()
+        }
+        nicknameField.delegate = nicknameDelegate
+
+        passwordDelegate = AccountValidationDelegate(statusLabel: statusLabel, account: .password)
+        passwordDelegate.validationResultHandler = { [weak self] isValid in
+            self?.isPasswordValid = isValid
+            self?.activateLoginButton()
+        }
+        passwordField.delegate = passwordDelegate
+    }
+    @objc func login() {
+        print(#function)
+        let preferVC = PreferenceCheckViewController()
+        navigationController?.pushViewController(preferVC, animated: true)
+    }
+
+    private func activateLoginButton() {
+        print(#function)
+        if isNicknameValid && isPasswordValid {
+            loginButton.backgroundColor = .systemBlue
+            loginButton.isEnabled = true
+        } else {
+            loginButton.backgroundColor = .lightGray
+            loginButton.isEnabled = false
+        }
     }
 
     private func configureUI() {
@@ -122,6 +167,18 @@ class LoginViewController: UIViewController {
             make.height.equalTo(44)
         }
     }
+}
 
-
+extension LoginViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == nicknameField {
+            passwordField.becomeFirstResponder()
+        } else if textField == passwordField {
+            textField.resignFirstResponder()
+            if loginButton.isEnabled {
+                login()
+            }
+        }
+        return true
+    }
 }
