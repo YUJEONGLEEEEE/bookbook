@@ -29,13 +29,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         bookmarkVC.tabBarItem = UITabBarItem(title: "Bookmark", image: UIImage(systemName: "bookmark"), tag: 2)
         let bookmarkNav = UINavigationController(rootViewController: bookmarkVC)
 
+        let myCommentsVC = MyCommentsViewController()
+        myCommentsVC.tabBarItem = UITabBarItem(title: "MyComments", image: UIImage(systemName: "ellipsis.bubble.fill"), tag: 3)
+        let myCommentsNav = UINavigationController(rootViewController: myCommentsVC)
+
         let myPageVC = MyPageViewController()
-        myPageVC.tabBarItem = UITabBarItem(title: "MyPage", image: UIImage(systemName: "person.circle"), tag: 3)
+        myPageVC.tabBarItem = UITabBarItem(title: "MyPage", image: UIImage(systemName: "person.circle"), tag: 4)
         let myPageNav = UINavigationController(rootViewController: myPageVC)
 
         let tabBarController = UITabBarController()
         tabBarController.tabBar.tintColor = .black
-        tabBarController.viewControllers = [mainNav, searchNav, bookmarkNav, myPageNav]
+        tabBarController.viewControllers = [mainNav, searchNav, bookmarkNav, myCommentsNav, myPageNav]
 
         UINavigationBar.appearance().tintColor = .black
 
