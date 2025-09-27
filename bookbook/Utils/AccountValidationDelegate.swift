@@ -11,7 +11,7 @@ class AccountValidationDelegate: NSObject, UITextFieldDelegate {
     private let statusLabel: UILabel
     enum Account {
         case nickname
-        case password
+//        case password
     }
     private let account: Account
 
@@ -48,16 +48,16 @@ class AccountValidationDelegate: NSObject, UITextFieldDelegate {
                 statusLabel.textColor = .lightGray
             }
 
-        case .password:
-            let result = PasswordValidator.validate(editedText)
-            switch result {
-            case .valid:
-                statusLabel.text = ""
-                isValid = true
-            case .invalid:
-                statusLabel.text = "대문자, 소문자, 숫자를 포함한 8글자 이상 20글자 이하로 설정해주세요"
-                statusLabel.textColor = .lightGray
-            }
+//        case .password:
+//            let result = PasswordValidator.validate(editedText)
+//            switch result {
+//            case .valid:
+//                statusLabel.text = ""
+//                isValid = true
+//            case .invalid:
+//                statusLabel.text = "대문자, 소문자, 숫자를 포함한 8글자 이상 20글자 이하로 설정해주세요"
+//                statusLabel.textColor = .lightGray
+//            }
         }
 
         validationResultHandler?(isValid)

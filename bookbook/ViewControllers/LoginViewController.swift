@@ -11,9 +11,9 @@ import SnapKit
 class LoginViewController: UIViewController {
 
     private var nicknameDelegate: AccountValidationDelegate!
-    private var passwordDelegate: AccountValidationDelegate!
+//    private var passwordDelegate: AccountValidationDelegate!
     private var isNicknameValid = false
-    private var isPasswordValid = false
+//    private var isPasswordValid = false
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -110,12 +110,12 @@ class LoginViewController: UIViewController {
         }
         nicknameField.delegate = nicknameDelegate
 
-        passwordDelegate = AccountValidationDelegate(statusLabel: statusLabel, account: .password)
-        passwordDelegate.validationResultHandler = { [weak self] isValid in
-            self?.isPasswordValid = isValid
-            self?.activateLoginButton()
-        }
-        passwordField.delegate = passwordDelegate
+//        passwordDelegate = AccountValidationDelegate(statusLabel: statusLabel, account: .password)
+//        passwordDelegate.validationResultHandler = { [weak self] isValid in
+//            self?.isPasswordValid = isValid
+//            self?.activateLoginButton()
+//        }
+//        passwordField.delegate = passwordDelegate
     }
     @objc func login() {
         print(#function)
@@ -125,7 +125,14 @@ class LoginViewController: UIViewController {
 
     private func activateLoginButton() {
         print(#function)
-        if isNicknameValid && isPasswordValid {
+//        if isNicknameValid && isPasswordValid {
+//            loginButton.backgroundColor = .systemBlue
+//            loginButton.isEnabled = true
+//        } else {
+//            loginButton.backgroundColor = .lightGray
+//            loginButton.isEnabled = false
+//        }
+        if isNicknameValid {
             loginButton.backgroundColor = .systemBlue
             loginButton.isEnabled = true
         } else {
@@ -135,7 +142,8 @@ class LoginViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubviews([titleLabel, nicknameField, nicknameUnderline, passwordField, passwordUnderline, statusLabel, loginButton])
+//        view.addSubviews([titleLabel, nicknameField, nicknameUnderline, passwordField, passwordUnderline, statusLabel, loginButton])
+        view.addSubviews([titleLabel, nicknameField, nicknameUnderline, statusLabel, loginButton])
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(50)
@@ -149,18 +157,19 @@ class LoginViewController: UIViewController {
             make.top.equalTo(nicknameField)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
-        passwordField.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(18)
-            make.height.equalTo(44)
-            make.top.equalTo(nicknameUnderline.snp.bottom).offset(22)
-        }
-        passwordUnderline.snp.makeConstraints { make in
-            make.top.equalTo(passwordField)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-        }
+//        passwordField.snp.makeConstraints { make in
+//            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(18)
+//            make.height.equalTo(44)
+//            make.top.equalTo(nicknameUnderline.snp.bottom).offset(22)
+//        }
+//        passwordUnderline.snp.makeConstraints { make in
+//            make.top.equalTo(passwordField)
+//            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
+//        }
         statusLabel.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(22)
-            make.top.equalTo(passwordUnderline.snp.bottom).offset(10)
+//            make.top.equalTo(passwordUnderline.snp.bottom).offset(10)
+            make.top.equalTo(nicknameUnderline.snp.bottom).offset(10)
         }
         loginButton.snp.makeConstraints { make in
             make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide).inset(22)
@@ -173,12 +182,18 @@ extension LoginViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == nicknameField {
             passwordField.becomeFirstResponder()
-        } else if textField == passwordField {
-            textField.resignFirstResponder()
-            if loginButton.isEnabled {
-                login()
-            }
+//        } else if textField == passwordField {
+//            textField.resignFirstResponder()
+//            if loginButton.isEnabled {
+//                login()
+//            }
         }
         return true
     }
 }
+
+
+// 닉네임 설정만 넣기
+// 한글 + 영어만 가능하도록
+// 2글자 이상 8글자 이하
+// 특수문자 제한
