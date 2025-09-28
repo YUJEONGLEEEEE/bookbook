@@ -1,5 +1,5 @@
 //
-//  BookmarkTableViewCell.swift
+//  BookmarkCollectionViewCell.swift
 //  bookbook
 //
 //  Created by 이유정 on 9/16/25.
@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class BookmarkTableViewCell: UITableViewCell {
+class BookmarkCollectionViewCell: UICollectionViewCell {
 
     let bookImage: UIImageView = {
         let image = UIImageView()
@@ -30,8 +30,9 @@ class BookmarkTableViewCell: UITableViewCell {
         return button
     }()
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configureUI()
     }
     
     required init?(coder: NSCoder) {
