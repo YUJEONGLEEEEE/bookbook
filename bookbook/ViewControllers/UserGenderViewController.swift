@@ -6,6 +6,7 @@
 //
 // after userageviewcontroller
 // choose your gender
+// page #3
 
 import UIKit
 import SnapKit
@@ -14,26 +15,33 @@ class UserGenderViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
+        label.text = "성별을 알려주세요"
+        label.configureTitleLabel()
         return label
     }()
 
     private let genderStackView: UIStackView = {
         let view = UIStackView()
-        view.axis = .horizontal
-        view.distribution = .fillEqually
+        view.horizontalStackView()
         view.spacing = 10
-        view.alignment = .center
         return view
     }()
 
     private let femaleButton: UIButton = {
         let button = UIButton()
+        button.imageButton(image: UIImage(named: "female"), title: "여자")
         return button
     }()
 
     private let maleButton: UIButton = {
         let button = UIButton()
+        button.imageButton(image: UIImage(named: "male"), title: "남자")
         return button
+    }()
+
+    private let finishButton: UIButton = {
+        let button = UIButton()
+        button.grayButton(title: "완료")
     }()
 
     override func viewDidLoad() {
@@ -55,7 +63,19 @@ class UserGenderViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubviews([titleLabel, genderStackView])
+        view.addSubviews([titleLabel, genderStackView, finishButton])
         genderStackView.addArrangedSubviews([femaleButton, maleButton])
+
+        titleLabel.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(30)
+        }
+
+        genderStackView.snp.makeConstraints { make in
+            make.center.equalTo(view.safeAreaLayoutGuide)
+        }
+        finishButton.snp.makeConstraints { make in
+            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+        }
     }
 }
