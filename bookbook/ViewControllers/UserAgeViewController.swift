@@ -6,6 +6,7 @@
 //
 // after loginviewcontroller
 // choose your age
+// page #2
 
 import UIKit
 import SnapKit
@@ -14,39 +15,56 @@ class UserAgeViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "연령대가 어떻게 되시나요?"
-        label.textColor = .black
-        label.font = .boldSystemFont(ofSize: 34)
-        label.textAlignment = .left
+        label.text = "연령대를 알려주세요"
+        label.configureTitleLabel()
         return label
     }()
 
     private let ageStackView: UIStackView = {
         let view = UIStackView()
-        view.axis = .vertical
-        view.distribution = .fillEqually
-        view.spacing = 10
-        view.alignment = .center
+        view.verticalStackView()
         return view
     }()
 
-    private let childrenButton: UIButton = {
+    private let firstStack: UIStackView = {
+        let view = UIStackView()
+        view.horizontalStackView()
+        return view
+    }()
+
+    private let secondStack: UIStackView = {
+        let view = UIStackView()
+        view.horizontalStackView()
+        return view
+    }()
+
+    private let childButton: UIButton = {
         let button = UIButton()
+        button.imageButton(image: UIImage(named: "children"), title: "어린이")
         return button
     }()
 
-    private let adolescenceButton: UIButton = {
+    private let teenButton: UIButton = {
         let button = UIButton()
+        button.imageButton(image: UIImage(named: "teenager"), title: "청소년")
         return button
     }()
 
     private let adultButton: UIButton = {
         let button = UIButton()
+        button.imageButton(image: UIImage(named: "adult"), title: "성인")
         return button
     }()
 
     private let seniorButton: UIButton = {
         let button = UIButton()
+        button.imageButton(image: UIImage(named: "senior"), title: "노인")
+        return button
+    }()
+
+    private let nextButton: UIButton = {
+        let button = UIButton()
+        button.grayButton(title: "다음")
         return button
     }()
 
@@ -58,8 +76,8 @@ class UserAgeViewController: UIViewController {
     }
 
     private func buttonActions() {
-        childrenButton.addTarget(self, action: #selector(childrenButtonClicked), for: .touchUpInside)
-        adolescenceButton.addTarget(self, action: #selector(adolescenceButtonClicked), for: .touchUpInside)
+        childButton.addTarget(self, action: #selector(childrenButtonClicked), for: .touchUpInside)
+        teenButton.addTarget(self, action: #selector(adolescenceButtonClicked), for: .touchUpInside)
         adultButton.addTarget(self, action: #selector(adultButtonClicked), for: .touchUpInside)
         seniorButton.addTarget(self, action: #selector(seniorButtonClicked), for: .touchUpInside)
     }
@@ -77,7 +95,20 @@ class UserAgeViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubviews([titleLabel, ageStackView])
-        ageStackView.addArrangedSubviews([childrenButton, adolescenceButton, adultButton, seniorButton])
+        view.addSubviews([titleLabel, ageStackView, nextButton])
+        ageStackView.addArrangedSubviews([firstStack, secondStack])
+        firstStack.addArrangedSubviews([childButton, teenButton])
+        secondStack.addArrangedSubviews([adultButton, seniorButton])
+
+        titleLabel.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(30)
+        }
+        ageStackView.snp.makeConstraints { make in
+            make.center.equalTo(view.safeAreaLayoutGuide)
+        }
+        nextButton.snp.makeConstraints { make in
+            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+        }
     }
 }
