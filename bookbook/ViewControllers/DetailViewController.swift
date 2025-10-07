@@ -11,6 +11,19 @@ import SnapKit
 
 class DetailViewController: UIViewController {
 
+    private let backgroundImage = {
+        let image = UIImageView()
+        image.contentMode = .scaleAspectFill
+        image.clipsToBounds = true
+        return image
+    }()
+
+    private let blurView = {
+        let blurEffect = UIBlurEffect(style: .light)
+        let view = UIVisualEffectView(effect: blurEffect)
+        return view
+    }()
+
     private let bookImage: UIImageView = {
         let image = UIImageView()
         return image
