@@ -14,6 +14,7 @@ class LoginViewController: UIViewController {
 //    private var passwordDelegate: AccountValidationDelegate!
     private var isNicknameValid = false
 //    private var isPasswordValid = false
+    private var isFloating = false
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -48,25 +49,32 @@ class LoginViewController: UIViewController {
         return view
     }()
 
-    private let passwordField: UITextField = {
-        let field = UITextField()
-        field.textContentType = .password
-        field.clearButtonMode = .whileEditing
-        field.placeholder = "비밀번호를 입력해주세요"
-        field.textColor = .black
-        field.textAlignment = .left
-        field.keyboardType = .default
-        field.font = .systemFont(ofSize: 17)
-        field.backgroundColor = .clear
-        field.isSecureTextEntry = true
-        return field
+    private let floatingLabel: UILabel = {
+        let label = UILabel()
+        label.standardLabel()
+        label.alpha = 0
+        return label
     }()
 
-    private let passwordUnderline: UIView = {
-        let view = UIView()
-        view.addUnderline()
-        return view
-    }()
+//    private let passwordField: UITextField = {
+//        let field = UITextField()
+//        field.textContentType = .password
+//        field.clearButtonMode = .whileEditing
+//        field.placeholder = "비밀번호를 입력해주세요"
+//        field.textColor = .black
+//        field.textAlignment = .left
+//        field.keyboardType = .default
+//        field.font = .systemFont(ofSize: 17)
+//        field.backgroundColor = .clear
+//        field.isSecureTextEntry = true
+//        return field
+//    }()
+
+//    private let passwordUnderline: UIView = {
+//        let view = UIView()
+//        view.addUnderline()
+//        return view
+//    }()
 
     // password 유효성검사 -> 로그인버튼 색상변환
     private let statusLabel: UILabel = {
@@ -100,8 +108,9 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         configureUI()
+        floatingLabel.text = nicknameField.placeholder
         setupKeyboardDismissMode()
-        loginButton.addTarget(self, action: #selector(login), for: .touchUpInside)
+        addTargets()
 
         nicknameDelegate = AccountValidationDelegate(statusLabel: statusLabel, account: .nickname)
         nicknameDelegate.validationResultHandler = { [weak self] isValid in
@@ -116,6 +125,33 @@ class LoginViewController: UIViewController {
 //            self?.activateLoginButton()
 //        }
 //        passwordField.delegate = passwordDelegate
+    }
+
+    private func addTargets() {
+        nicknameField.addTarget(self, action: #selector(beginEditing), for: .editingDidBegin)
+        nicknameField.addTarget(self, action: #selector(endEditing), for: .editingDidEnd)
+        loginButton.addTarget(self, action: #selector(login), for: .touchUpInside)
+    }
+    @objc func beginEditing() {
+        print(#function)
+        guard !isFloating else { return }
+        isFloating = true
+        UIView.animate(withDuration: 0.3) {
+            self.floatingLabel.alpha = 1
+            self.floatingLabel.transform = CGAffineTransform(translationX: 0, y: -22).scaledBy(x: 0.85, y: 0.85)
+        }
+        nicknameField.placeholder = nil
+    }
+    @objc func endEditing() {
+        print(#function)
+        if nicknameField.text?.isEmpty ?? true {
+            isFloating = false
+            UIView.animate(withDuration: 0.2) {
+                self.floatingLabel.alpha = 0
+                self.floatingLabel.transform = .identity
+            }
+            nicknameField.placeholder = floatingLabel.text
+        }
     }
     @objc func login() {
         print(#function)
@@ -143,10 +179,14 @@ class LoginViewController: UIViewController {
 
     private func configureUI() {
 //        view.addSubviews([titleLabel, nicknameField, nicknameUnderline, passwordField, passwordUnderline, statusLabel, loginButton])
-        view.addSubviews([titleLabel, nicknameField, nicknameUnderline, statusLabel, loginButton])
+        view.addSubviews([titleLabel, floatingLabel, nicknameField, nicknameUnderline, statusLabel, loginButton])
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(50)
+        }
+        floatingLabel.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(18)
+            // 추가 레이아웃 부여하기
         }
         nicknameField.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(18)
@@ -179,9 +219,14 @@ class LoginViewController: UIViewController {
 }
 
 extension LoginViewController: UITextFieldDelegate {
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        let text = nicknameField.placeholder ?? ""
+        // floatingLabel animation
+    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == nicknameField {
-            passwordField.becomeFirstResponder()
+            textField.becomeFirstResponder()
 //        } else if textField == passwordField {
 //            textField.resignFirstResponder()
 //            if loginButton.isEnabled {
