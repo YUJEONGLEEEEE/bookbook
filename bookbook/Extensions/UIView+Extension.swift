@@ -17,9 +17,17 @@ extension UIView {
     }
 
     func addUnderline() {
-        backgroundColor = .systemGray3
+        backgroundColor = .lightGray
         snp.makeConstraints { make in
             make.height.equalTo(1)
+        }
+    }
+
+    func addVerticalLine() {
+        backgroundColor = .lightGray
+        snp.makeConstraints { make in
+            make.width.equalTo(1)
+            make.height.equalTo(44)
         }
     }
 }
@@ -30,5 +38,40 @@ extension UIStackView {
         for view in views {
             self.addArrangedSubview(view)
         }
+    }
+
+    func verticalStackView() {
+        axis = .vertical
+        distribution = .fill
+        spacing = 10
+        alignment = .center
+    }
+
+    func verticalEqualStackView() {
+        axis = .vertical
+        distribution = .fillEqually
+        spacing = 10
+        alignment = .center
+    }
+
+    func horizontalStackView() {
+        axis = .horizontal
+        distribution = .fill
+        spacing = 10
+        alignment = .center
+    }
+
+    func horizontalEqualStackView() {
+        axis = .horizontal
+        distribution = .fill
+        spacing = 10
+        alignment = .center
+    }
+
+    func bookStackView() {
+        axis = .vertical
+        distribution = .fill
+        spacing = 7
+        alignment = .leading
     }
 }
