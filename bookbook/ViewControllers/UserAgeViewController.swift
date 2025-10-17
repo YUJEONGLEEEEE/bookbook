@@ -16,25 +16,25 @@ class UserAgeViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "연령대를 알려주세요"
-        label.configureTitleLabel()
+        label.titleLabel()
         return label
     }()
 
     private let ageStackView: UIStackView = {
         let view = UIStackView()
-        view.verticalStackView()
+        view.verticalEqualStackView()
         return view
     }()
 
     private let firstStack: UIStackView = {
         let view = UIStackView()
-        view.horizontalStackView()
+        view.horizontalEqualStackView()
         return view
     }()
 
     private let secondStack: UIStackView = {
         let view = UIStackView()
-        view.horizontalStackView()
+        view.horizontalEqualStackView()
         return view
     }()
 

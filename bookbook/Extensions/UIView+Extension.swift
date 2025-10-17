@@ -72,6 +72,13 @@ extension UIStackView {
         axis = .vertical
         distribution = .fill
         spacing = 7
+        alignment = .center
+    } // non-used
+
+    func userStackView() {
+        axis = .vertical
+        distribution = .fill
+        spacing = 7
         alignment = .leading
     }
 }

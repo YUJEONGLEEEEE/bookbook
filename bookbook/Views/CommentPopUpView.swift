@@ -71,10 +71,7 @@ class CommentPopUpView: UIView {
 
     private let starStackView: UIStackView = {
         let view = UIStackView()
-        view.axis = .horizontal
-        view.alignment = .center
-        view.spacing = 10
-        view.distribution = .fillEqually
+        view.horizontalEqualStackView()
         return view
     }()
 

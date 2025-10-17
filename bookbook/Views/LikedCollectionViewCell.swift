@@ -12,7 +12,7 @@ class LikedCollectionViewCell: UICollectionViewCell {
 
     let bookStackView: UIStackView = {
         let view = UIStackView()
-        view.bookStackView()
+        view.verticalStackView()
         return view
     }()
 

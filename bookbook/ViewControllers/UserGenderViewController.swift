@@ -16,14 +16,13 @@ class UserGenderViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "성별을 알려주세요"
-        label.configureTitleLabel()
+        label.titleLabel()
         return label
     }()
 
     private let genderStackView: UIStackView = {
         let view = UIStackView()
-        view.horizontalStackView()
-        view.spacing = 10
+        view.horizontalEqualStackView()
         return view
     }()
 

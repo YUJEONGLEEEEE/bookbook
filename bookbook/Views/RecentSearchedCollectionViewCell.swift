@@ -12,10 +12,7 @@ class RecentSearchedCollectionViewCell: UICollectionViewCell {
 
     private let stackView: UIStackView = {
         let view = UIStackView()
-        view.axis = .horizontal
-        view.spacing = 10
-        view.distribution = .fill
-        view.alignment = .center
+        view.horizontalStackView()
         return view
     }()
 

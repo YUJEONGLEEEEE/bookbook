@@ -15,7 +15,7 @@ class PreferenceCheckViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "관심있는 장르를 골라주세요"
-        label.configureTitleLabel()
+        label.titleLabel()
         return label
     }()
 
@@ -37,13 +37,31 @@ class PreferenceCheckViewController: UIViewController {
 
     private let biggestStackView: UIStackView = {
         let view = UIStackView()
+        view.verticalEqualStackView()
+        return view
+    }()
+
+    private let firstStackView: UIStackView = {
+        let view = UIStackView()
+        view.horizontalEqualStackView()
+        return view
+    }()
+
+    private let secondStackView: UIStackView = {
+        let view = UIStackView()
+        view.horizontalEqualStackView()
+        return view
+    }()
+
+    private let thirdStackView: UIStackView = {
+        let view = UIStackView()
+        view.horizontalEqualStackView()
         return view
     }()
 
     private let nextButton: UIButton = {
         let button = UIButton()
-        button.configureGrayButton()
-        button.setTitle("다음", for: .normal)
+        button.grayButton(title: "다음")
         return button
     }()
 
