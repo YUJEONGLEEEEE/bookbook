@@ -1,10 +1,3 @@
-//
-//  AccountValidationDelegate.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/25/25.
-//
-
 import UIKit
 
 class AccountValidationDelegate: NSObject, UITextFieldDelegate {
@@ -38,14 +31,14 @@ class AccountValidationDelegate: NSObject, UITextFieldDelegate {
                 statusLabel.textColor = .systemBlue
                 isValid = true
             case .invalidCount:
-                statusLabel.text = "2글자 이상 10글자 미만으로 설정해주세요"
-                statusLabel.textColor = .lightGray
+                statusLabel.text = "2글자 이상 8글자 이내로 작성해주세요"
+                statusLabel.textColor = .customAlert
             case .invalieSpecialCharacter:
-                statusLabel.text = "닉네임에 @, #, $, %, & 는 포함할 수 없어요"
-                statusLabel.textColor = .lightGray
+                statusLabel.text = "닉네임에 특수문자는 포함할 수 없어요"
+                statusLabel.textColor = .customAlert
             case .invalidNumber:
                 statusLabel.text = "닉네임에 숫자는 포함할 수 없어요"
-                statusLabel.textColor = .lightGray
+                statusLabel.textColor = .customAlert
             }
 
 //        case .password:

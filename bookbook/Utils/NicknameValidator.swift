@@ -16,7 +16,7 @@ enum NicknameValidationResult {
 
 struct NicknameValidator {
     static func validate(_ nickname: String) -> NicknameValidationResult {
-        if nickname.count < 2 || nickname.count >= 10 {
+        if nickname.count < 2 || nickname.count > 8 {
             return .invalidCount
         }
         if nickname.contains(where: { "!@#$%^&*()-_+={}[]:;<>,." .contains($0) }) {
