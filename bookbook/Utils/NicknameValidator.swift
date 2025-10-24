@@ -19,7 +19,7 @@ struct NicknameValidator {
         if nickname.count < 2 || nickname.count >= 10 {
             return .invalidCount
         }
-        if nickname.contains(where: { "@#$%&" .contains($0) }) {
+        if nickname.contains(where: { "!@#$%^&*()-_+={}[]:;<>,." .contains($0) }) {
             return .invalieSpecialCharacter
         }
         if nickname.contains(where: { $0.isNumber}) {
