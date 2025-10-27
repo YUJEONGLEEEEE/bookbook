@@ -1,24 +1,18 @@
-//
-//  Book.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/16/25.
-//
 
 import Foundation
 
 struct BookInfo: Decodable {
-    let items: [BookData]
+    let totalResults: Int
+    let item: [BookData]
 }
 
 struct BookData: Decodable {
     let title: String
-    let link: String
-    let image: String
     let author: String
-    let discount: Int?
-    let publisher: String
-    let pubdate: Int
-    let isbn: Int
+    let pubDate: String
     let description: String
+    let isbn: String
+    let isbn13: Int
+    let cover: String
+    let publisher: String
 }
