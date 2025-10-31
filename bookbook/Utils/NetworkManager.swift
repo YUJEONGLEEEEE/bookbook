@@ -9,7 +9,7 @@ final class NetworkManager {
     func searchBooks(query: String, category: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
         print(#function)
 
-        let url = APIKey.baseURL
+        let url = APIKey.aladinSearchURL
         let parameters: [String: Any] = [
             "TTBKey": APIKey.ttbKey,
             "Output": "JS",
@@ -42,7 +42,7 @@ final class NetworkManager {
     func bookLists(queryType: String, category: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
         print("listRequest: \(queryType)")
 
-        let url = APIKey.baseURL
+        let url = APIKey.aladinListURL
         let parameters: [String: Any] = [
             "TTBKey": APIKey.ttbKey,
             "Output": "JS",
@@ -71,19 +71,22 @@ final class NetworkManager {
         }
     }
 
-    func bookDetail(itemId: String, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
-        print("detailRequest: \(itemId)")
+    func bookDetail(isbn: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
+        print(#function)
 
-        let url = APIKey.baseURL
-        let parameters: [String: Any] = [
-            "TTBKey": APIKey.ttbKey,
-            "Output": "JS",
-            "ItemId": itemId,
+        let url = APIKey.naverDetailURL
+        let headers: HTTPHeaders = [
+            "X-Naver-Client-Id": APIKey.naverCliendId,
+            "X-Naver-Client-Secret": APIKey.naverClientSecret
+        ]
+        let parameter = [
+            "d_isbn": isbn
         ]
 
         AF.request(url,
                    method: .get,
-                   parameters: parameters)
+                   parameters: parameter,
+                   headers: headers)
         .validate(statusCode: 200..<300)
         .responseDecodable(of: BookInfo.self) { response in
             switch response.result {
