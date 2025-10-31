@@ -16,3 +16,17 @@ struct BookData: Decodable {
     let cover: String
     let publisher: String
 }
+
+struct naverBookInfo: Decodable {
+    let item: [naverBookData]
+}
+
+struct naverBookData: Decodable {
+    let title: String
+    let image: String
+    let author: String
+    let publisher: String
+    let pubdate: String
+    let isbn: String
+    let description: String
+}
