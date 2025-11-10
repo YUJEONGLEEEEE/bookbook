@@ -69,7 +69,7 @@ class QnATableViewCell: UITableViewCell {
         }
     }
 
-    private func toggleAnswerView(isExpanded: Bool) {
+    func toggleAnswerView(isExpanded: Bool) {
         if isExpanded {
             notHiddenContraints?.activate()
             hiddenContraints?.deactivate()

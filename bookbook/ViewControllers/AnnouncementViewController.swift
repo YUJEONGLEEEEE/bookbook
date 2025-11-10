@@ -4,6 +4,10 @@ import SnapKit
 
 class AnnouncementViewController: UIViewController {
 
+    private var qnaExpandedStates = Array(repeating: false, count: 5)
+
+    private let faqData: [FAQ] = faqList
+
     private let noticeTableView: UITableView = {
         let view = UITableView()
         view.register(NoticeHeaderView.self, forHeaderFooterViewReuseIdentifier: "NoticeHeaderView")
@@ -68,6 +72,11 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
             return cell
         } else if tableView == qnaTableView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "QnATableViewCell", for: indexPath) as! QnATableViewCell
+            let isExpanded = qnaExpandedStates[indexPath.row]
+            cell.toggleAnswerView(isExpanded: isExpanded)
+            let item = faqData[indexPath.row]
+            cell.titleLabel.text = item.question
+            cell.answerLabel.text = item.answer
             return cell
         }
         fatalError("Unknown TableView")
@@ -80,7 +89,8 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
             navigationController?.pushViewController(vc, animated: true)
         } else if tableView == qnaTableView {
             print(#function)
-            
+            qnaExpandedStates[indexPath.row].toggle()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
 }
