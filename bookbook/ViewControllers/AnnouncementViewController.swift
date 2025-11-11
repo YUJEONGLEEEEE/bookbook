@@ -8,17 +8,15 @@ class AnnouncementViewController: UIViewController {
 
     private let faqData: [FAQ] = faqList
 
-    private let noticeTableView: UITableView = {
+    private let tableView: UITableView = {
         let view = UITableView()
         view.register(NoticeHeaderView.self, forHeaderFooterViewReuseIdentifier: "NoticeHeaderView")
         view.register(NoticeATableViewCell.self, forCellReuseIdentifier: "NoticeATableViewCell")
-        return view
-    }()
-
-    private let qnaTableView: UITableView = {
-        let view = UITableView()
         view.register(QnAHeaderView.self, forHeaderFooterViewReuseIdentifier: "QnAHeaderView")
         view.register(QnATableViewCell.self, forCellReuseIdentifier: "QnATableViewCell")
+        view.separatorStyle = .singleLine
+        view.separatorColor = .bk5
+        view.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return view
     }()
 
@@ -27,17 +25,24 @@ class AnnouncementViewController: UIViewController {
         navigationItem.title = "읽담이 궁금해"
         navigationItem.backButtonTitle = ""
         configureUI()
-        noticeTableView.delegate = self
-        noticeTableView.dataSource = self
+        tableView.delegate = self
+        tableView.dataSource = self
     }
 
     private func configureUI() {
         view.backgroundColor = .customWh
-        view.addSubviews([noticeTableView, qnaTableView])
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
     }
 }
 
 extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDelegate, UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
 
     func headerViewButtonTapped(_ headerView: NoticeHeaderView) {
         print(#function)
@@ -46,11 +51,11 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if tableView == noticeTableView {
+        if section == 0 {
             let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "NoticeHeaderView") as! NoticeHeaderView
             header.delegate = self
             return header
-        } else if tableView == qnaTableView {
+        } else if section == 1 {
             let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "QnAHeaderView") as! QnAHeaderView
             return header
         }
@@ -58,19 +63,19 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView == noticeTableView {
-            return  3
-        } else if tableView == qnaTableView {
-            return 5
+        if section == 0 {
+            return 3
+        } else if section == 1 {
+            return faqData.count
         }
         return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if tableView == noticeTableView {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeATableViewCell", for: indexPath) as! NoticeATableViewCell
+        if indexPath.section == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeATableViewCell
             return cell
-        } else if tableView == qnaTableView {
+        } else if indexPath.section == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "QnATableViewCell", for: indexPath) as! QnATableViewCell
             let isExpanded = qnaExpandedStates[indexPath.row]
             cell.toggleAnswerView(isExpanded: isExpanded)
@@ -79,15 +84,15 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
             cell.answerLabel.text = item.answer
             return cell
         }
-        fatalError("Unknown TableView")
+        fatalError("Invalid Section")
      }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if tableView == noticeTableView {
+        if indexPath.section == 0 {
             print(#function)
             let vc = NoticeViewController()
             navigationController?.pushViewController(vc, animated: true)
-        } else if tableView == qnaTableView {
+        } else if indexPath.section == 1 {
             print(#function)
             qnaExpandedStates[indexPath.row].toggle()
             tableView.reloadRows(at: [indexPath], with: .automatic)

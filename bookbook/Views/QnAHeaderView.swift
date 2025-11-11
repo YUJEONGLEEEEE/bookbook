@@ -4,13 +4,19 @@ import SnapKit
 
 class QnAHeaderView: UITableViewHeaderFooterView {
 
-    let titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "자주 묻는 질문"
         label.textColor = .bk1
         label.textAlignment = .left
         label.font = .boldSystemFont(ofSize: 17)
         return label
+    }()
+
+    private let boldSeparator: UIView = {
+        let view = UIView()
+        view.addBoldLine()
+        return view
     }()
 
     override init(reuseIdentifier: String?) {
@@ -23,10 +29,13 @@ class QnAHeaderView: UITableViewHeaderFooterView {
     }
 
     private func configureUI() {
-        self.addSubview(titleLabel)
+        self.addSubviews([titleLabel, boldSeparator])
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
+            make.horizontalEdges.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
+        }
+        boldSeparator.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(16)
         }
     }
 }

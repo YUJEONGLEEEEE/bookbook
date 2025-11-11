@@ -1,9 +1,3 @@
-//
-//  UIView+Extension.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/16/25.
-//
 
 import UIKit
 import SnapKit
@@ -18,6 +12,20 @@ extension UIView {
 
     func addUnderline() {
         backgroundColor = .lightGray
+        snp.makeConstraints { make in
+            make.height.equalTo(1)
+        }
+    }
+
+    func addBoldLine() {
+        backgroundColor = .bk2
+        snp.makeConstraints { make in
+            make.height.equalTo(2)
+        }
+    }
+
+    func whiteUnderline() {
+        backgroundColor = .white
         snp.makeConstraints { make in
             make.height.equalTo(1)
         }

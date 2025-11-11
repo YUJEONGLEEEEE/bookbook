@@ -6,7 +6,7 @@ class NoticeHeaderView: UITableViewHeaderFooterView {
 
     weak var delegate: NoticeHeaderViewProtocol?
 
-    let titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "공지사항"
         label.textColor = .bk1
@@ -15,11 +15,17 @@ class NoticeHeaderView: UITableViewHeaderFooterView {
         return label
     }()
 
-    let moreButton: UIButton = {
+    private let moreButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.tintColor = .bk1
         return button
+    }()
+
+    private let boldSeparator: UIView = {
+        let view = UIView()
+        view.addBoldLine()
+        return view
     }()
 
     override init(reuseIdentifier: String?) {
@@ -38,15 +44,18 @@ class NoticeHeaderView: UITableViewHeaderFooterView {
     }
 
     private func configureUI() {
-        self.addSubviews([titleLabel, moreButton])
+        self.addSubviews([titleLabel, moreButton, boldSeparator])
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(20)
             make.centerY.equalToSuperview()
         }
         moreButton.snp.makeConstraints { make in
             make.size.equalTo(17)
-            make.trailing.equalToSuperview().inset(16)
+            make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
+        }
+        boldSeparator.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(16)
         }
     }
 }
