@@ -70,7 +70,7 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
         }
         return 0
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeATableViewCell
@@ -85,7 +85,7 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
             return cell
         }
         fatalError("Invalid Section")
-     }
+    }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 {
@@ -97,5 +97,18 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
             qnaExpandedStates[indexPath.row].toggle()
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
+            return 52
+        } else if indexPath.section == 1 {
+            if qnaExpandedStates[indexPath.row] {
+                return UITableView.automaticDimension
+            } else {
+                return 60
+            }
+        }
+        return 0
     }
 }

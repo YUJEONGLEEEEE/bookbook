@@ -4,9 +4,6 @@ import SnapKit
 
 class QnATableViewCell: UITableViewCell {
 
-    var notHiddenContraints: Constraint?
-    var hiddenContraints: Constraint?
-
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .bk1
@@ -50,10 +47,7 @@ class QnATableViewCell: UITableViewCell {
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(20)
             make.trailing.lessThanOrEqualTo(toggleButton.snp.leading).offset(-16)
-            notHiddenContraints = make.top.equalToSuperview().offset(10).constraint
-            hiddenContraints = make.centerY.equalToSuperview().constraint
-            hiddenContraints?.activate()
-            notHiddenContraints?.deactivate()
+            make.top.equalToSuperview().offset(20)
         }
         toggleButton.snp.makeConstraints { make in
             make.size.equalTo(17)
@@ -71,13 +65,8 @@ class QnATableViewCell: UITableViewCell {
 
     func toggleAnswerView(isExpanded: Bool) {
         if isExpanded {
-            notHiddenContraints?.activate()
-            hiddenContraints?.deactivate()
             answerView.isHidden = false
-            layoutIfNeeded()
         } else {
-            notHiddenContraints?.deactivate()
-            hiddenContraints?.activate()
             answerView.isHidden = true
         }
     }
