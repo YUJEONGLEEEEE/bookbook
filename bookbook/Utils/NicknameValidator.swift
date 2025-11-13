@@ -1,9 +1,3 @@
-//
-//  NicknameValidator.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/25/25.
-//
 
 import Foundation
 
