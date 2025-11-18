@@ -167,11 +167,6 @@ class LoginViewController: UIViewController {
 }
 
 extension LoginViewController: UITextFieldDelegate {
-
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        let text = nicknameField.placeholder ?? ""
-        // floatingLabel animation
-    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == nicknameField {
             textField.becomeFirstResponder()
