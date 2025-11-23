@@ -11,7 +11,7 @@ class LoginViewController: UIViewController {
     private let backgroundImage: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFill
-        view.image = UIImage(named: "login_backgroundimage") // 예시이미지 추가해놓은 상태
+        view.image = UIImage(named: "login_backgroundimage")
         return view
     }()
 
@@ -64,7 +64,7 @@ class LoginViewController: UIViewController {
 
     private let loginButton: UIButton = {
         let button = UIButton()
-        button.grayButton(title: "시작하기")
+        button.confirmButton(title: "시작하기")
         return button
     }()
 
@@ -116,6 +116,8 @@ class LoginViewController: UIViewController {
         }
         CoreDataManager.shared.saveAccount(nickname: nickname)
 
+        self.showToast("\(nickname)님 환영해요!")
+
         let preferVC = PreferenceCheckViewController()
         navigationController?.pushViewController(preferVC, animated: true)
     }
@@ -124,10 +126,10 @@ class LoginViewController: UIViewController {
         print(#function)
 
         if isNicknameValid {
-            loginButton.backgroundColor = .systemBlue
+            loginButton.backgroundColor = .customMain
             loginButton.isEnabled = true
         } else {
-            loginButton.backgroundColor = .lightGray
+            loginButton.backgroundColor = .bk4
             loginButton.isEnabled = false
         }
     }
