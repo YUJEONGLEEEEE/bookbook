@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25B78" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Account" representedClassName="Account" syncable="YES" codeGenerationType="class">
+        <attribute name="age" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="gender" optional="YES" attributeType="String"/>
+        <attribute name="genres" optional="YES" attributeType="Transformable"/>
+        <attribute name="nickname" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="Bookmark" representedClassName="Bookmark" syncable="YES" codeGenerationType="class">
+        <attribute name="bookAuthor" optional="YES" attributeType="String"/>
+        <attribute name="bookTitle" optional="YES" attributeType="String"/>
+        <attribute name="imageURL" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="Comment" representedClassName="Comment" syncable="YES" codeGenerationType="class"/>
+    <entity name="Liked" representedClassName="Liked" syncable="YES" codeGenerationType="class"/>
+</model>
