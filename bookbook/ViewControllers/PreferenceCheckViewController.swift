@@ -4,6 +4,9 @@ import SnapKit
 
 class PreferenceCheckViewController: UIViewController {
 
+    private var selectedGenres: Set<String> = []
+    private let maxSelectCount: Int = 5
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.introTitleLabel(title: "어떤 책을 좋아하시나요?")
@@ -201,6 +204,40 @@ class PreferenceCheckViewController: UIViewController {
         view.backgroundColor = .white
         configureUI()
         buttonActions()
+        setupGenreButtons()
+        updateNextButtonState()
+    }
+
+    private func setupGenreButtons() {
+        let genreButtons: [UIButton] = [
+            childButton, youthButton, lifeButton,
+            hobbyButton, improveButton, historyButton,
+            religionButton, economicsButton, itButton,
+            comicsButton, eduButton, literatureButton,
+            essayButton, artButton, socialButton,
+            humanitiesButton, scienceButton, professionalButton
+        ]
+
+        genreButtons.forEach { button in
+            button.addTarget(self, action: #selector(genreButtonTapped(_:)), for: .touchUpInside)
+        }
+    }
+    @objc private func genreButtonTapped(_ sender: UIButton) {
+        guard let title = sender.title(for: .normal) else { return }
+
+        if selectedGenres.contains(title) {
+            selectedGenres.remove(title)
+            updateButton(sender, isSelected: false)
+        } else {
+            guard selectedGenres.count < maxSelectCount else { return }
+            selectedGenres.insert(title)
+            updateButton(sender, isSelected: true)
+        }
+        updateNextButtonState()
+    }
+
+    private func updateButton(_ button: UIButton, isSelected: Bool) {
+        button.setSelectedOverlay(isSelected)
     }
 
     private func buttonActions() {
@@ -209,13 +246,26 @@ class PreferenceCheckViewController: UIViewController {
     }
     @objc private func skipButtonTapped() {
         print(#function)
+        CoreDataManager.shared.selectGenres([])
         let ageVC = UserAgeViewController()
         navigationController?.pushViewController(ageVC, animated: true)
     }
     @objc private func nextButtonTapped() {
         print(#function)
+        let genresArray = Array(selectedGenres)
+        CoreDataManager.shared.selectGenres(genresArray)
         let ageVC = UserAgeViewController()
         navigationController?.pushViewController(ageVC, animated: true)
+    }
+
+    private func updateNextButtonState() {
+        if selectedGenres.isEmpty {
+            nextButton.isEnabled = false
+            nextButton.backgroundColor = .bk4
+        } else {
+            nextButton.isEnabled = true
+            nextButton.backgroundColor = .customMain
+        }
     }
 
     private func configureUI() {
