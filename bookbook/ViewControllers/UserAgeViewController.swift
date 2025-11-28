@@ -1,22 +1,16 @@
-//
-//  UserAgeViewController.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/28/25.
-//
-// after loginviewcontroller
-// choose your age
-// page #2
 
 import UIKit
 import SnapKit
 
 class UserAgeViewController: UIViewController {
 
+    private var selectedAgeRange: AgeRange?
+    private weak var selectedButton: UIButton?
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "연령대를 알려주세요"
-        label.titleLabel()
+        label.checkTitleLabel()
         return label
     }()
 
@@ -32,39 +26,39 @@ class UserAgeViewController: UIViewController {
         return view
     }()
 
+    private let childButton: UIButton = {
+        let button = UIButton()
+        button.imageButton(title: "어린이", image: UIImage(named: "child"), size: 170)
+        return button
+    }()
+
+    private let teenButton: UIButton = {
+        let button = UIButton()
+        button.imageButton(title: "청소년", image: UIImage(named: "youth"), size: 170)
+        return button
+    }()
+
     private let secondStack: UIStackView = {
         let view = UIStackView()
         view.horizontalEqualStackView()
         return view
     }()
 
-    private let childButton: UIButton = {
-        let button = UIButton()
-        button.imageButton(image: UIImage(named: "children"), title: "어린이")
-        return button
-    }()
-
-    private let teenButton: UIButton = {
-        let button = UIButton()
-        button.imageButton(image: UIImage(named: "teenager"), title: "청소년")
-        return button
-    }()
-
     private let adultButton: UIButton = {
         let button = UIButton()
-        button.imageButton(image: UIImage(named: "adult"), title: "성인")
+        button.imageButton(title: "성인", image: UIImage(named: "adult"), size: 170)
         return button
     }()
 
     private let seniorButton: UIButton = {
         let button = UIButton()
-        button.imageButton(image: UIImage(named: "senior"), title: "노인")
+        button.imageButton(title: "노인", image: UIImage(named: "senior"), size: 170)
         return button
     }()
 
     private let nextButton: UIButton = {
         let button = UIButton()
-        button.grayButton(title: "다음")
+        button.confirmButton(title: "다음")
         return button
     }()
 
@@ -75,23 +69,57 @@ class UserAgeViewController: UIViewController {
         buttonActions()
     }
 
+    private func updateButton(_ button: UIButton, isSelected: Bool) {
+        button.setSelectedOverlay(isSelected)
+    }
+
     private func buttonActions() {
         childButton.addTarget(self, action: #selector(childrenButtonClicked), for: .touchUpInside)
         teenButton.addTarget(self, action: #selector(adolescenceButtonClicked), for: .touchUpInside)
         adultButton.addTarget(self, action: #selector(adultButtonClicked), for: .touchUpInside)
         seniorButton.addTarget(self, action: #selector(seniorButtonClicked), for: .touchUpInside)
+        nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
     }
     @objc private func childrenButtonClicked() {
         print(#function)
+        handleAgeSelection(range: .child, button: childButton)
     }
     @objc private func adolescenceButtonClicked() {
         print(#function)
+        handleAgeSelection(range: .teen, button: teenButton)
     }
     @objc private func adultButtonClicked() {
         print(#function)
+        handleAgeSelection(range: .adult, button: adultButton)
     }
     @objc private func seniorButtonClicked() {
         print(#function)
+        handleAgeSelection(range: .senior, button: seniorButton)
+    }
+    @objc private func nextButtonClicked() {
+        print(#function)
+        let vc = UserGenderViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    private func handleAgeSelection(range: AgeRange, button: UIButton) {
+        if let prevButton = selectedButton {
+            updateButton(prevButton, isSelected: false)
+        }
+        selectedButton = button
+        selectedAgeRange = range
+        updateButton(button, isSelected: true)
+
+        CoreDataManager.shared.updateAgeRange(range)
+        updatenextbu
+    }
+    private func updateNextButtonState() {
+        if selectedAgeRange == nil {
+            nextButton.isEnabled = false
+            nextButton.backgroundColor = .bk4
+        } else {
+            nextButton.isEnabled = true
+            nextButton.backgroundColor = .customMain
+        }
     }
 
     private func configureUI() {

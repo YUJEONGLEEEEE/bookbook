@@ -23,19 +23,30 @@ final class CoreDataManager {
         return (try? context.fetch(request))?.first
     }
 
+    private func saveUserInfo() {
+        guard context.hasChanges else { return }
+        do {
+            try context.save()
+        } catch {
+            print("CoreData save error: \(error)")
+        }
+    }
+
     func saveAccount(nickname: String) {
         let account = fetchAccount() ?? Account(context: context)
         account.nickname = nickname
-        try? context.save()
+        saveUserInfo()
     }
 
     func selectGenres(_ genres: [String]) {
         let account = fetchAccount() ?? Account(context: context)
         account.genres = genres as NSObject
-        do {
-            try context.save()
-        } catch {
-            print("Failed to save genres: \(error)")
-        }
+        saveUserInfo()
+    }
+
+    func updateAgeRange(_ range: AgeRange) {
+        let account = fetchAccount() ?? Account(context: context)
+        account.age = range.rawValue
+        saveUserInfo()
     }
 }
