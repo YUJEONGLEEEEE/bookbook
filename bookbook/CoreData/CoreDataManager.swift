@@ -49,4 +49,10 @@ final class CoreDataManager {
         account.age = range.rawValue
         saveUserInfo()
     }
+
+    func updateGender(_ gender: Gender) {
+        let account = fetchAccount() ?? Account(context: context)
+        account.gender = gender.rawValue
+        saveUserInfo()
+    }
 }

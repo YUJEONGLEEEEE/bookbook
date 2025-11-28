@@ -110,7 +110,7 @@ class UserAgeViewController: UIViewController {
         updateButton(button, isSelected: true)
 
         CoreDataManager.shared.updateAgeRange(range)
-        updatenextbu
+        updateNextButtonState()
     }
     private func updateNextButtonState() {
         if selectedAgeRange == nil {
