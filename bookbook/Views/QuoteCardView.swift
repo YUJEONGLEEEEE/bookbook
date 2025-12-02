@@ -4,35 +4,16 @@ import SnapKit
 
 class QuoteCardView: UIView {
 
-    private let backgroundImage: UIImageView = {
+    private var shuffledImages: [String] = []
+    private var currentIndex: Int = 0
+
+    private let images = (1...10).map { String(format: "quote%02d", $0)}
+
+    private let quoteCards: UIImageView = {
         let image = UIImageView()
-        image.contentMode = .scaleAspectFill
+        image.contentMode = .scaleAspectFit
+        image.clipsToBounds = true
         return image
-    }()
-
-    private let leftDoubleQuotes: UIImageView = {
-        let view = UIImageView()
-        view.image = UIImage(systemName: "quote.opening")
-        view.contentMode = .scaleAspectFit
-        view.tintColor = .black
-        return view
-    }()
-
-    private let quoteLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .customWh
-        label.font = .systemFont(ofSize: 17)
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
-
-    private let rightDoubleQuotes: UIImageView = {
-        let view = UIImageView()
-        view.image = UIImage(systemName: "quote.closing")
-        view.contentMode = .scaleAspectFit
-        view.tintColor = .black
-        return view
     }()
 
     override init(frame: CGRect) {
@@ -44,9 +25,30 @@ class QuoteCardView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func configureUI() {
-        addSubview(backgroundImage)
-        backgroundImage.addSubviews([leftDoubleQuotes, quoteLabel, rightDoubleQuotes])
+    private func resetShuffledImages() {
+        shuffledImages = images.shuffled()
+        if let lastImage = quoteCards.image?.accessibilityIdentifier,
+           shuffledImages.first == lastImage {
+            shuffledImages.swapAt(0, 1)
+        }
+        currentIndex = 0
     }
 
+    func showNextImage() {
+        if currentIndex >= shuffledImages.count {
+            resetShuffledImages()
+        }
+        let imageName = shuffledImages[currentIndex]
+        currentIndex += 1
+        let image = UIImage(named: imageName)
+        image.accessibilityIdentifier = imageName
+        quoteCards.image = image
+    }
+
+    private func configureUI() {
+        addSubview(quoteCards)
+        quoteCards.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
 }
