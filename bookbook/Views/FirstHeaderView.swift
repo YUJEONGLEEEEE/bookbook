@@ -1,9 +1,3 @@
-//
-//  FirstHeaderView.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/19/25.
-//
 
 import UIKit
 import SnapKit
@@ -12,17 +6,11 @@ class FirstHeaderView: UICollectionReusableView {
 
     private let firstSectionTitle: UILabel = {
         let label = UILabel()
-        label.text = "선호장르책리스트"
+        label.text = "\(nickname)님, 이런 책은 어떠세요?"
+        label.font = UIFont.customFont(ofSize: 20, weight: .bold)
         label.textAlignment = .left
+        label.textColor = .bk1
         return label
-    }()
-
-    private let sectionButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("더보기 ", for: .normal)
-        button.setImage(UIImage(systemName: "chevron.forward.2"), for: .normal)
-        button.tintColor = .black
-        return button
     }()
 
     override init(frame: CGRect) {
@@ -35,15 +23,10 @@ class FirstHeaderView: UICollectionReusableView {
     }
 
     private func configureUI() {
-        self.addSubviews([firstSectionTitle, sectionButton])
+        addSubview(firstSectionTitle)
         firstSectionTitle.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(16)
-        }
-        sectionButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().inset(16)
+            make.leading.equalToSuperview().offset(24)
+            make.top.equalToSuperview().offset(56)
         }
     }
-
 }
