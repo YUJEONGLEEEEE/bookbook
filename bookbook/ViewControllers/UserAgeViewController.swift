@@ -9,8 +9,7 @@ class UserAgeViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "연령대를 알려주세요"
-        label.checkTitleLabel()
+        label.introTitleLabel(title: "연령대를 알려주세요")
         return label
     }()
 
@@ -58,7 +57,8 @@ class UserAgeViewController: UIViewController {
 
     private let nextButton: UIButton = {
         let button = UIButton()
-        button.confirmButton(title: "다음")
+        button.confirmButton(title: "다음", titleColor: .customWh, backColor: .bk4)
+        button.isEnabled = false
         return button
     }()
 

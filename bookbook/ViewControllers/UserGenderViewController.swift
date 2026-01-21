@@ -9,8 +9,7 @@ class UserGenderViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "성별을 알려주세요"
-        label.checkTitleLabel()
+        label.introTitleLabel(title: "성별을 알려주세요")
         return label
     }()
 
@@ -34,7 +33,7 @@ class UserGenderViewController: UIViewController {
 
     private let finishButton: UIButton = {
         let button = UIButton()
-        button.confirmButton(title: "완료")
+        button.confirmButton(title: "완료", titleColor: .customWh, backColor: .bk4)
         button.isEnabled = false
         return button
     }()

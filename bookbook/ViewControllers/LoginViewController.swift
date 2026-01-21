@@ -32,7 +32,7 @@ class LoginViewController: UIViewController {
         field.textColor = .white
         field.textAlignment = .left
         field.keyboardType = .default
-        field.font = .systemFont(ofSize: 17)
+        field.font = UIFont.customFont(ofSize: 17, weight: .medium)
         field.backgroundColor = .clear
         return field
     }()
@@ -64,7 +64,7 @@ class LoginViewController: UIViewController {
 
     private let loginButton: UIButton = {
         let button = UIButton()
-        button.confirmButton(title: "시작하기")
+        button.confirmButton(title: "시작하기", titleColor: .customWh, backColor: .bk4)
         return button
     }()
 

@@ -196,6 +196,7 @@ class PreferenceCheckViewController: UIViewController {
     private let nextButton: UIButton = {
         let button = UIButton()
         button.confirmButton(title: "다음", titleColor: .customWh, backColor: .bk4)
+        button.isEnabled = false
         return button
     }()
 
