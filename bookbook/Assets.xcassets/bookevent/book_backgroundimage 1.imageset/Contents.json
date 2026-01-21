@@ -1,11 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "book_backgroundimage.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "book_backgroundimage@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
