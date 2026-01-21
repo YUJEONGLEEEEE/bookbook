@@ -1,68 +1,65 @@
-//
-//  OnboardingViewController.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/16/25.
-//
 
 import UIKit
 import SnapKit
 
-enum Onboarding: Int {
-    case first
-    case second
-    case third
-}
+final class OnboardingViewController: UIViewController {
 
-class OnboardingViewController: UIPageViewController {
+    private let imageNames = ["tutorial_01", "tutorial_02"]
+    private var currentIndex = 0
 
-    var list: [UIViewController] = []
+    private let tutorialImageView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFit
+        view.clipsToBounds = true
+        view.isUserInteractionEnabled = true
+        return view
+    }()
 
-    override init(transitionStyle style: UIPageViewController.TransitionStyle, navigationOrientation: UIPageViewController.NavigationOrientation, options: [UIPageViewController.OptionsKey : Any]? = nil) {
-        super.init(transitionStyle: .scroll, navigationOrientation: .vertical)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        list = [MainViewController(), SearchViewController(), BookmarkViewController()]
-
-        delegate = self
-        dataSource = self
-
-        guard let first = list.first else { return }
-        setViewControllers([first], direction: .forward, animated: true)
-    }
-}
-
-extension OnboardingViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
-
-    func presentationCount(for pageViewController: UIPageViewController) -> Int {
-        return list.count
+        view.backgroundColor = .customWh
+        configureUI()
+        setupGesture()
+        showImage()
     }
 
-    func presentationIndex(for pageViewController: UIPageViewController) -> Int {
-        guard let first = viewControllers?.first,
-              let index = list.firstIndex(of: first) else {
-            return 0
+    private func configureUI() {
+        view.addSubview(tutorialImageView)
+        tutorialImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-        return index
     }
 
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = list.firstIndex(of: viewController) else { return nil }
-        let previousIndex = currentIndex - 1
-        return previousIndex < 0 ? nil : list[previousIndex]
+    private func setupGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self, action: #selector(tapImage)
+        )
+        tutorialImageView.addGestureRecognizer(tap)
     }
-    
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let currentIndex = list.firstIndex(of: viewController) else { return nil }
-        let nextIndex = currentIndex + 1
-        return nextIndex >= list.count ? nil : list[nextIndex]
+    @objc func tapImage() {
+        currentIndex += 1
+        if currentIndex < imageNames.count {
+            print("gotonextpage")
+            showImage()
+        } else {
+            print("LastPage")
+            finishTutorial()
+        }
+    }
+
+    private func showImage() {
+        tutorialImageView.image = UIImage(named: imageNames[currentIndex])
+    }
+
+    private func finishTutorial() {
+        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return
+        }
+
+        window.rootViewController = MainViewController()
+        window.makeKeyAndVisible()
     }
 }
-// project10 참고
