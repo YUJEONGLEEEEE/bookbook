@@ -6,6 +6,7 @@ class QuoteCardView: UIView {
 
     private var shuffledImages: [String] = []
     private var currentIndex: Int = 0
+    private var lastImageName: String?
 
     private let images = (1...10).map { String(format: "quote%02d", $0)}
 
@@ -19,6 +20,8 @@ class QuoteCardView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
+        resetShuffledImages()
+        showNextImage()
     }
     
     required init?(coder: NSCoder) {
@@ -27,8 +30,10 @@ class QuoteCardView: UIView {
 
     private func resetShuffledImages() {
         shuffledImages = images.shuffled()
-        if let lastImage = quoteCards.image?.accessibilityIdentifier,
-           shuffledImages.first == lastImage {
+
+        if let last = lastImageName,
+           shuffledImages.first == last,
+           shuffledImages.count > 1 {
             shuffledImages.swapAt(0, 1)
         }
         currentIndex = 0
@@ -40,9 +45,9 @@ class QuoteCardView: UIView {
         }
         let imageName = shuffledImages[currentIndex]
         currentIndex += 1
-        let image = UIImage(named: imageName)
-        image.accessibilityIdentifier = imageName
-        quoteCards.image = image
+
+        quoteCards.image = UIImage(named: imageName)
+        lastImageName = imageName
     }
 
     private func configureUI() {
