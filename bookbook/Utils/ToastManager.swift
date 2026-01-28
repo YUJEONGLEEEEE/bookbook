@@ -21,23 +21,27 @@ final class ToastManager {
         duration: TimeInterval = 2.0
     ) {
         let request = ToastRequest(
-            viewController: inViewController,
+            viewController: viewController,
             message: message,
             duration: duration
         )
         queue.append(request)
+        comingUpNext()
     }
 
     private func comingUpNext() {
         guard !isShowing, queue.isEmpty == false else { return }
         isShowing = true
         let request = queue.removeFirst()
-        request.viewController.showToastInternal(
-            message: request.message,
-            duration: request.duration
-        ) { [weak self] in
-            self?.isShowing = false
-            self?.comingUpNext()
+
+        DispatchQueue.main.async {
+            request.viewController.showToastInternal(
+                message: request.message,
+                duration: request.duration) {
+                    [weak self] in
+                    self?.isShowing = false
+                    self?.comingUpNext()
+                }
         }
     }
 }
