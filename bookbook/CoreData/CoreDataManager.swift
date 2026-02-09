@@ -27,6 +27,7 @@ final class CoreDataManager {
         guard context.hasChanges else { return }
         do {
             try context.save()
+            print("coredata 저장 성공")
         } catch {
             print("CoreData save error: \(error)")
         }
@@ -40,13 +41,19 @@ final class CoreDataManager {
 
     func selectGenres(_ genres: [String]) {
         let account = fetchAccount() ?? Account(context: context)
-        account.genres = genres as NSObject
-        saveUserInfo()
+        do {
+            let genreData = try JSONEncoder().encode(genres)
+            account.genres = genreData as NSObject
+            saveUserInfo()
+            print("genres 저장 성공: \(genres)")
+        } catch {
+            print("genres 저장 실패: \(error)")
+        }
     }
 
     func updateAgeRange(_ range: AgeRange) {
         let account = fetchAccount() ?? Account(context: context)
-        account.age = range.rawValue
+        account.age = Int16(range.rawValue)
         saveUserInfo()
     }
 
@@ -54,5 +61,20 @@ final class CoreDataManager {
         let account = fetchAccount() ?? Account(context: context)
         account.gender = gender.rawValue
         saveUserInfo()
+    }
+
+    func fetchGenres() -> [String] {
+        guard let account = fetchAccount(),
+              let genreData = account.genres as? Data else {
+            return []
+        }
+        do {
+            let genres = try JSONDecoder().decode([String].self, from: genreData)
+            print("genres 로드 성공: \(genres)")
+            return genres
+        } catch {
+            print("genres 로드 실패: \(error)")
+            return []
+        }
     }
 }
