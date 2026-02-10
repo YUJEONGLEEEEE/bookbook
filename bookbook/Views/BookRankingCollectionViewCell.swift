@@ -4,17 +4,21 @@ import SnapKit
 
 class BookRankingCollectionViewCell: UICollectionViewCell {
 
-    private let bookRank: UILabel = {
+    let bookRank: UILabel = {
         let label = UILabel()
+        label.textColor =  .bk2
+        label.font = UIFont.customFont(ofSize: 30, weight: .medium)
+        label.textAlignment = .center
         return label
     }()
 
-    private let bookImage: UIImageView = {
+    let bookImage: UIImageView = {
         let image = UIImageView()
+        image.contentMode = .scaleAspectFit
         return image
     }()
 
-    private let bookTitle: UILabel = {
+    let bookTitle: UILabel = {
         let label = UILabel()
         label.font = UIFont.customFont(ofSize: 17, weight: .medium)
         label.textColor = .bk1
@@ -22,26 +26,55 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
-    private let bookAuthorPublisher: UILabel = {
+    let bookAuthorPublisher: UILabel = {
         let label = UILabel()
+        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
+        label.textColor = .bk3
+        label.textAlignment = .left
         return label
     }()
 
-    private let showLiked: UIButton = {
+    let showLiked: UIButton = {
         let button = UIButton()
-        button.isEnabled = false
-        button.layer.cornerRadius = 8
-        button.clipsToBounds = true
-        button.layer.borderColor = .
-        return  button
+        button.showLikedCounts(count: 0)
+        return button
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
     }
-
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private func configureUI() {
-        view.addSubviews([bookRank, bookTitle, bookAuthorPublisher, showLiked])
+        addSubviews([bookRank, bookImage, bookTitle, bookAuthorPublisher, showLiked])
+        bookRank.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+        }
+        bookImage.snp.makeConstraints { make in
+            make.height.equalTo(112)
+            make.width.equalTo(78)
+            make.leading.equalTo(bookRank.snp.trailing).offset(15)
+            make.top.equalToSuperview()
+        }
+        bookTitle.snp.makeConstraints { make in
+            make.leading.equalTo(bookImage.snp.trailing).offset(16)
+            make.top.equalToSuperview()
+            make.trailing.equalToSuperview().inset(16)
+        }
+        bookAuthorPublisher.snp.makeConstraints { make in
+            make.leading.equalTo(bookImage.snp.trailing).offset(16)
+            make.top.equalTo(bookTitle.snp.bottom).offset(4)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        showLiked.snp.makeConstraints { make in
+            make.top.equalTo(bookAuthorPublisher.snp.bottom).offset(35)
+            make.leading.equalTo(bookImage.snp.trailing).offset(16)
+            make.height.equalTo(32)
+            make.width.equalTo(49)
+        }
     }
 }
