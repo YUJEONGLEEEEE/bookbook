@@ -1,9 +1,3 @@
-//
-//  BookFilterCollectionViewCell.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/16/25.
-//
 
 import UIKit
 import SnapKit

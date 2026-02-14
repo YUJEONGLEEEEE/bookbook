@@ -1,9 +1,3 @@
-//
-//  BookFilterView.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/16/25.
-//
 
 import UIKit
 import Alamofire
@@ -65,7 +59,7 @@ extension BookFilterView: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print(#function)
         let selectedFilter = filters[indexPath.item]
-        delegate?.bookFilterView(self, didSelectFilter: selectedFilter.query)
+        delegate?.bookFilterView(self, didSelectFilter: selectedFilter)
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
