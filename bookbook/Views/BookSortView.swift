@@ -8,6 +8,9 @@ class BookSortView: UIView {
     weak var delegate: BookSortProtocol?
 
     private var currentSort: BookSortOption = .accuracy
+    private var allButtons: [UIButton] {
+        [accuracyButton, recommendButton, latestButton]
+    }
 
     private lazy var sortStack: UIStackView = {
         let view = UIStackView()
@@ -51,19 +54,19 @@ class BookSortView: UIView {
         recommendButton.addTarget(self, action: #selector(recommendButtonTapped), for: .touchUpInside)
         latestButton.addTarget(self, action: #selector(latestButtonTapped), for: .touchUpInside)
     }
-    @objc func accuracyButtonTapped() {
+    @objc private func accuracyButtonTapped() {
         print(#function)
         guard currentSort != .accuracy else { return }
         updateSelectedButton(.accuracy)
         delegate?.sortView(self, didSelect: .accuracy)
     }
-    @objc func recommendButtonTapped(){
+    @objc private func recommendButtonTapped(){
         print(#function)
         guard currentSort != .recommend else { return }
         updateSelectedButton(.recommend)
         delegate?.sortView(self, didSelect: .recommend)
     }
-    @objc func latestButtonTapped() {
+    @objc private func latestButtonTapped() {
         print(#function)
         guard currentSort != .latest else { return }
         updateSelectedButton(.latest)
@@ -72,7 +75,6 @@ class BookSortView: UIView {
     func updateSelectedButton(_ sort: BookSortOption) {
         currentSort = sort
         
-        let allButtons = [accuracyButton, recommendButton, latestButton]
         allButtons.forEach {
             $0.setTitleColor(.bk3, for: .normal)
             $0.titleLabel?.font = UIFont.customFont(ofSize: 14, weight: .medium)
