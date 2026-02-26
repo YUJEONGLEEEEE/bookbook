@@ -1,14 +1,9 @@
-//
-//  RecentSearchedHeaderView.swift
-//  bookbook
-//
-//  Created by 이유정 on 9/23/25.
-//
+// SearchViewController - RecentSearchedCollectionViewCell, PopularSearchedCollectionViewCell
 
 import UIKit
 import SnapKit
 
-class RecentSearchedHeaderView: UICollectionReusableView {
+class SearchedHeaderView: UICollectionReusableView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -35,5 +30,4 @@ class RecentSearchedHeaderView: UICollectionReusableView {
     func configure(title: String) {
         titleLabel.text = title
     }
-
 }
