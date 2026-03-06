@@ -15,6 +15,9 @@ struct BookData: Decodable {
     let isbn13: Int
     let cover: String
     let publisher: String
+
+//    좋아요 기능 관리 -- 로컬에서만 사용
+    var likedCount: Int = 0
 }
 
 struct naverBookInfo: Decodable {
