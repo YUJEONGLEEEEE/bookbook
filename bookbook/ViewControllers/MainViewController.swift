@@ -8,12 +8,15 @@ class MainViewController: UIViewController {
 
     private var preferredBooks: [BookData] = []
     private var recentBooks: [BookData] = []
+    private var bestsellerCache: [BookData] = []
     private let bookCategory = filters
 
     private var account: Account?
     private var usersChoices: [String] = []
 
-//    동기화를 위한 lockqueue 추가
+    private weak var secondHeaderView: SecondHeaderView?
+
+    //    동기화를 위한 lockqueue 추가
     private let bookLockQueue = DispatchQueue(label: "com.readdam.bookdata.lock")
 
     //    전체페이지 스크롤
@@ -65,6 +68,9 @@ class MainViewController: UIViewController {
         )
         setupRefreshControl()
         fetchAccountAndConfigure()
+        fetchRecentBooks()
+        loadBestseller()
+        loadTopBooks()
         mainCollectionView.delegate = self
         mainCollectionView.dataSource = self
         configureUI()
@@ -76,6 +82,8 @@ class MainViewController: UIViewController {
         let topOffset = CGPoint(x: 0, y: -mainScrollView.adjustedContentInset.top)
         mainScrollView.setContentOffset(topOffset, animated: true)
         refreshControl.beginRefreshing()
+        quoteCard.showRandomImage()
+        loadBestseller()
         handleRefresh()
     }
     @objc private func searchButtonClicked() {
@@ -83,7 +91,13 @@ class MainViewController: UIViewController {
         self.tabBarController?.selectedIndex = 1
     }
 
-//    account 설정
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        quoteCard.showRandomImage()
+        loadBestseller()
+    }
+
+    //    account 설정
     private func fetchAccountAndConfigure() {
         guard let account = CoreDataManager.shared.fetchAccount() else {
             usersChoices = ["에세이", "문학"]
@@ -94,7 +108,7 @@ class MainViewController: UIViewController {
         configureHome(with: account)
     }
 
-//    사용자 선호도 기반 홈 구성
+    //    사용자 선호도 기반 홈 구성
     private func configureHome(with account: Account) {
         guard let ageRange = AgeRange(rawValue: account.age),
               let gender = Gender(rawValue: account.gender ?? "") else {
@@ -109,19 +123,24 @@ class MainViewController: UIViewController {
             gender: gender
         )
 
-//        coredatamanager의 fetchGenres() 사용
+        //        coredatamanager의 fetchGenres() 사용
         let selectedGenres = CoreDataManager.shared.fetchGenres()
         usersChoices = selectedGenres.isEmpty ? baseGenres : selectedGenres
 
         fetchPrefferedBooks(for: usersChoices)
     }
 
-//    장르 이름으로 categoryId 가져오기
-    private func categoryId(for genre: String) -> String? {
-        return bookCategory.first(where: { $0.name.contains(genre) })?.categoryId
+    //    장르 이름으로 categoryId 가져오기
+    //    private func categoryId(for genre: String) -> String? {
+    //        return bookCategory.first(where: { $0.name.contains(genre) })?.categoryId
+    //    }
+
+    //    장르 이름으로 bookfilter 찾기
+    private func filter(for genre: String) -> BookFilter? {
+        return bookCategory.first { $0.name == genre }
     }
 
-//    사용자 맞춤 추천 책 가져오기
+    //    사용자 맞춤 추천 책 가져오기
     private func fetchPrefferedBooks(for genres: [String]) {
         let randomGenres = Array(genres.shuffled().prefix(3))
 
@@ -137,32 +156,33 @@ class MainViewController: UIViewController {
         let group = DispatchGroup()
 
         for genre in randomGenres {
-            guard let categoryIdString = categoryId(for: genre),
-                  let categoryId = Int(categoryIdString) else {
-                continue
-            }
+            guard let filter = filter(for: genre) else { continue }
 
-            group.enter()
-            print("무작위 선택: \(genre) (ID: \(categoryId)) 검색 중...")
+            for categoryIdString in filter.categoryIds {
+                guard let categoryId = Int(categoryIdString) else { continue }
 
-            NetworkManager.shared.bookLists(
-                queryType: "Bestseller",
-                category: categoryId
-            ) { result in
-                defer { group.leave() }
+                group.enter()
+                print("무작위 선택: \(genre) (ID: \(categoryId)) 검색 중...")
 
-                let books: [BookData]
-                switch result {
-                case .success(let bookInfo):
-                    books = Array(bookInfo.item.prefix(3))
+                NetworkManager.shared.bookLists(
+                    queryType: "Bestseller",
+                    category: categoryId
+                ) { result in
+                    defer { group.leave() }
 
-                case .failure(let error):
-                    print("\(genre) 검색 실패: \(error)")
-                    books = []
-                }
+                    let books: [BookData]
+                    switch result {
+                    case .success(let bookInfo):
+                        books = Array(bookInfo.item.prefix(3))
 
-                self.bookLockQueue.async {
-                    genreResults.append(books)
+                    case .failure(let error):
+                        print("\(genre)(ID: \(categoryId)) 검색 실패: \(error)")
+                        books = []
+                    }
+
+                    self.bookLockQueue.async {
+                        genreResults.append(books)
+                    }
                 }
             }
         }
@@ -171,6 +191,103 @@ class MainViewController: UIViewController {
             let allBooks = genreResults.flatMap { $0 }
             self.preferredBooks = Array(allBooks.shuffled().prefix(10))
             self.mainCollectionView.reloadSections(IndexSet(integer: 0))
+        }
+    }
+
+    private func fetchRecentBooks() {
+        print("최근 신간 불러오기 - ItemNewAll")
+
+        NetworkManager.shared.bookLists(
+            queryType: "ItemNewAll",
+            category: 0) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let newBook):
+                        self.recentBooks = Array(newBook.item.prefix(10))
+                        self.mainCollectionView.reloadSections(IndexSet(integer: 1))
+                        print("신간 \(self.recentBooks.count)개 로드 완료")
+                    case .failure(let error):
+                        print("신간 로드 실패: \(error)")
+                        self.recentBooks = []
+                    }
+                }
+            }
+    }
+
+    private func loadBestseller() {
+        NetworkManager.shared.bookLists(
+            queryType: "Bestseller",
+            category: 0
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.handleBestsellerResult(result)
+            }
+        }
+    }
+
+    private func handleBestsellerResult(_ result: Result<BookInfo, AFError>) {
+        switch result {
+        case .success(let bestsellerBook):
+            let items = bestsellerBook.item
+            guard !items.isEmpty else { return }
+
+            let randomBestseller = items.randomElement() ?? items[0]
+
+            if let secondHeader = self.secondHeaderView {
+                secondHeader.configureRandomBestseller(
+                    coverImage: nil,
+                    blurImage: nil,
+                    title: randomBestseller.title,
+                    descripton: randomBestseller.description
+                )
+                loadBestsellerImages(secondHeader: secondHeader, book: randomBestseller)
+            }
+
+            self.bestsellerCache = items
+
+        case .failure(let error):
+            print("베스트셀러 실패: \(error)")
+
+            if let cachedRandom = self.bestsellerCache.randomElement() {
+                if let secondHeader = self.secondHeaderView {
+                    secondHeader.configureRandomBestseller(
+                        coverImage: nil,
+                        blurImage: nil,
+                        title: cachedRandom.title,
+                        descripton: cachedRandom.description
+                    )
+                    loadBestsellerImages(secondHeader: secondHeader, book: cachedRandom)
+                }
+            }
+        }
+    }
+
+    // 베스트셀러 이미지 로딩 (완성!)
+    private func loadBestsellerImages(secondHeader: SecondHeaderView, book: BookData) {
+        guard let coverUrl = URL(string: book.cover) else { return }
+
+        // 1. 책 표지
+        secondHeader.bestsellerCard.bookCover.kf.setImage(
+            with: coverUrl,
+            placeholder: UIImage(named: "icon_placeholder"),
+            options: [.scaleFactor(UIScreen.main.scale)]
+        )
+
+        // 2. 블러 배경
+        secondHeader.bestsellerCard.blurBackgroundView.kf.setImage(
+            with: coverUrl,
+            options: [
+                .processor(BlurImageProcessor(blurRadius: 10)),
+                .scaleFactor(UIScreen.main.scale)
+            ]
+        )
+    }
+
+    private func loadTopBooks() {
+        let topBooks = BookRepository.shared.getTopRankedBooks()
+
+        if let secondHeader = self.secondHeaderView {
+            secondHeader.updateBookRankings(books: topBooks)
         }
     }
 
@@ -184,6 +301,10 @@ class MainViewController: UIViewController {
         print(#function)
         //        #1 데이터 다시 불러오기
         fetchAccountAndConfigure()
+        fetchRecentBooks()
+        loadBestseller()
+        loadTopBooks()
+        quoteCard.showRandomImage()
         //        #2 ui 업데이트
         //        #3 새로고침 종료
         self.refreshControl.endRefreshing()
@@ -237,22 +358,29 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         case 0:
             guard indexPath.item < preferredBooks.count else { return cell }
             let pBooks = preferredBooks[indexPath.item]
-            if let url = URL(string: pBooks.cover) {
+            if !pBooks.cover.isEmpty,
+                let url = URL(string: pBooks.cover) {
                 cell.bookImage.kf.setImage(with: url)
             } else {
                 cell.bookImage.image = UIImage(named: "icon_placeholder")
             }
-            cell.bookTitle.text = pBooks.title
-            cell.bookAuthor.text = pBooks.author
+            cell.bookTitle.text = pBooks.title.isEmpty ? "" : pBooks.title.cleanHTML()
+            cell.bookAuthor.text = pBooks.author.isEmpty ? "" : pBooks.author.cleanHTML()
 
         case 1:
-            guard indexPath.item < recentBooks.count else { return cell }
+            guard indexPath.item < recentBooks.count else {
+                cell.bookImage.image = UIImage(named: "icon_placeholder")
+                return cell
+            }
             let rBooks = recentBooks[indexPath.item]
-            if let url = URL(string: rBooks.cover) {
+            if !rBooks.cover.isEmpty,
+                let url = URL(string: rBooks.cover) {
                 cell.bookImage.kf.setImage(with: url)
             } else {
                 cell.bookImage.image = UIImage(named: "icon_placeholder")
             }
+            cell.bookTitle.text = rBooks.title.isEmpty  ? "" : rBooks.title.cleanHTML()
+            cell.bookAuthor.text = rBooks.author.isEmpty ? "" : rBooks.author.cleanHTML()
         default:
             break
         }
@@ -273,6 +401,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
             //            읽담추천
         case 1:
             let secondHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "SecondHeaderView", for: indexPath) as! SecondHeaderView
+            self.secondHeaderView = secondHeader
             return secondHeader
         default:
             return UICollectionReusableView()
@@ -295,7 +424,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         case 0:
             return CGSize(width: collectionView.bounds.width, height: 90)
         case 1:
-            return CGSize(width: collectionView.bounds.width, height: <#T##Double#>)
+            return CGSize(width: collectionView.bounds.width, height: 1040)
         default:
             return .zero
         }
