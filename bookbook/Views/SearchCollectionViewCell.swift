@@ -1,14 +1,15 @@
 
 import UIKit
+import Kingfisher
 import SnapKit
 
 class SearchCollectionViewCell: UICollectionViewCell {
 
-    var likedCount: Int = 0
-
     let bookImage: UIImageView = {
         let image = UIImageView()
+        image.backgroundColor = .bk5
         image.contentMode = .scaleAspectFit
+        image.clipsToBounds = true
         return image
     }()
 
@@ -22,7 +23,7 @@ class SearchCollectionViewCell: UICollectionViewCell {
 
     let bookTitle: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 17)
+        label.font = UIFont.customFont(ofSize: 17, weight: .medium)
         label.textAlignment = .left
         label.numberOfLines = 1
         label.textColor = .bk1
@@ -31,8 +32,7 @@ class SearchCollectionViewCell: UICollectionViewCell {
 
     let subLabel: UILabel = {
         let label = UILabel()
-//        label.text = "\(author) · \(publisher)"
-        label.font = .systemFont(ofSize: 14)
+        label.font = UIFont.customFont(ofSize: 14, weight: .medium)
         label.textAlignment = .left
         label.numberOfLines = 1
         label.textColor = .bk2
@@ -41,7 +41,7 @@ class SearchCollectionViewCell: UICollectionViewCell {
 
     let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.font = UIFont.customFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 2
         label.textAlignment = .left
         label.textColor = .bk3
@@ -58,35 +58,14 @@ class SearchCollectionViewCell: UICollectionViewCell {
     }()
 
     let showLiked: UIButton = {
-        var config = UIButton.Configuration.plain()
-        config.image = UIImage(systemName: "heart.fill")
-        config.imagePadding = 4
-        config.baseForegroundColor = .sub01
-        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
-        let button = UIButton(configuration: config)
-        button.isEnabled = false
-        button.setTitleColor(.sub01, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 13)
-        button.configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 13)
-        button.configuration?.imagePlacement = .leading
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.bk5.cgColor
-        button.layer.cornerRadius = 8
-        button.clipsToBounds = true
+        let button = UIButton()
+        button.showLikedCounts(count: 0)
         return button
     }()
 
     let bookmarked: UIButton = {
         let button = UIButton()
-        button.isEnabled = false
-        button.isHidden = true
-        button.setTitle(" 담았어요 ", for: .normal)
-        button.setTitleColor(.sub02, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 13)
-        button.layer.cornerRadius = 8
-        button.clipsToBounds = true
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.sub02.cgColor
+        button.showBookmarked()
         return button
     }()
 
@@ -94,9 +73,20 @@ class SearchCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         configureUI()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        bookImage.kf.cancelDownloadTask()
+        bookImage.image = nil
+        bookTitle.text = nil
+        subLabel.text = nil
+        descriptionLabel.text = nil
+        bookmarked.isHidden = true
+        showLiked.showLikedCounts(count: 0)
     }
 
     private func configureUI() {
@@ -106,19 +96,23 @@ class SearchCollectionViewCell: UICollectionViewCell {
         buttonStack.addArrangedSubviews([showLiked, bookmarked])
 
         bookImage.snp.makeConstraints { make in
-            make.width.equalTo(86.74)
+            make.width.equalTo(86)
             make.height.equalTo(123)
-            make.leading.equalToSuperview().offset(16)
+            make.leading.verticalEdges.equalToSuperview()
         }
         mainStack.snp.makeConstraints { make in
-            make.top.equalTo(bookImage.snp.top)
             make.leading.equalTo(bookImage.snp.trailing).offset(14)
-            make.trailing.equalToSuperview().inset(16)
-            make.horizontalEdges.equalToSuperview()
+            make.verticalEdges.trailing.equalToSuperview()
+        }
+        subLabel.snp.makeConstraints { make in
+            make.top.equalTo(bookTitle.snp.bottom).offset(4)
+        }
+        descriptionLabel.snp.makeConstraints { make in
+            make.top.equalTo(subLabel.snp.bottom).offset(4)
         }
         buttonStack.snp.makeConstraints { make in
             make.height.equalTo(32)
+            make.top.equalTo(descriptionLabel.snp.bottom).offset(8)
         }
     }
 }
-
