@@ -1,5 +1,6 @@
 
 import UIKit
+import Kingfisher
 import SnapKit
 
 class BookRankingCollectionViewCell: UICollectionViewCell {
@@ -44,13 +45,23 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         configureUI()
     }
-    
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        bookImage.kf.cancelDownloadTask()
+        bookImage.image = nil
+        bookTitle.text = nil
+        bookAuthorPublisher.text = nil
+        bookRank.text = nil
+        showLiked.showLikedCounts(count: 0)
+    }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func configureUI() {
-        addSubviews([bookRank, bookImage, bookTitle, bookAuthorPublisher, showLiked])
+        contentView.addSubviews([bookRank, bookImage, bookTitle, bookAuthorPublisher, showLiked])
         bookRank.snp.makeConstraints { make in
             make.leading.equalToSuperview()
         }
