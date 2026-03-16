@@ -7,7 +7,7 @@ private struct ButtonOverlayKey {
 }
 
 extension UIButton {
-    
+
     func confirmButton(
         title: String,
         titleColor: UIColor,
@@ -23,6 +23,41 @@ extension UIButton {
         snp.makeConstraints { make in
             make.height.equalTo(56)
         }
+    }
+
+    func showLikedCounts(count: Int){
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage(systemName: "heart.fill")
+        config.imagePadding = 4
+        config.baseForegroundColor = .sub01
+        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
+        configuration = config
+        isEnabled = false
+        setTitleColor(.sub01, for: .normal)
+        titleLabel?.font = UIFont.customFont(ofSize: 13, weight: .medium)
+        configuration?.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 13)
+        configuration?.imagePlacement = .leading
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.bk6.cgColor
+        layer.cornerRadius = 8
+        clipsToBounds = true
+    }
+
+    func showBookmarked() {
+        var config = UIButton.Configuration.plain()
+        config.baseBackgroundColor = .customWh
+        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
+        configuration = config
+        isEnabled = false
+        isHidden = true
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.customMain.cgColor
+        layer.cornerRadius = 8
+        clipsToBounds = true
+        setTitle("담았어요", for: .normal)
+        setTitleColor(.customMain, for: .normal)
+        titleLabel?.textAlignment = .center
+        titleLabel?.font = UIFont.customFont(ofSize: 13, weight: .medium)
     }
 
     // MARK: - prefernce, age, gender check viewcontroller
