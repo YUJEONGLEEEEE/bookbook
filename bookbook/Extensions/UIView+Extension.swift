@@ -11,7 +11,7 @@ extension UIView {
     }
 
     func addUnderline() {
-        backgroundColor = .lightGray
+        backgroundColor = .bk5
         snp.makeConstraints { make in
             make.height.equalTo(1)
         }
@@ -21,6 +21,13 @@ extension UIView {
         backgroundColor = .bk2
         snp.makeConstraints { make in
             make.height.equalTo(2)
+        }
+    }
+
+    func addBolderLine() {
+        backgroundColor = .bk6
+        snp.makeConstraints { make in
+            make.height.equalTo(8)
         }
     }
 

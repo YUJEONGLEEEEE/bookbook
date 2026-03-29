@@ -27,5 +27,4 @@ class BookFilterCollectionViewCell: UICollectionViewCell {
             make.edges.equalToSuperview().inset(3)
         }
     }
-
 }

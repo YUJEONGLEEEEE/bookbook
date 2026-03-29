@@ -1,9 +1,3 @@
-//
-//  Formatter+Extension.swift
-//  bookbook
-//
-//  Created by 이유정 on 10/10/25.
-//
 
 import Foundation
 

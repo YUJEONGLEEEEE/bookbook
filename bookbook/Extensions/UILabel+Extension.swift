@@ -1,27 +1,27 @@
-//
-//  UILabel+Extension.swift
-//  bookbook
-//
-//  Created by 이유정 on 10/1/25.
-//
 
 import UIKit
+import SnapKit
 
 extension UILabel {
     
-    func configureTitleLabel() {
-        font = .boldSystemFont(ofSize: 34)
+    func introTitleLabel(title: String) {
+        text = title
+        font = .customFont(ofSize: 28, weight: .bold)
         textColor = .black
         textAlignment = .left
+        snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(24)
+            make.top.equalToSuperview().offset(80)
+        }
     }
 
-    func configureTextLabel() {
+    func standardLabel() {
         font = .systemFont(ofSize: 17)
         textColor = .black
         textAlignment = .left
     }
 
-    func configureSubLabel() {
+    func subLabel() {
         font = .systemFont(ofSize: 15)
         textColor = .black
         textAlignment = .left

@@ -24,4 +24,3 @@ let filters: [BookFilter] = [
     BookFilter(name: "인문학", categoryIds: ["656"]),
     BookFilter(name: "전문서적", categoryIds: ["8257"])
 ]
-

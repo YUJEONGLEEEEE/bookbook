@@ -27,7 +27,7 @@ class AccountValidationDelegate: NSObject, UITextFieldDelegate {
             switch result {
             case .valid:
                 statusLabel.text = "사용할 수 있는 닉네임이에요"
-                statusLabel.textColor = .systemBlue
+                statusLabel.textColor = .customBtn
                 isValid = true
             case .invalidCount:
                 statusLabel.text = "2글자 이상 8글자 이내로 작성해주세요"

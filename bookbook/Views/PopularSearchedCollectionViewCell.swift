@@ -29,7 +29,6 @@ class PopularSearchedCollectionViewCell: UICollectionViewCell {
         keywordLabel.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(16)
             make.verticalEdges.equalToSuperview().inset(8)
-            make.height.equalTo(33)
         }
     }
 

@@ -66,10 +66,10 @@ extension BookFilterView: UICollectionViewDelegate, UICollectionViewDataSource, 
         let list = filters[indexPath.item]
         let text = list.name
         let font = UIFont.systemFont(ofSize: 14)
-        let padding: CGFloat = 3
+        let padding: CGFloat = 8
         let textAttributes = [NSAttributedString.Key.font: font]
         let textSize = (text as NSString).size(withAttributes: textAttributes)
-        let height: CGFloat = 22
+        let height: CGFloat = 33
         let width = textSize.width + padding
 
         return CGSize(width: width, height: height)

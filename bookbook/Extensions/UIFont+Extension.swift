@@ -2,7 +2,7 @@
 import UIKit
 
 extension UIFont {
-    static func appFont(ofSize size: CGFloat, weight: UIFont.Weight = .regular) -> UIFont {
+    static func customFont(ofSize size: CGFloat, weight: UIFont.Weight = .regular) -> UIFont {
         let fontName: String
 
         switch weight {
