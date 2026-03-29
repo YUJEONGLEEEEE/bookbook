@@ -11,25 +11,13 @@ struct BookData: Decodable {
     let author: String
     let pubDate: String
     let description: String
-    let isbn: String
-    let isbn13: Int
+    let isbn13: String
     let cover: String
     let publisher: String
+    let searchCategoryId: Int
 
-//    좋아요 기능 관리 -- 로컬에서만 사용
+//   로컬에서만 사용
+    var categoryId: Int64 = 0
     var likedCount: Int = 0
-}
-
-struct naverBookInfo: Decodable {
-    let item: [naverBookData]
-}
-
-struct naverBookData: Decodable {
-    let title: String
-    let image: String
-    let author: String
-    let publisher: String
-    let pubdate: String
-    let isbn: String
-    let description: String
+    var isBookmarked: Bool = false
 }

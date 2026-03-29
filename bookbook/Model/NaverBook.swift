@@ -1,8 +1,20 @@
-//
-//  NaverBook.swift
-//  bookbook
-//
-//  Created by 이유정 on 3/23/26.
-//
 
 import Foundation
+
+struct naverBookInfo: Decodable {
+    let item: [NaverBook]
+}
+
+struct NaverBook: Decodable {
+    let title: String
+    let image: String
+    let author: String
+    let publisher: String
+    let pubdate: String
+    let isbn: String
+    let description: String
+
+    private enum CodingKeys: String, CodingKey {
+        case title, image, author, publisher, pubdate, isbn, description
+    }
+}
