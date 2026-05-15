@@ -4,6 +4,21 @@ import SnapKit
 
 extension UIViewController {
 
+    private func setupBackButton(imageName: String) {
+        let image = UIImage(named: imageName)
+        navigationController?.navigationBar.backIndicatorImage = image
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = image
+        navigationItem.backButtonDisplayMode = .minimal
+    }
+
+    func setupWhiteBackButton() {
+        setupBackButton(imageName: "icon_back_white")
+    }
+
+    func setupDefaultBackButton() {
+        setupBackButton(imageName: "icon_back")
+    }
+
     func setupKeyboardDismissMode() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
@@ -13,9 +28,9 @@ extension UIViewController {
         view.endEditing(true)
     }
 
-    func showAlert(title: String, message: String) {
+    func showAlert(message: String) {
         let alert = UIAlertController(
-            title: title,
+            title: nil,
             message: message,
             preferredStyle: .alert
         )
@@ -23,18 +38,28 @@ extension UIViewController {
         present(alert, animated: true)
     }
 
-    func alertWithCancel(title: String, message: String, okHandler: @escaping () -> Void) {
-        let alert = UIAlertController(
-            title: title,
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
-            okHandler()
-        }))
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        present(alert, animated: true)
-    }
+    func alertWithCancel(
+        title: String? = nil,
+        message: String,
+        cancelTitle: String = "취소",
+        confirmTitle: String = "확인",
+        successMessage: String? = nil,
+        okHandler: @escaping () -> Void) {
+            let alert = UIAlertController(
+                title: title,
+                message: message,
+                preferredStyle: .alert
+            )
+
+            alert.addAction(UIAlertAction(title: cancelTitle, style: .cancel))
+            alert.addAction(UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
+                okHandler()
+                if let successMsg = successMessage, !successMsg.isEmpty {
+                    self?.showAlert(message: successMsg)
+                }
+            })
+            present(alert, animated: true)
+        }
 
     func showToast(
         _ message: String,
@@ -72,7 +97,7 @@ extension UIViewController {
         }()
 
         toastCard.addSubview(text)
-        label.snp.makeConstraints { make in
+        text.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
 
@@ -90,7 +115,7 @@ extension UIViewController {
         UIView.animateKeyframes(
             withDuration: 0.3,
             delay: duration,
-            options: .curveEaseOut) {
+            options: []) {
                 toastCard.alpha = 0.0
             } completion: { _ in
                 toastCard.removeFromSuperview()
