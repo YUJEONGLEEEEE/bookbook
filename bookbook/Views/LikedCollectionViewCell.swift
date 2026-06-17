@@ -1,6 +1,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class LikedCollectionViewCell: UICollectionViewCell {
 
@@ -36,6 +37,14 @@ class LikedCollectionViewCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        bookImage.kf.cancelDownloadTask()
+        bookImage.image = nil
+        bookTitle.text = nil
+        bookAuthor.text = nil
     }
 
     private func configureUI() {
