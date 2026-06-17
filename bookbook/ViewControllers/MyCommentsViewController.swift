@@ -306,8 +306,7 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
         let popupVC = CommentPopUpViewController(isbn13: isbn13)
         popupVC.configureForEdit(comment: comment)
         popupVC.onCommentUpdated = { [weak self] in
-            let myCommentsVC = MyCommentsViewController()
-            self?.navigationController?.pushViewController(myCommentsVC, animated: true)
+            self?.loadComments()   // 현재 목록 갱신 (새 화면 push 금지)
         }
         popupVC.modalPresentationStyle = .overFullScreen
         popupVC.modalTransitionStyle = .crossDissolve

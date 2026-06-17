@@ -5,7 +5,7 @@ import CoreData
 extension BookData {
     func toEntity(context: NSManagedObjectContext) -> Book {
         let request: NSFetchRequest<Book> = Book.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", self.title)
+        request.predicate = NSPredicate(format: "isbn13 == %@", self.isbn13)
 
         if let existingBook = try? context.fetch(request).first {
             return existingBook
@@ -27,7 +27,7 @@ extension BookData {
 extension NaverBook {
     func toEntity(context: NSManagedObjectContext) -> Book {
         let request: NSFetchRequest<Book> = Book.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", self.title)
+        request.predicate = NSPredicate(format: "isbn13 == %@", self.isbn)
 
         if let existingBook = try? context.fetch(request).first {
             return existingBook
