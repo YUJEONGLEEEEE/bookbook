@@ -288,8 +288,15 @@ class SearchViewController: UIViewController {
             CoreDataManager.shared.applyLikedCount(to: &self.searchBooks)
             CoreDataManager.shared.applyBookmarkStatus(to: &self.searchBooks)
 
+            // 추천순: 좋아요 누적순 우선, 동률(보통 0)이면 API 판매량(SalesPoint) 순서 유지 (안정 정렬)
             if self.currentSort == .recommend {
-                self.searchBooks.sort { $0.likedCount > $1.likedCount }
+                self.searchBooks = self.searchBooks.enumerated()
+                    .sorted { lhs, rhs in
+                        lhs.element.likedCount != rhs.element.likedCount
+                            ? lhs.element.likedCount > rhs.element.likedCount
+                            : lhs.offset < rhs.offset
+                    }
+                    .map { $0.element }
             }
 
             self.totalResults = apiTotalResults
