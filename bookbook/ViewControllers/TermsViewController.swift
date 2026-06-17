@@ -5,9 +5,17 @@ import SnapKit
 
 final class TermsViewController: UIViewController {
 
+    private let scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.showsVerticalScrollIndicator = true
+        return view
+    }()
+
     private let letterLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.customFont(ofSize: 17, weight: .medium)
+        label.numberOfLines = 0
+        label.textColor = .bk1
         label.text = """
         이용약관
 
@@ -134,10 +142,17 @@ final class TermsViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubview(letterLabel)
+        view.addSubview(scrollView)
+        scrollView.addSubview(letterLabel)
+
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        // 콘텐츠 여백은 기존 코드대로 32/24 유지. 가로 폭을 화면에 고정해 줄바꿈 + 세로 스크롤되게 한다.
         letterLabel.snp.makeConstraints { make in
-            make.verticalEdges.equalTo(view.safeAreaLayoutGuide).inset(32)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.verticalEdges.equalToSuperview().inset(32)
+            make.horizontalEdges.equalToSuperview().inset(24)
+            make.width.equalTo(scrollView.frameLayoutGuide).offset(-48)
         }
     }
 }

@@ -2,36 +2,60 @@
 import Foundation
 import Alamofire
 
+// 알라딘 Output=JS 응답은 끝에 ';'(+공백)가 붙어 유효 JSON이 아니므로 잘라낸다.
+struct AladinJSPreprocessor: DataPreprocessor {
+    func preprocess(_ data: Data) throws -> Data {
+        var d = data
+        let trim: Set<UInt8> = [0x3B, 0x20, 0x09, 0x0A, 0x0D] // ;  space  tab  \n  \r
+        while let last = d.last, trim.contains(last) {
+            d.removeLast()
+        }
+        return d
+    }
+}
+
 final class NetworkManager {
     static let shared = NetworkManager()
     private init() { }
 
-    func searchBooks(query: String, category: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
-        print(#function)
+    func searchBooks(
+        query: String,
+        category: Int? = nil,
+        sort: BookSortOption,
+        page: Int = 1,
+        completion: @escaping (Result<BookInfo, AFError>) -> Void
+    ) {
+        print("검색: \(query), 페이지: \(page), 정렬: \(sort)")
 
         let url = APIKey.aladinSearchURL
-        let parameters: [String: Any] = [
+        var parameters: [String: Any] = [
             "TTBKey": APIKey.ttbKey,
             "Output": "JS",
             "Query": query,
             "QueryType": "Keyword",
             "SearchTarget": "Book",
             "MaxResults": 20,
-            "Start": 1,
+            "Start": (page - 1) * 20 + 1,
             "Sort": "Accuracy",
-            "CategoryId": category,
             "outofStockfilter": 1
         ]
+        if let category {
+            parameters["CategoryId"] = category
+        }
+        if let sortParm = sort.apiValue {
+            parameters["Sort"] = sortParm
+        }
 
         AF.request(url,
                    method: .get,
                    parameters: parameters)
         .validate(statusCode: 200..<300)
-        .responseDecodable(of: BookInfo.self) { response in
+        .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
                 print(value)
-                completion(.success(value))
+                // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
+                completion(.success(value.filteringExcluded()))
             case .failure(let error):
                 print(error)
                 completion(.failure(error))
@@ -59,11 +83,12 @@ final class NetworkManager {
                    method: .get,
                    parameters: parameters)
         .validate(statusCode: 200..<300)
-        .responseDecodable(of: BookInfo.self) { response in
+        .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
                 print(value)
-                completion(.success(value))
+                // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
+                completion(.success(value.filteringExcluded()))
             case .failure(let error):
                 print(error)
                 completion(.failure(error))
@@ -71,7 +96,7 @@ final class NetworkManager {
         }
     }
 
-    func bookDetail(isbn: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
+    func bookDetail(isbn: Int, completion: @escaping (Result<naverBookInfo, AFError>) -> Void) {
         print(#function)
 
         let url = APIKey.naverDetailURL
@@ -80,7 +105,8 @@ final class NetworkManager {
             "X-Naver-Client-Secret": APIKey.naverClientSecret
         ]
         let parameter = [
-            "d_isbn": isbn
+            "d_isbn": isbn,
+            "display": 1
         ]
 
         AF.request(url,
@@ -88,14 +114,68 @@ final class NetworkManager {
                    parameters: parameter,
                    headers: headers)
         .validate(statusCode: 200..<300)
-        .responseDecodable(of: BookInfo.self) { response in
+        .responseDecodable(of: naverBookInfo.self) { response in
             switch response.result {
             case .success(let value):
-                print(value)
+                print("네이버 검색 성공: \(isbn)")
                 completion(.success(value))
             case .failure(let error):
-                print(error)
+                print("네이버 검색 실패: \(isbn)")
                 completion(.failure(error))
+            }
+        }
+    }
+
+    // 내책장: 북마크된 ISBN 목록을 알라딘 ItemLookUp으로 조회 (네이버 API엔 카테고리 정보 없음)
+    func fetchBookmarkedBooks(isbns: [String], completion: @escaping ([BookData]) -> Void) {
+        guard !isbns.isEmpty else {
+            completion([])
+            return
+        }
+
+        var booksByIsbn: [String: BookData] = [:]
+        let group = DispatchGroup()
+
+        for isbnString in isbns.prefix(20) {
+            group.enter()
+            fetchAladinBook(isbn13: isbnString) { book in
+                defer { group.leave() }
+                if let book {
+                    booksByIsbn[isbnString] = book
+                }
+            }
+        }
+
+        group.notify(queue: .main) {
+            // 입력 ISBN 순서(최근 북마크 순)를 그대로 유지한다.
+            let ordered = isbns.compactMap { booksByIsbn[$0] }
+            completion(ordered)
+        }
+    }
+
+    // 알라딘 ItemLookUp: ISBN13 한 권의 상세(카테고리 포함)를 조회한다.
+    func fetchAladinBook(isbn13: String, completion: @escaping (BookData?) -> Void) {
+        let url = "https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx"
+        let parameters: [String: Any] = [
+            "TTBKey": APIKey.ttbKey,
+            "Output": "JS",
+            "ItemIdType": "ISBN13",
+            "ItemId": isbn13,
+            "Cover": "Big",
+            "Version": 20131101
+        ]
+
+        AF.request(url,
+                   method: .get,
+                   parameters: parameters)
+        .validate(statusCode: 200..<300)
+        .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
+            switch response.result {
+            case .success(let value):
+                completion(value.item.first)
+            case .failure(let error):
+                print("알라딘 ItemLookUp 실패(\(isbn13)): \(error)")
+                completion(nil)
             }
         }
     }

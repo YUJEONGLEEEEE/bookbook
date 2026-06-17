@@ -1,28 +1,22 @@
-// checked preferences, gender, age
-
 import UIKit
 import SnapKit
 
 class MyChoiceViewController: UIViewController {
 
-    private let ageStack: UIStackView = {
-        let view = UIStackView()
-        view.userStackView()
-        return view
-    }()
-
     private let ageLabel: UILabel = {
         let label = UILabel()
         label.text = "연령"
-        label.textColor = .lightGray
+        label.textColor = .bk3
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15)
+        label.font = .customFont(ofSize: 14, weight: .medium)
         return label
     }()
 
     private let userAge: UILabel = {
         let label = UILabel()
-        label.standardLabel()
+        label.textColor = .bk1
+        label.textAlignment = .left
+        label.font = .customFont(ofSize: 17, weight: .medium)
         label.numberOfLines = 1
         return label
     }()
@@ -33,24 +27,20 @@ class MyChoiceViewController: UIViewController {
         return view
     }()
 
-    private let genderStack: UIStackView = {
-        let view = UIStackView()
-        view.userStackView()
-        return view
-    }()
-
     private let genderLabel: UILabel = {
         let label = UILabel()
         label.text = "성별"
-        label.textColor = .lightGray
+        label.textColor = .bk3
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15)
+        label.font = .customFont(ofSize: 14, weight: .medium)
         return label
     }()
 
     private let userGender: UILabel = {
         let label = UILabel()
-        label.standardLabel()
+        label.textColor = .bk1
+        label.textAlignment = .left
+        label.font = .customFont(ofSize: 17, weight: .medium)
         label.numberOfLines = 1
         return label
     }()
@@ -61,25 +51,21 @@ class MyChoiceViewController: UIViewController {
         return view
     }()
 
-    private let genreStack: UIStackView = {
-        let view = UIStackView()
-        view.userStackView()
-        return view
-    }()
-
     private let genreLabel: UILabel = {
         let label = UILabel()
         label.text = "장르"
-        label.textColor = .lightGray
+        label.textColor = .bk3
         label.textAlignment = .left
-        label.font = .systemFont(ofSize: 15)
+        label.font = .customFont(ofSize: 14, weight: .medium)
         return label
     }()
 
     private let userGenre: UILabel = {
         let label = UILabel()
-        label.standardLabel()
-        label.numberOfLines = 0
+        label.textColor = .bk1
+        label.textAlignment = .left
+        label.font = .customFont(ofSize: 17, weight: .medium)
+        label.numberOfLines = 1
         return label
     }()
 
@@ -92,33 +78,88 @@ class MyChoiceViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "내 취향"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editButtonTapped))
-        navigationItem.rightBarButtonItem?.tintColor = .systemBlue
+        let editItem = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editButtonTapped))
+        editItem.tintColor = .customBtn
+        // iOS 26: 바 버튼 글래스 배경 제거
+        if #available(iOS 26.0, *) {
+            editItem.hidesSharedBackground = true
+        }
+        navigationItem.rightBarButtonItem = editItem
         configureUI()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadUserChoices()
+    }
+
+    private func loadUserChoices() {
+        userAge.text = CoreDataManager.shared.fetchAgeRange()?.title ?? ""
+        userGender.text = CoreDataManager.shared.fetchGender()?.title ?? ""
+        let genres = CoreDataManager.shared.fetchGenres()
+        userGenre.text = genres.isEmpty ? "" : genres.joined(separator: ", ")
     }
 
     @objc private func editButtonTapped() {
         print(#function, "취향_재설정")
         let vc = PreferenceCheckViewController()
+        vc.isEditMode = true
         navigationController?.pushViewController(vc, animated: true)
     }
 
     private func configureUI() {
-        view.addSubviews([ageStack, genderStack, genreStack])
-        ageStack.addArrangedSubviews([ageLabel, userAge, ageUnderline])
-        genderStack.addArrangedSubviews([genderLabel, userGender, genderUnderline])
-        genreStack.addArrangedSubviews([genreLabel, userGenre, genreUnderline])
-        ageStack.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(50)
+        view.backgroundColor = .white
+        view.addSubviews([
+            ageLabel, userAge, ageUnderline,
+            genderLabel, userGender, genderUnderline,
+            genreLabel, userGenre, genreUnderline
+        ])
+
+        let safe = view.safeAreaLayoutGuide
+        let textInset = 32
+        let lineInset = 24
+        let labelToValue = 29
+        let labelToUnderline = 57
+        let groupPitch = 89
+
+        ageLabel.snp.makeConstraints { make in
+            make.leading.equalTo(safe).offset(textInset)
+            make.top.equalTo(safe).offset(32)
         }
-        genderStack.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.top.equalTo(ageStack.snp.bottom).offset(30)
+        userAge.snp.makeConstraints { make in
+            make.leading.equalTo(safe).offset(textInset)
+            make.top.equalTo(ageLabel.snp.top).offset(labelToValue)
         }
-        genreStack.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.top.equalTo(genderStack.snp.bottom).offset(30)
+        ageUnderline.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(safe).inset(lineInset)
+            make.top.equalTo(ageLabel.snp.top).offset(labelToUnderline)
+        }
+
+        genderLabel.snp.makeConstraints { make in
+            make.leading.equalTo(safe).offset(textInset)
+            make.top.equalTo(ageLabel.snp.top).offset(groupPitch)
+        }
+        userGender.snp.makeConstraints { make in
+            make.leading.equalTo(safe).offset(textInset)
+            make.top.equalTo(genderLabel.snp.top).offset(labelToValue)
+        }
+        genderUnderline.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(safe).inset(lineInset)
+            make.top.equalTo(genderLabel.snp.top).offset(labelToUnderline)
+        }
+
+        genreLabel.snp.makeConstraints { make in
+            make.leading.equalTo(safe).offset(textInset)
+            make.top.equalTo(genderLabel.snp.top).offset(groupPitch)
+        }
+        userGenre.snp.makeConstraints { make in
+            make.leading.equalTo(safe).offset(textInset)
+            make.trailing.lessThanOrEqualTo(safe).offset(-lineInset)
+            make.top.equalTo(genreLabel.snp.top).offset(labelToValue)
+        }
+        genreUnderline.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(safe).inset(lineInset)
+            make.top.equalTo(genreLabel.snp.top).offset(labelToUnderline)
         }
     }
 }

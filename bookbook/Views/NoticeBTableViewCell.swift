@@ -9,7 +9,7 @@ class NoticeBTableViewCell: UITableViewCell {
         label.textColor = .bk3
         label.textAlignment = .left
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 15)
+        label.font = UIFont.customFont(ofSize: 14, weight: .medium)
         return label
     }()
 
@@ -18,14 +18,15 @@ class NoticeBTableViewCell: UITableViewCell {
         label.textColor = .bk1
         label.textAlignment = .left
         label.numberOfLines = 1
-        label.font = .systemFont(ofSize: 17)
+        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
         return label
     }()
 
     let toggleButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
-        button.tintColor = .bk1
+        button.tintColor = .bk2
+        button.isUserInteractionEnabled = false   // 행 탭으로 토글
         return button
     }()
 
@@ -41,46 +42,65 @@ class NoticeBTableViewCell: UITableViewCell {
         label.textAlignment = .left
         label.numberOfLines = 0
         label.textColor = .bk1
+        label.font = UIFont.customFont(ofSize: 15, weight: .medium)
         label.backgroundColor = .clear
         return label
     }()
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    private let headerView = UIView()
+
+    private lazy var mainStack: UIStackView = {
+        let view = UIStackView(arrangedSubviews: [headerView, descriptionView])
+        view.axis = .vertical
+        view.spacing = 0
+        return view
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        selectionStyle = .none
         configureUI()
     }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     private func configureUI() {
-        contentView.addSubviews([dateLabel, titleLabel, toggleButton, descriptionView])
-        descriptionView.addSubview(descriptionLabel)
+        // 헤더(날짜 + 제목 + 화살표) — 접힌 상태에서도 항상 보인다.
+        headerView.addSubviews([dateLabel, titleLabel, toggleButton])
         dateLabel.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().offset(24)
+            make.leading.equalToSuperview().offset(24)
             make.top.equalToSuperview().offset(16)
         }
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(24)
-            make.trailing.equalTo(toggleButton.snp.leading).offset(-24)
-            make.top.equalTo(dateLabel.snp.bottom).offset(10)
+            make.top.equalTo(dateLabel.snp.bottom).offset(8)
+            make.bottom.equalToSuperview().inset(16)
+            make.trailing.lessThanOrEqualTo(toggleButton.snp.leading).offset(-16)
         }
         toggleButton.snp.makeConstraints { make in
-            make.size.equalTo(24)
+            make.size.equalTo(20)
             make.trailing.equalToSuperview().inset(20)
-            make.centerY.equalTo(titleLabel.snp.centerY)
+            make.centerY.equalToSuperview()
         }
-        descriptionView.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(20)
-            make.horizontalEdges.bottom.equalToSuperview()
-        }
+
+        // 펼쳐지는 본문 영역
+        descriptionView.addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(24)
+        }
+
+        // 스택으로 묶어 접힘/펼침에 따라 셀 높이가 자동 변한다.
+        contentView.addSubview(mainStack)
+        mainStack.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 
     func toggleDescriptionView(isExpanded: Bool) {
-        if isExpanded {
-            descriptionView.isHidden = false
-        } else {
-            descriptionView.isHidden = true
-        }
+        descriptionView.isHidden = !isExpanded
+        let symbol = isExpanded ? "chevron.up" : "chevron.down"
+        toggleButton.setImage(UIImage(systemName: symbol), for: .normal)
     }
 }

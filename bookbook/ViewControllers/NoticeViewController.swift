@@ -4,7 +4,6 @@ import SnapKit
 
 class NoticeViewController: UIViewController {
 
-
     private let noticeData: [Notice] = noticeList
 
     private var noticeExpandedStates = Array(repeating: false, count: noticeList.count)
@@ -28,9 +27,12 @@ class NoticeViewController: UIViewController {
 
     private func configureUI() {
         view.backgroundColor = .customWh
+        // 첫 셀 위(최상단)에 그려지는 구분선 제거
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNonzeroMagnitude))
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
         }
     }
 }
@@ -59,6 +61,11 @@ extension  NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        // 셀이 스택 기반으로 접힘/펼침에 따라 자동 높이
+        return UITableView.automaticDimension
+    }
+
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return 82
     }
 }

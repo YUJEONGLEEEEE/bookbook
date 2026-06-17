@@ -8,11 +8,13 @@ final class StartSearchView: UIView {
 
     private var recentSearches: [String] = []
     private var popularSearches: [String] = []
+    private var isEmptyResult = false
 
     private lazy var SearchedCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 20
+        let layout = LeftAlignedFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 8
+        layout.minimumInteritemSpacing = 8
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .white
         view.register(RecentSearchedCollectionViewCell.self, forCellWithReuseIdentifier: "RecentSearchedCollectionViewCell")
@@ -49,7 +51,9 @@ final class StartSearchView: UIView {
     }
 
     func showEmptyState(_ show: Bool) {
+        isEmptyResult = show
         emptyResultLabel.isHidden = !show
+        SearchedCollectionView.reloadData()
     }
 
     private func configureUI() {
@@ -57,13 +61,13 @@ final class StartSearchView: UIView {
         addSubviews([SearchedCollectionView, emptyResultLabel])
 
         SearchedCollectionView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(8)
             make.horizontalEdges.equalToSuperview().inset(24)
+            make.bottom.equalToSuperview()
         }
 
         emptyResultLabel.snp.makeConstraints { make in
-            make.top.equalTo(SearchedCollectionView.snp.bottom).offset(100)
-            make.centerX.equalToSuperview()
+            make.center.equalToSuperview()
         }
     }
 }
@@ -76,7 +80,7 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return min(5, recentSearches.count)
+            return isEmptyResult ? 0 : min(5, recentSearches.count)
         } else {
             return min(5, popularSearches.count)
         }
@@ -87,8 +91,14 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RecentSearchedCollectionViewCell", for: indexPath) as! RecentSearchedCollectionViewCell
             let text = recentSearches[indexPath.item]
             cell.wordLabel.text = text
-            cell.deleteAction = { [weak self] in
-                self?.delegate?.didDeleteRecentSearch(at: indexPath.item)
+            cell.deleteAction = { [weak self, weak cell] in
+                guard
+                    let self,
+                    let cell,
+                    let currentIndexPath = collectionView.indexPath(for: cell),
+                    currentIndexPath.section == 0   // 최근 검색어 섹션만 삭제 (인기 키워드 보호)
+                else { return }
+                self.delegate?.didDeleteRecentSearch(at: currentIndexPath.item)
             }
             return cell
         } else {
@@ -102,7 +112,8 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "SearchedHeaderView", for: indexPath) as! SearchedHeaderView
-            let titles = ["최근 검색어", "인기 검색어"]
+            let popularTitle = isEmptyResult ? "인기 키워드를 확인해보세요" : "인기 키워드"
+            let titles = ["최근 검색어", popularTitle]
             header.configure(title: titles[indexPath.section])
             return header
         }
@@ -110,23 +121,25 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if section == 0 && isEmptyResult { return .zero }
         return CGSize(width: collectionView.frame.width, height: 44)
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let text: String
-        if indexPath.section == 0 {
-            text = recentSearches[indexPath.item]
-        } else {
-            text = popularSearches[indexPath.item]
-        }
         let font = UIFont.customFont(ofSize: 14, weight: .medium)
-        let horizontalPadding: CGFloat = 32
-        let textAttributes = [NSAttributedString.Key.font: font]
-        let textSize = (text as NSString).size(withAttributes: textAttributes)
-        let height: CGFloat = 22
+        let height: CGFloat = 33
 
-        return CGSize(width: textSize.width + horizontalPadding, height: height)
+        if indexPath.section == 0 {
+            // 최근 검색어: 좌16 + 텍스트 + 간격6 + X버튼16 + 우12
+            let text = recentSearches[indexPath.item]
+            let w = (text as NSString).size(withAttributes: [.font: font]).width
+            return CGSize(width: ceil(w) + 50, height: height)
+        } else {
+            // 인기 키워드: "#텍스트" + 좌우 16씩
+            let text = "#\(popularSearches[indexPath.item])"
+            let w = (text as NSString).size(withAttributes: [.font: font]).width
+            return CGSize(width: ceil(w) + 32, height: height)
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -137,5 +150,26 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
             query = popularSearches[indexPath.item]
         }
         delegate?.startSearchView(self, didSelectQuery: query)
+    }
+}
+
+// 칩 왼쪽 정렬 레이아웃
+final class LeftAlignedFlowLayout: UICollectionViewFlowLayout {
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
+        let copied = attributes.map { $0.copy() as! UICollectionViewLayoutAttributes }
+
+        var leftMargin = sectionInset.left
+        var maxY: CGFloat = -1.0
+        for attr in copied {
+            guard attr.representedElementCategory == .cell else { continue }   // 헤더는 그대로
+            if attr.frame.origin.y >= maxY {
+                leftMargin = sectionInset.left                                  // 새 줄 시작
+            }
+            attr.frame.origin.x = leftMargin
+            leftMargin += attr.frame.width + minimumInteritemSpacing
+            maxY = max(attr.frame.maxY, maxY)
+        }
+        return copied
     }
 }

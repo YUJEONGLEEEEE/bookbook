@@ -4,7 +4,6 @@ import CoreData
 
 extension BookData {
     func toEntity(context: NSManagedObjectContext) -> Book {
-        // 중복 체크 (중요!)
         let request: NSFetchRequest<Book> = Book.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", self.title)
 
@@ -12,21 +11,21 @@ extension BookData {
             return existingBook
         }
 
-        // 새로운 Book 생성
         let book = Book(context: context)
+        book.isbn13 = self.isbn13
         book.title = self.title
         book.author = self.author
-        book.image = self.cover  // API의 cover → Book의 image
+        book.image = self.cover
         book.publisher = self.publisher
-        book.story = self.description  // API의 description → Book의 story
+        book.story = self.description
+        book.searchCategoryId = Int64(self.searchCategoryId)
 
         return book
     }
 }
 
-extension NaverBookData {
+extension NaverBook {
     func toEntity(context: NSManagedObjectContext) -> Book {
-        // 중복 체크
         let request: NSFetchRequest<Book> = Book.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", self.title)
 
@@ -34,8 +33,8 @@ extension NaverBookData {
             return existingBook
         }
 
-        // 새로운 Book 생성
         let book = Book(context: context)
+        book.isbn13 = self.isbn
         book.title = self.title
         book.author = self.author
         book.image = self.image

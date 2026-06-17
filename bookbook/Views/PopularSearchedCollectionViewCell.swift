@@ -16,10 +16,15 @@ class PopularSearchedCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // 높이의 1/2 → 캡슐형
+        contentView.layer.cornerRadius = contentView.bounds.height / 2
+    }
+
     private func configureUI() {
         contentView.addSubview(keywordLabel)
         contentView.layer.borderWidth = 1
-        contentView.layer.cornerRadius = 24
         contentView.layer.masksToBounds = true
 
         keywordLabel.font = UIFont.customFont(ofSize: 14, weight: .medium)

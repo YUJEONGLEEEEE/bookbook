@@ -36,6 +36,7 @@ class QnAHeaderView: UITableViewHeaderFooterView {
         }
         boldSeparator.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview()
         }
     }
 }

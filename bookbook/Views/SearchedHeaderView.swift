@@ -8,12 +8,14 @@ class SearchedHeaderView: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
-        label.textColor = .black
-        label.font = .boldSystemFont(ofSize: 17)
+        label.textColor = .bk1
+        label.font = UIFont.customFont(ofSize: 16, weight: .bold)
+        return label
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configureUI()
     }
     
     required init?(coder: NSCoder) {
@@ -23,7 +25,7 @@ class SearchedHeaderView: UICollectionReusableView {
     private func configureUI() {
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(10)
+            make.verticalEdges.leading.equalToSuperview()
         }
     }
 

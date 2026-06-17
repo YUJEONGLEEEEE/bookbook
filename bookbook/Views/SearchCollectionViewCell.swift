@@ -18,6 +18,7 @@ class SearchCollectionViewCell: UICollectionViewCell {
         view.axis = .vertical
         view.distribution = .fill
         view.alignment = .leading
+        view.spacing = 4
         return view
     }()
 
@@ -63,6 +64,7 @@ class SearchCollectionViewCell: UICollectionViewCell {
         return button
     }()
 
+    // 사용자가 이미 북마크한 책일 때만 보이는 "담았어요" 표시(버튼 아님, 비탭).
     let bookmarked: UIButton = {
         let button = UIButton()
         button.showBookmarked()
@@ -73,7 +75,7 @@ class SearchCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         configureUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -93,26 +95,26 @@ class SearchCollectionViewCell: UICollectionViewCell {
         contentView.backgroundColor = .clear
         contentView.addSubviews([bookImage, mainStack])
         mainStack.addArrangedSubviews([bookTitle, subLabel, descriptionLabel, buttonStack])
-        buttonStack.addArrangedSubviews([showLiked, bookmarked])
+
+        // ♥/담았어요 버튼은 콘텐츠에 딱 맞게 고정하고, 끝의 스페이서가 남는 가로 공간을 흡수한다.
+        // (이렇게 안 하면 .fill 분배가 ♥ 박스를 옆으로 늘려 셀마다 크기가 달라짐)
+        let buttonSpacer = UIView()
+        buttonSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        buttonStack.addArrangedSubviews([showLiked, bookmarked, buttonSpacer])
+        showLiked.setContentHuggingPriority(.required, for: .horizontal)
+        showLiked.setContentCompressionResistancePriority(.required, for: .horizontal)
+        bookmarked.setContentHuggingPriority(.required, for: .horizontal)
+        bookmarked.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         bookImage.snp.makeConstraints { make in
-            make.width.equalTo(86)
+            make.width.equalTo(87)
             make.height.equalTo(123)
             make.leading.verticalEdges.equalToSuperview()
         }
         mainStack.snp.makeConstraints { make in
-            make.leading.equalTo(bookImage.snp.trailing).offset(14)
+            make.leading.equalTo(bookImage.snp.trailing).offset(16)
             make.verticalEdges.trailing.equalToSuperview()
         }
-        subLabel.snp.makeConstraints { make in
-            make.top.equalTo(bookTitle.snp.bottom).offset(4)
-        }
-        descriptionLabel.snp.makeConstraints { make in
-            make.top.equalTo(subLabel.snp.bottom).offset(4)
-        }
-        buttonStack.snp.makeConstraints { make in
-            make.height.equalTo(32)
-            make.top.equalTo(descriptionLabel.snp.bottom).offset(8)
-        }
+        mainStack.setCustomSpacing(8, after: descriptionLabel)
     }
 }

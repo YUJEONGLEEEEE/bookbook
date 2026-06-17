@@ -4,7 +4,7 @@ import Foundation
 enum NicknameValidationResult {
     case valid
     case invalidCount
-    case invalieSpecialCharacter
+    case invalidSpecialCharacter
     case invalidNumber
 }
 
@@ -14,7 +14,7 @@ struct NicknameValidator {
             return .invalidCount
         }
         if nickname.contains(where: { "!@#$%^&*()-_+={}[]:;<>,." .contains($0) }) {
-            return .invalieSpecialCharacter
+            return .invalidSpecialCharacter
         }
         if nickname.contains(where: { $0.isNumber}) {
             return .invalidNumber

@@ -1,6 +1,7 @@
 
 import UIKit
 import Alamofire
+import CoreData
 import Kingfisher
 import SnapKit
 
@@ -8,111 +9,182 @@ class MainViewController: UIViewController {
 
     private var preferredBooks: [BookData] = []
     private var recentBooks: [BookData] = []
+    private var rankedBooks: [Book] = []
     private var bestsellerCache: [BookData] = []
+    private var currentBestseller: BookData?
     private let bookCategory = filters
 
     private var account: Account?
     private var usersChoices: [String] = []
 
-    private weak var secondHeaderView: SecondHeaderView?
-
     //    동기화를 위한 lockqueue 추가
     private let bookLockQueue = DispatchQueue(label: "com.readdam.bookdata.lock")
 
-    //    전체페이지 스크롤
     private let refreshControl = UIRefreshControl()
-    private let mainScrollView: UIScrollView = {
+
+    // MARK: - 상단바 (Figma처럼 평평하게: iOS 26 바 버튼 글래스를 피하려고 시스템 내비바 대신 사용)
+    private let topBar: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
+
+    private lazy var logoImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "logo_colored"))
+        imageView.contentMode = .scaleAspectFit
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(didTapHomeLogo))
+        )
+        return imageView
+    }()
+
+    private lazy var searchButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "magnifyingglass"), for: .normal)
+        button.tintColor = .black
+        button.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
+        return button
+    }()
+
+    // MARK: - 세로 스크롤 + 스택 (5개 섹션)
+    private let scrollView: UIScrollView = {
         let view = UIScrollView()
         view.showsVerticalScrollIndicator = false
-        view.showsHorizontalScrollIndicator = false
-        view.contentInsetAdjustmentBehavior = .automatic
         view.alwaysBounceVertical = true
         return view
     }()
 
-    //    오늘의한문장
+    private let contentStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.spacing = 24
+        return stack
+    }()
+
     private let quoteCard = QuoteCardView()
 
-    //    이런책은어떠세요 ->> 사용자선호도,연령대,성별 기반
-    //    이번주많은마음을받은책이에요 ->> 전체사용자 좋아요 기반
-    //    읽담추천 ->> 알라딘 베스트셀러
-    //    내책장에활기를불어넣을신간모음 ->> 알라딘 신간
-    private let mainCollectionView: UICollectionView = {
+    private let preferredTitleLabel = MainViewController.sectionTitleLabel()
+    private lazy var preferredCollectionView = makeBookCollectionView(tag: Tag.preferred)
+
+    private let likedTitleLabel = MainViewController.sectionTitleLabel("이번주 많은 마음을 받은 책이에요")
+    private lazy var likedTitleRow = titleRow(likedTitleLabel)
+    private lazy var rankingCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 16
-        layout.minimumInteritemSpacing = 16
-        let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        view.backgroundColor = .clear
-        view.register(MainCollectionViewCell.self, forCellWithReuseIdentifier: "MainCollectionViewCell")
-        view.register(FirstHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "FirstHeaderView")
-        view.register(SecondHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "SecondHeaderView")
-        return view
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 20
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.tag = Tag.ranking
+        cv.backgroundColor = .clear
+        cv.isScrollEnabled = false
+        cv.register(BookRankingCollectionViewCell.self, forCellWithReuseIdentifier: "BookRankingCollectionViewCell")
+        cv.delegate = self
+        cv.dataSource = self
+        return cv
     }()
+    private var rankingHeightConstraint: Constraint?
+
+    private let bestsellerCard = BestsellerCardView()
+
+    private let newBookTitleLabel = MainViewController.sectionTitleLabel("내 책장에 활기를 불어넣을 신간 모음")
+    private lazy var recentCollectionView = makeBookCollectionView(tag: Tag.recent)
+
+    private enum Tag {
+        static let preferred = 1
+        static let recent = 2
+        static let ranking = 3
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        navigationItem.title = ""
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(named: "logo_color"),
-            style: .plain,
-            target: self,
-            action: #selector(didTapHomeLogo)
-        )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "magnifyingglass"),
-            style: .plain,
-            target: self,
-            action: #selector(searchButtonClicked)
-        )
+        configureUI()
         setupRefreshControl()
+        bestsellerCard.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(didTapBestseller))
+        )
+        bestsellerCard.isUserInteractionEnabled = true
+
+        BookRepository.shared.seedDemoRankedBooksIfNeeded()
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleLikeChanged), name: .bookLikeDidChange, object: nil
+        )
+
         fetchAccountAndConfigure()
         fetchRecentBooks()
         loadBestseller()
         loadTopBooks()
-        mainCollectionView.delegate = self
-        mainCollectionView.dataSource = self
-        configureUI()
     }
+
+    @objc private func handleLikeChanged() {
+        loadTopBooks()
+    }
+
     @objc private func didTapHomeLogo() {
-        print(#function)
-        //        홈화면 새로고침
-        //        #1 스크롤 최상단 이동
-        let topOffset = CGPoint(x: 0, y: -mainScrollView.adjustedContentInset.top)
-        mainScrollView.setContentOffset(topOffset, animated: true)
+        //        홈화면 새로고침: 최상단 이동 + 갱신
+        scrollView.setContentOffset(CGPoint(x: 0, y: -scrollView.adjustedContentInset.top), animated: true)
         refreshControl.beginRefreshing()
         quoteCard.showRandomImage()
-        loadBestseller()
         handleRefresh()
     }
+
     @objc private func searchButtonClicked() {
-        print(#function)
         self.tabBarController?.selectedIndex = 1
+    }
+
+    @objc private func didTapBestseller() {
+        guard let book = currentBestseller else { return }
+        let detailVC = DetailViewController(isbn13: book.isbn13Int)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
         quoteCard.showRandomImage()
         loadBestseller()
+        refreshHomeIfNeeded()
     }
 
-    //    account 설정
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // 로그인 직후 메인 진입 시 인사 토스트 (대기 메시지 있을 때만)
+        showPendingToast()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
+    // MARK: - Data
+
     private func fetchAccountAndConfigure() {
-        guard let account = CoreDataManager.shared.fetchAccount() else {
+        guard let account = CoreDataManager.shared.fetchCurrentAccount() else {
+            self.account = nil
+            updatePreferredTitle()
             usersChoices = ["에세이", "문학"]
             fetchPrefferedBooks(for: usersChoices)
             return
         }
         self.account = account
+        updatePreferredTitle()
         configureHome(with: account)
+    }
+
+    private func updatePreferredTitle() {
+        let nickname = account?.nickname ?? "회원"
+        preferredTitleLabel.text = "\(nickname)님, 이런 책은 어떠세요?"
     }
 
     //    사용자 선호도 기반 홈 구성
     private func configureHome(with account: Account) {
         guard let ageRange = AgeRange(rawValue: account.age),
-              let gender = Gender(rawValue: account.gender ?? "") else {
-
+              let genderRaw = account.gender,
+              let gender = Gender(rawValue: genderRaw) else {
             usersChoices = ["에세이", "문학"]
             fetchPrefferedBooks(for: usersChoices)
             return
@@ -123,17 +195,11 @@ class MainViewController: UIViewController {
             gender: gender
         )
 
-        //        coredatamanager의 fetchGenres() 사용
         let selectedGenres = CoreDataManager.shared.fetchGenres()
         usersChoices = selectedGenres.isEmpty ? baseGenres : selectedGenres
 
         fetchPrefferedBooks(for: usersChoices)
     }
-
-    //    장르 이름으로 categoryId 가져오기
-    //    private func categoryId(for genre: String) -> String? {
-    //        return bookCategory.first(where: { $0.name.contains(genre) })?.categoryId
-    //    }
 
     //    장르 이름으로 bookfilter 찾기
     private func filter(for genre: String) -> BookFilter? {
@@ -147,13 +213,15 @@ class MainViewController: UIViewController {
         guard !randomGenres.isEmpty else {
             DispatchQueue.main.async {
                 self.preferredBooks = []
-                self.mainCollectionView.reloadSections(IndexSet(integer: 0))
+                self.preferredCollectionView.reloadData()
             }
             return
         }
 
-        var genreResults: [[BookData]] = []
+        LoadingManager.shared.showLoading(on: view)
+
         let group = DispatchGroup()
+        var collectedBooks: [[BookData]] = []
 
         for genre in randomGenres {
             guard let filter = filter(for: genre) else { continue }
@@ -163,7 +231,6 @@ class MainViewController: UIViewController {
 
                 group.enter()
                 print("무작위 선택: \(genre) (ID: \(categoryId)) 검색 중...")
-
                 NetworkManager.shared.bookLists(
                     queryType: "Bestseller",
                     category: categoryId
@@ -173,42 +240,47 @@ class MainViewController: UIViewController {
                     let books: [BookData]
                     switch result {
                     case .success(let bookInfo):
-                        books = Array(bookInfo.item.prefix(3))
-
+                        books = Array(bookInfo.item.prefix(10))
                     case .failure(let error):
                         print("\(genre)(ID: \(categoryId)) 검색 실패: \(error)")
                         books = []
                     }
 
                     self.bookLockQueue.async {
-                        genreResults.append(books)
+                        collectedBooks.append(books)
                     }
                 }
             }
         }
 
         group.notify(queue: .main) {
-            let allBooks = genreResults.flatMap { $0 }
+            LoadingManager.shared.hideLoading()
+            let allBooks = collectedBooks.flatMap { $0 }
             self.preferredBooks = Array(allBooks.shuffled().prefix(10))
-            self.mainCollectionView.reloadSections(IndexSet(integer: 0))
+            self.preferredCollectionView.reloadData()
         }
     }
 
     private func fetchRecentBooks() {
         print("최근 신간 불러오기 - ItemNewAll")
+        LoadingManager.shared.showLoading(on: view)
 
         NetworkManager.shared.bookLists(
             queryType: "ItemNewAll",
             category: 0) { result in
                 DispatchQueue.main.async {
+                    LoadingManager.shared.hideLoading()
+
                     switch result {
                     case .success(let newBook):
                         self.recentBooks = Array(newBook.item.prefix(10))
-                        self.mainCollectionView.reloadSections(IndexSet(integer: 1))
+                        self.recentCollectionView.reloadData()
                         print("신간 \(self.recentBooks.count)개 로드 완료")
                     case .failure(let error):
                         print("신간 로드 실패: \(error)")
                         self.recentBooks = []
+                        self.recentCollectionView.reloadData()
+                        self.showErrorAlert()
                     }
                 }
             }
@@ -229,204 +301,265 @@ class MainViewController: UIViewController {
         switch result {
         case .success(let bestsellerBook):
             let items = bestsellerBook.item
-            guard !items.isEmpty else { return }
-
-            let randomBestseller = items.randomElement() ?? items[0]
-
-            if let secondHeader = self.secondHeaderView {
-                secondHeader.configureRandomBestseller(
-                    coverImage: nil,
-                    blurImage: nil,
-                    title: randomBestseller.title,
-                    descripton: randomBestseller.description
-                )
-                loadBestsellerImages(secondHeader: secondHeader, book: randomBestseller)
-            }
-
-            self.bestsellerCache = items
+            guard let randomBestseller = items.randomElement() else { return }
+            bestsellerCache = items
+            configureBestseller(with: randomBestseller)
 
         case .failure(let error):
             print("베스트셀러 실패: \(error)")
-
-            if let cachedRandom = self.bestsellerCache.randomElement() {
-                if let secondHeader = self.secondHeaderView {
-                    secondHeader.configureRandomBestseller(
-                        coverImage: nil,
-                        blurImage: nil,
-                        title: cachedRandom.title,
-                        descripton: cachedRandom.description
-                    )
-                    loadBestsellerImages(secondHeader: secondHeader, book: cachedRandom)
-                }
+            // 캐시가 있으면 그걸로 대체, 없으면 오류 안내
+            guard let cachedRandom = bestsellerCache.randomElement() else {
+                showErrorAlert()
+                return
             }
+            configureBestseller(with: cachedRandom)
         }
     }
 
-    // 베스트셀러 이미지 로딩 (완성!)
-    private func loadBestsellerImages(secondHeader: SecondHeaderView, book: BookData) {
-        guard let coverUrl = URL(string: book.cover) else { return }
-
-        // 1. 책 표지
-        secondHeader.bestsellerCard.bookCover.kf.setImage(
-            with: coverUrl,
-            placeholder: UIImage(named: "icon_placeholder"),
-            options: [.scaleFactor(UIScreen.main.scale)]
+    private func configureBestseller(with book: BookData) {
+        currentBestseller = book
+        bestsellerCard.configure(
+            coverImage: nil,
+            blurImage: nil,
+            title: book.title,
+            description: book.description.isEmpty ? "베스트셀러 추천 도서입니다!" : book.description
         )
+        loadBestsellerImages(book: book)
+    }
 
-        // 2. 블러 배경
-        secondHeader.bestsellerCard.blurBackgroundView.kf.setImage(
+    private func loadBestsellerImages(book: BookData) {
+        let trimmed = book.cover.trimmingCharacters(in: .whitespaces)
+        // 표지 없음(빈값/알라딘 noimg) → placeholder, 블러 배경은 생략
+        guard !trimmed.isEmpty,
+              !trimmed.lowercased().contains("noimg"),
+              let coverUrl = URL(string: trimmed) else {
+            bestsellerCard.bookCover.setBookCover(nil)   // 회색 배경 + 72x72 중앙 placeholder
+            bestsellerCard.blurBackgroundView.image = nil
+            return
+        }
+
+        let blurOptions: KingfisherOptionsInfo = [
+            .processor(BlurImageProcessor(blurRadius: 12)),
+            .scaleFactor(UIScreen.main.scale),
+        ]
+        let sharpOptions: KingfisherOptionsInfo = [
+            .scaleFactor(UIScreen.main.scale),
+            .transition(.fade(0.3))
+        ]
+
+        bestsellerCard.bookCover.kf.setImage(
             with: coverUrl,
-            options: [
-                .processor(BlurImageProcessor(blurRadius: 10)),
-                .scaleFactor(UIScreen.main.scale)
-            ]
+            placeholder: UIImage(named: "placeholder"),
+            options: sharpOptions
+        )
+        bestsellerCard.blurBackgroundView.kf.setImage(
+            with: coverUrl,
+            options: blurOptions
         )
     }
 
     private func loadTopBooks() {
-        let topBooks = BookRepository.shared.getTopRankedBooks()
-
-        if let secondHeader = self.secondHeaderView {
-            secondHeader.updateBookRankings(books: topBooks)
-        }
+        rankedBooks = BookRepository.shared.getTopRankedBooks()
+        rankingCollectionView.reloadData()
+        updateRankingLayout()
     }
 
-    //    스크롤 당겨서 새로고침
+    private func updateRankingLayout() {
+        let count = min(rankedBooks.count, 3)
+        let hasBooks = count > 0
+        likedTitleRow.isHidden = !hasBooks
+        rankingCollectionView.isHidden = !hasBooks
+
+        let rowHeight: CGFloat = 112
+        let spacing: CGFloat = 20
+        let height = hasBooks ? CGFloat(count) * rowHeight + CGFloat(count - 1) * spacing : 0
+        rankingHeightConstraint?.update(offset: height)
+    }
+
     private func setupRefreshControl() {
-        print(#function)
-        mainScrollView.refreshControl = refreshControl
+        scrollView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
     }
+
     @objc private func handleRefresh() {
-        print(#function)
-        //        #1 데이터 다시 불러오기
         fetchAccountAndConfigure()
         fetchRecentBooks()
         loadBestseller()
         loadTopBooks()
         quoteCard.showRandomImage()
-        //        #2 ui 업데이트
-        //        #3 새로고침 종료
-        self.refreshControl.endRefreshing()
+        refreshControl.endRefreshing()
     }
 
-    private func refrestUserInfo() {
+    private func refreshHomeIfNeeded() {
         fetchAccountAndConfigure()
-        mainCollectionView.reloadSections(IndexSet(integer: 0))
+        loadTopBooks()
     }
+
+    // MARK: - Layout
 
     private func configureUI() {
-        view.addSubview(mainScrollView)
-        mainScrollView.addSubviews([quoteCard, mainCollectionView])
-        mainScrollView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+        view.addSubviews([scrollView, topBar])
+        topBar.addSubviews([logoImageView, searchButton])
+        scrollView.addSubview(contentStack)
+
+        let bestsellerContainer = makeBestsellerContainer()
+
+        contentStack.addArrangedSubviews([
+            quoteCard,
+            titleRow(preferredTitleLabel),
+            preferredCollectionView,
+            likedTitleRow,
+            rankingCollectionView,
+            bestsellerContainer,
+            titleRow(newBookTitleLabel),
+            recentCollectionView,
+        ])
+
+        contentStack.setCustomSpacing(56, after: quoteCard)
+        contentStack.setCustomSpacing(48, after: preferredCollectionView)
+        contentStack.setCustomSpacing(62, after: rankingCollectionView)
+        contentStack.setCustomSpacing(41, after: bestsellerContainer)
+
+        topBar.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.height.equalTo(48)
+        }
+        logoImageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(72)
+            make.height.equalTo(28)
+        }
+        searchButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(32)
+        }
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(topBar.snp.bottom)
+            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        contentStack.snp.makeConstraints { make in
+            make.verticalEdges.equalTo(scrollView.contentLayoutGuide)
+            make.horizontalEdges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
         }
         quoteCard.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalToSuperview()
             make.height.equalTo(364)
         }
-        mainCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(quoteCard.snp.bottom).offset(56)
-            make.horizontalEdges.bottom.equalToSuperview()
+        preferredCollectionView.snp.makeConstraints { make in
+            make.height.equalTo(243)
         }
+        rankingCollectionView.snp.makeConstraints { make in
+            rankingHeightConstraint = make.height.equalTo(376).constraint
+        }
+        recentCollectionView.snp.makeConstraints { make in
+            make.height.equalTo(243)
+        }
+    }
+
+    private func makeBestsellerContainer() -> UIView {
+        let container = UIView()
+        container.addSubview(bestsellerCard)
+        bestsellerCard.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.width.equalTo(354)
+            make.height.equalTo(415)
+        }
+        return container
+    }
+
+    private func titleRow(_ label: UILabel) -> UIView {
+        let container = UIView()
+        container.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(24)
+            make.trailing.lessThanOrEqualToSuperview().inset(24)
+            make.verticalEdges.equalToSuperview()
+        }
+        return container
+    }
+
+    private static func sectionTitleLabel(_ text: String = "") -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = UIFont.customFont(ofSize: 20, weight: .bold)
+        label.textColor = .bk1
+        label.textAlignment = .left
+        return label
+    }
+
+    //    가로 스크롤 책 컬렉션뷰
+    private func makeBookCollectionView(tag: Int) -> UICollectionView {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 16
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.tag = tag
+        cv.backgroundColor = .clear
+        cv.showsHorizontalScrollIndicator = false
+        cv.register(MainCollectionViewCell.self, forCellWithReuseIdentifier: "MainCollectionViewCell")
+        cv.delegate = self
+        cv.dataSource = self
+        return cv
     }
 }
 
-extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SecondHeaderProtocol {
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        //        님,이런책은어떠세요 && 내책장에활기를넣을신간모음
-        return 2
-    }
+extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch section {
-            //            님,이런책은어떠세요
-        case 0:
-            return min(preferredBooks.count, 10)
-            //            내책장에활기를불어넣을신간모음
-        case 1:
-            return min(recentBooks.count, 10)
-        default:
-            return 0
+        switch collectionView.tag {
+        case Tag.preferred: return preferredBooks.count
+        case Tag.recent: return recentBooks.count
+        case Tag.ranking: return min(rankedBooks.count, 3)
+        default: return 0
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as! MainCollectionViewCell
-        switch indexPath.section {
-        case 0:
-            guard indexPath.item < preferredBooks.count else { return cell }
-            let pBooks = preferredBooks[indexPath.item]
-            if !pBooks.cover.isEmpty,
-                let url = URL(string: pBooks.cover) {
-                cell.bookImage.kf.setImage(with: url)
-            } else {
-                cell.bookImage.image = UIImage(named: "icon_placeholder")
-            }
-            cell.bookTitle.text = pBooks.title.isEmpty ? "" : pBooks.title.cleanHTML()
-            cell.bookAuthor.text = pBooks.author.isEmpty ? "" : pBooks.author.cleanHTML()
-
-        case 1:
-            guard indexPath.item < recentBooks.count else {
-                cell.bookImage.image = UIImage(named: "icon_placeholder")
-                return cell
-            }
-            let rBooks = recentBooks[indexPath.item]
-            if !rBooks.cover.isEmpty,
-                let url = URL(string: rBooks.cover) {
-                cell.bookImage.kf.setImage(with: url)
-            } else {
-                cell.bookImage.image = UIImage(named: "icon_placeholder")
-            }
-            cell.bookTitle.text = rBooks.title.isEmpty  ? "" : rBooks.title.cleanHTML()
-            cell.bookAuthor.text = rBooks.author.isEmpty ? "" : rBooks.author.cleanHTML()
-        default:
-            break
+        if collectionView.tag == Tag.ranking {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BookRankingCollectionViewCell", for: indexPath) as! BookRankingCollectionViewCell
+            let book = rankedBooks[indexPath.item]
+            cell.bookImage.setBookCover(book.image)
+            cell.bookRank.text = "\(indexPath.item + 1)"
+            cell.bookTitle.text = book.title
+            cell.bookAuthorPublisher.text = "\((book.author ?? "").cleanAuthor()) · \(book.publisher ?? "")"
+            cell.showLiked.showLikedCounts(count: Int(book.liked?.likedCount ?? 0))
+            return cell
         }
+
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as! MainCollectionViewCell
+        let book = (collectionView.tag == Tag.preferred) ? preferredBooks[indexPath.item] : recentBooks[indexPath.item]
+        cell.bookImage.setBookCover(book.cover)
+        cell.bookTitle.text = book.title.cleanHTML()
+        cell.bookAuthor.text = book.author.cleanAuthor()
         return cell
     }
 
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        guard kind == UICollectionView.elementKindSectionHeader else  {
-            return UICollectionReusableView()
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if collectionView.tag == Tag.ranking {
+            return CGSize(width: collectionView.bounds.width - 48, height: 112)
         }
-        switch indexPath.section {
-        case 0:
-            let firstHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "FirstHeaderView", for: indexPath) as! FirstHeaderView
-            let nickname = account?.nickname ?? "_"
-            firstHeader.configure(nickname: nickname)
-            return firstHeader
-            //            좋아요기반 1-3순위
-            //            읽담추천
-        case 1:
-            let secondHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "SecondHeaderView", for: indexPath) as! SecondHeaderView
-            self.secondHeaderView = secondHeader
-            return secondHeader
-        default:
-            return UICollectionReusableView()
-        }
+        return CGSize(width: 130, height: 243)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(#function)
-        let detailVC = DetailViewController()
-        navigationController?.pushViewController(detailVC, animated: true)
-    }
-
-    func secondHeaderView(_ headerView: SecondHeaderView, didSelectItemAt indexPath: IndexPath) {
-        let detailVC = DetailViewController()
-        navigationController?.pushViewController(detailVC, animated: true)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        switch section {
-        case 0:
-            return CGSize(width: collectionView.bounds.width, height: 90)
-        case 1:
-            return CGSize(width: collectionView.bounds.width, height: 1040)
+        let isbn13: Int
+        switch collectionView.tag {
+        case Tag.preferred:
+            guard indexPath.item < preferredBooks.count else { return }
+            isbn13 = preferredBooks[indexPath.item].isbn13Int
+        case Tag.recent:
+            guard indexPath.item < recentBooks.count else { return }
+            isbn13 = recentBooks[indexPath.item].isbn13Int
+        case Tag.ranking:
+            guard indexPath.item < rankedBooks.count else { return }
+            isbn13 = rankedBooks[indexPath.item].isbn13Int
         default:
-            return .zero
+            return
         }
+        navigationController?.pushViewController(DetailViewController(isbn13: isbn13), animated: true)
     }
 }

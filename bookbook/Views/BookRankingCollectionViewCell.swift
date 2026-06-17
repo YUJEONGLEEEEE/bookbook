@@ -15,13 +15,15 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
 
     let bookImage: UIImageView = {
         let image = UIImageView()
-        image.contentMode = .scaleAspectFit
+        // 모든 랭킹 셀의 표지가 동일한 크기(78x112)로 꽉 차 보이도록 aspectFill
+        image.contentMode = .scaleAspectFill
+        image.backgroundColor = .bk5
         return image
     }()
 
     let bookTitle: UILabel = {
         let label = UILabel()
-        label.font = UIFont.customFont(ofSize: 17, weight: .medium)
+        label.font = UIFont.customFont(ofSize: 18, weight: .medium)
         label.textColor = .bk1
         label.textAlignment = .left
         return label
@@ -29,7 +31,7 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
 
     let bookAuthorPublisher: UILabel = {
         let label = UILabel()
-        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
+        label.font = UIFont.customFont(ofSize: 16, weight: .regular)
         label.textColor = .bk3
         label.textAlignment = .left
         return label
@@ -61,31 +63,34 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
     }
     
     private func configureUI() {
+        bookImage.layer.cornerRadius = 4
+        bookImage.clipsToBounds = true
+
         contentView.addSubviews([bookRank, bookImage, bookTitle, bookAuthorPublisher, showLiked])
         bookRank.snp.makeConstraints { make in
             make.leading.equalToSuperview()
+            make.top.equalTo(bookImage.snp.top)
+            make.width.equalTo(24)
         }
         bookImage.snp.makeConstraints { make in
-            make.height.equalTo(112)
+            make.leading.equalToSuperview().offset(27)
+            make.top.bottom.equalToSuperview()
             make.width.equalTo(78)
-            make.leading.equalTo(bookRank.snp.trailing).offset(15)
-            make.top.equalToSuperview()
         }
         bookTitle.snp.makeConstraints { make in
             make.leading.equalTo(bookImage.snp.trailing).offset(16)
-            make.top.equalToSuperview()
+            make.top.equalTo(bookImage.snp.top)
             make.trailing.equalToSuperview().inset(16)
         }
         bookAuthorPublisher.snp.makeConstraints { make in
             make.leading.equalTo(bookImage.snp.trailing).offset(16)
             make.top.equalTo(bookTitle.snp.bottom).offset(4)
-            make.trailing.equalToSuperview().inset(16)
+            make.trailing.lessThanOrEqualToSuperview().inset(16)
         }
+        // UIButton.Configuration 배경이 frame보다 ~5pt 안쪽에서 시작해 제목보다 밀려 보이므로 보정한다.
         showLiked.snp.makeConstraints { make in
-            make.top.equalTo(bookAuthorPublisher.snp.bottom).offset(35)
-            make.leading.equalTo(bookImage.snp.trailing).offset(16)
-            make.height.equalTo(32)
-            make.width.equalTo(49)
+            make.leading.equalTo(bookTitle.snp.leading).offset(-5)
+            make.top.equalToSuperview().offset(80)
         }
     }
 }

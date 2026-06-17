@@ -4,9 +4,9 @@ import SnapKit
 
 class AnnouncementViewController: UIViewController {
 
-    private var qnaExpandedStates = Array(repeating: false, count: 5)
-
     private let faqData: [FAQ] = faqList
+
+    private lazy var qnaExpandedStates = Array(repeating: false, count: faqData.count)
 
     private let tableView: UITableView = {
         let view = UITableView()
@@ -17,6 +17,8 @@ class AnnouncementViewController: UIViewController {
         view.separatorStyle = .singleLine
         view.separatorColor = .bk5
         view.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        // iOS 15+ 가 섹션 헤더 위에 자동으로 넣는 여백 제거 → 상단 간격 줄어듦
+        view.sectionHeaderTopPadding = 0
         return view
     }()
 
@@ -33,7 +35,8 @@ class AnnouncementViewController: UIViewController {
         view.backgroundColor = .customWh
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
         }
     }
 }
@@ -48,6 +51,10 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
         print(#function)
         let vc = NoticeViewController()
         navigationController?.pushViewController(vc, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 56
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -73,7 +80,10 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeATableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeATableViewCell", for: indexPath) as! NoticeATableViewCell
+            if indexPath.row < noticeList.count {
+                cell.titleLabel.text = noticeList[indexPath.row].title
+            }
             return cell
         } else if indexPath.section == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "QnATableViewCell", for: indexPath) as! QnATableViewCell
@@ -102,13 +112,12 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
             return 52
-        } else if indexPath.section == 1 {
-            if qnaExpandedStates[indexPath.row] {
-                return UITableView.automaticDimension
-            } else {
-                return 60
-            }
         }
-        return 0
+        // FAQ: 셀이 스택 기반으로 접힘/펼침에 따라 자동 높이
+        return UITableView.automaticDimension
+    }
+
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return indexPath.section == 0 ? 52 : 60
     }
 }

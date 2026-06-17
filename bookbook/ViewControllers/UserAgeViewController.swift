@@ -2,10 +2,13 @@
 import UIKit
 import SnapKit
 
-class UserAgeViewController: UIViewController {
+final class UserAgeViewController: UIViewController {
 
     private var selectedAgeRange: AgeRange?
     private weak var selectedButton: UIButton?
+
+    // 편집 모드 원본 스냅샷
+    var editContext: PreferenceEditContext?
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -27,13 +30,13 @@ class UserAgeViewController: UIViewController {
 
     private let childButton: UIButton = {
         let button = UIButton()
-        button.imageButton(title: "어린이", image: UIImage(named: "child"), size: 170)
+        button.imageButton(title: "어린이", image: UIImage(named: "children"), size: 170)
         return button
     }()
 
     private let teenButton: UIButton = {
         let button = UIButton()
-        button.imageButton(title: "청소년", image: UIImage(named: "youth"), size: 170)
+        button.imageButton(title: "청소년", image: UIImage(named: "adolescents"), size: 170)
         return button
     }()
 
@@ -45,13 +48,13 @@ class UserAgeViewController: UIViewController {
 
     private let adultButton: UIButton = {
         let button = UIButton()
-        button.imageButton(title: "성인", image: UIImage(named: "adult"), size: 170)
+        button.imageButton(title: "성인", image: UIImage(named: "adults"), size: 170)
         return button
     }()
 
     private let seniorButton: UIButton = {
         let button = UIButton()
-        button.imageButton(title: "노인", image: UIImage(named: "senior"), size: 170)
+        button.imageButton(title: "노인", image: UIImage(named: "seniors"), size: 170)
         return button
     }()
 
@@ -67,6 +70,24 @@ class UserAgeViewController: UIViewController {
         view.backgroundColor = .white
         configureUI()
         buttonActions()
+    }
+
+    // 선택 표시 오버레이는 레이아웃 완료 후 적용
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        preselectSavedAgeIfNeeded()
+    }
+
+    // 저장된 연령대 미리 선택
+    private func preselectSavedAgeIfNeeded() {
+        guard selectedAgeRange == nil,
+              let saved = CoreDataManager.shared.fetchAgeRange() else { return }
+        let buttonMap: [AgeRange: UIButton] = [
+            .child: childButton, .teen: teenButton,
+            .adult: adultButton, .senior: seniorButton
+        ]
+        guard let button = buttonMap[saved] else { return }
+        handleAgeSelection(range: saved, button: button)
     }
 
     private func updateButton(_ button: UIButton, isSelected: Bool) {
@@ -99,6 +120,7 @@ class UserAgeViewController: UIViewController {
     @objc private func nextButtonClicked() {
         print(#function)
         let vc = UserGenderViewController()
+        vc.editContext = editContext
         navigationController?.pushViewController(vc, animated: true)
     }
     private func handleAgeSelection(range: AgeRange, button: UIButton) {
@@ -129,11 +151,12 @@ class UserAgeViewController: UIViewController {
         secondStack.addArrangedSubviews([adultButton, seniorButton])
 
         titleLabel.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(30)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(24)
         }
         ageStackView.snp.makeConstraints { make in
-            make.center.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(titleLabel.snp.bottom).offset(110)
+            make.centerX.equalToSuperview()
         }
         nextButton.snp.makeConstraints { make in
             make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)

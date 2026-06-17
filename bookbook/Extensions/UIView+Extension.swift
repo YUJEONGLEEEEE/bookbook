@@ -55,23 +55,9 @@ extension UIStackView {
         }
     }
 
-    func verticalStackView() {
-        axis = .vertical
-        distribution = .fill
-        spacing = 10
-        alignment = .center
-    }
-
     func verticalEqualStackView() {
         axis = .vertical
         distribution = .fillEqually
-        spacing = 10
-        alignment = .center
-    }
-
-    func horizontalStackView() {
-        axis = .horizontal
-        distribution = .fill
         spacing = 10
         alignment = .center
     }
@@ -83,17 +69,4 @@ extension UIStackView {
         alignment = .center
     }
 
-    func bookStackView() {
-        axis = .vertical
-        distribution = .fill
-        spacing = 7
-        alignment = .center
-    } // non-used
-
-    func userStackView() {
-        axis = .vertical
-        distribution = .fill
-        spacing = 7
-        alignment = .leading
-    }
 }

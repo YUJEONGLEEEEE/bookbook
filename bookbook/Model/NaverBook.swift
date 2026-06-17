@@ -3,6 +3,11 @@ import Foundation
 
 struct naverBookInfo: Decodable {
     let item: [NaverBook]
+
+    // 네이버 책 검색 JSON의 결과 배열 키는 "items"이다.
+    enum CodingKeys: String, CodingKey {
+        case item = "items"
+    }
 }
 
 struct NaverBook: Decodable {

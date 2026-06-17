@@ -1,57 +1,301 @@
-//
-//  LikedViewController.swift
-//  bookbook
-//
-//  Created by 이유정 on 10/8/25.
-//
 
 import UIKit
-import Alamofire
 import Kingfisher
 import SnapKit
-import Toast
 
 class LikedViewController: UIViewController {
 
-    var likedBooks: [BookData] = []
+    private var allLikedBooks: [BookData] = []
+    private var likedBooks: [BookData] = []
+
+    private var currentPage = 1
+    private var totalResults = 0
+    private let itemsPerPage = 30
+
+    private var pageButtons: [UIButton] = []
+    private let maxPagesShown = 10
 
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 10
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 24
+        layout.minimumInteritemSpacing = 24
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
         view.register(LikedCollectionViewCell.self, forCellWithReuseIdentifier: "LikedCollectionViewCell")
+        view.backgroundColor = .clear
+        view.showsVerticalScrollIndicator = true
         return view
+    }()
+
+    private let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "아직 마음을 표현한 책이 없어요"
+        label.font = UIFont.customFont(ofSize: 17, weight: .medium)
+        label.textColor = .bk3
+        label.textAlignment = .center
+        label.numberOfLines = 1
+        label.isHidden = true
+        return label
+    }()
+
+    private let paginationStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.spacing = 20
+        view.distribution = .fillEqually
+        view.alignment = .center
+        view.isHidden = true
+        return view
+    }()
+
+    private let previousButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("<", for: .normal)
+        button.setTitleColor(.bk2, for: .normal)
+        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
+        return button
+    }()
+
+    private let nextButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(">", for: .normal)
+        button.setTitleColor(.bk2, for: .normal)
+        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
+        return button
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        navigationItem.title = "좋아요"
-        configureUI()
+        view.backgroundColor = .customWh
+        navigationItem.title = "마음서랍"
         collectionView.delegate = self
         collectionView.dataSource = self
+        configureUI()
+        setupButtonActions()
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleLikeChanged), name: .bookLikeDidChange, object: nil
+        )
+    }
+
+    @objc private func handleLikeChanged() {
+        currentPage = 1
+        loadLikedBooks()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        currentPage = 1
+        loadLikedBooks()
+    }
+
+    private func loadLikedBooks() {
+        LoadingManager.shared.showLoading(on: view)
+        CoreDataManager.shared.fetchLikedBooks { [weak self] books in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                LoadingManager.shared.hideLoading()
+                self.allLikedBooks = books
+                self.totalResults = books.count
+                self.applyPagination()
+                self.updateEmptyState()
+            }
+        }
+    }
+
+    private func applyPagination() {
+        let startIndex = (currentPage - 1) * itemsPerPage
+        let endIndex = min(startIndex + itemsPerPage, allLikedBooks.count)
+
+        if startIndex < endIndex {
+            likedBooks = Array(allLikedBooks[startIndex..<endIndex])
+        } else {
+            likedBooks = []
+        }
+
+        collectionView.reloadData()
+
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        paginationStackView.isHidden = (totalPages == 1 || totalResults == 0)
+        setupPaginationButtons(totalPages: totalPages)
+    }
+
+    private func updateEmptyState() {
+        let isEmpty = allLikedBooks.isEmpty
+        collectionView.isHidden = isEmpty
+        emptyLabel.isHidden = !isEmpty
+    }
+
+    // MARK: - Pagination Buttons
+
+    private func setupButtonActions() {
+        previousButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        nextButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        previousButton.addTarget(self,
+                                 action: #selector(previousPageTapped),
+                                 for: .touchUpInside)
+        nextButton.addTarget(self,
+                             action: #selector(nextPageTapped),
+                             for: .touchUpInside)
+    }
+
+    private func setupPaginationButtons(totalPages: Int) {
+        paginationStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        pageButtons.removeAll()
+
+        let canGoPrevious = currentPage > 1
+        previousButton.isEnabled = canGoPrevious
+        previousButton.setTitleColor(canGoPrevious ? .bk2 : .bk4, for: .normal)
+        paginationStackView.addArrangedSubview(previousButton)
+
+        let startPage = max(1, currentPage - 4)
+        let endPage = min(totalPages, startPage + maxPagesShown - 1)
+
+        for page in startPage...endPage {
+            let button = UIButton(type: .system)
+            button.setTitle("\(page)", for: .normal)
+            button.tag = page
+            button.setTitleColor(page == currentPage ? .bk1 : .bk3, for: .normal)
+            button.titleLabel?.font = page == currentPage
+            ? UIFont.customFont(ofSize: 17, weight: .bold)
+            : UIFont.customFont(ofSize: 17, weight: .medium)
+            button.removeTarget(nil, action: nil, for: .touchUpInside)
+            button.addTarget(self,
+                             action: #selector(pageButtonTapped(_:)),
+                             for: .touchUpInside)
+            pageButtons.append(button)
+            paginationStackView.addArrangedSubview(button)
+        }
+
+        let canGoNext = currentPage < totalPages
+        nextButton.isEnabled = canGoNext
+        nextButton.setTitleColor(canGoNext ? .bk2 : .bk4, for: .normal)
+        paginationStackView.addArrangedSubview(nextButton)
+    }
+
+    @objc private func pageButtonTapped(_ sender: UIButton) {
+        currentPage = sender.tag
+        applyPagination()
+        scrollToTop()
+    }
+
+    @objc private func previousPageTapped() {
+        guard currentPage > 1 else { return }
+        currentPage -= 1
+        applyPagination()
+        scrollToTop()
+    }
+    @objc private func nextPageTapped() {
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        guard currentPage < totalPages else { return }
+        currentPage += 1
+        applyPagination()
+        scrollToTop()
+    }
+
+    private func scrollToTop() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            if self.collectionView.numberOfItems(inSection: 0) > 0 {
+                self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0),
+                                                 at: .top,
+                                                 animated: false)
+            }
+        }
     }
 
     private func configureUI() {
-        view.addSubview(collectionView)
+        view.addSubviews([collectionView, emptyLabel, paginationStackView])
         collectionView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(32)
+            make.bottom.equalTo(paginationStackView.snp.top).offset(-32)
+        }
+        paginationStackView.snp.makeConstraints { make in
+            make.height.equalTo(24)
+            make.centerX.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(32)
+        }
+        emptyLabel.snp.makeConstraints { make in
+            make.center.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }
 
-extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return likedBooks.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "LikedCollectionViewCell", for: indexPath) as! LikedCollectionViewCell
-        let list = likedBooks[indexPath.item]
+        let book = likedBooks[indexPath.item]
+        cell.bookImage.setBookCover(book.cover, coverMode: .scaleAspectFit)
+        cell.bookTitle.text = book.title.cleanHTML()
+        cell.bookAuthor.text = book.author.cleanAuthor()
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let book = likedBooks[indexPath.item]
+        let detailVC = DetailViewController(isbn13: book.isbn13Int)
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let itemsPerRow: CGFloat = 3
+        let spacing: CGFloat = 24
+        let width: CGFloat = (collectionView.frame.width - spacing * (itemsPerRow - 1)) / itemsPerRow
+        let height: CGFloat = 193
+
+        return CGSize(width: width, height: height)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        trailingSwipeActionsConfigurationForItemAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+
+        let actualIndex = (currentPage - 1) * itemsPerPage + indexPath.item
+        guard actualIndex < allLikedBooks.count else { return nil }
+
+        let book = allLikedBooks[actualIndex]
+
+        let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { [weak self] _, _, completion in
+            guard let self else {
+                completion(false)
+                return
+            }
+
+            self.alertWithCancel(
+                message: "이 책을 마음서랍에서 꺼내시겠어요?",
+                cancelTitle: "놔두기",
+                confirmTitle: "꺼내기",
+                successMessage: "마음서랍에서 삭제했어요.",
+                okHandler: { [weak self] in
+                    guard let self else { return }
+
+                    CoreDataManager.shared.decrementLikeCount(for: book.isbn13Int)
+
+                    self.allLikedBooks.removeAll { $0.isbn13 == book.isbn13 }
+                    self.totalResults = self.allLikedBooks.count
+
+                    self.applyPagination()
+                    self.updateEmptyState()
+
+                    completion(true)
+                }
+            )
+        }
+
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }

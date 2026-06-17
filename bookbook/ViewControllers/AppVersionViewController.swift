@@ -8,6 +8,7 @@ final class AppVersionViewController: UIViewController {
         let view = UIImageView()
         view.image = UIImage(named: "appicon")
         view.contentMode = .scaleAspectFit
+        view.layer.cornerRadius = 22   // 앱 아이콘 라운드 사각형
         view.clipsToBounds = true
         return view
     }()
@@ -38,19 +39,20 @@ final class AppVersionViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubviews([logoImageView, versionLabel, messageLabel])
+        view.addSubviews([logoImageView, messageLabel, versionLabel])
         logoImageView.snp.makeConstraints { make in
             make.size.equalTo(100)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(205)
             make.centerX.equalTo(view.safeAreaLayoutGuide)
         }
-        versionLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(logoImageView.snp.bottom).offset(68)
-        }
+        // 피그마 순서: 아이콘 → "최신 버전을 사용중입니다." → "현재 버전 1.0.1"
         messageLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(versionLabel.snp.bottom).offset(35)
+            make.top.equalTo(logoImageView.snp.bottom).offset(24)
+        }
+        versionLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(messageLabel.snp.bottom).offset(8)
         }
     }
 }

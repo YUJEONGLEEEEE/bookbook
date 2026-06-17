@@ -10,6 +10,15 @@ class BookFilterView: UIView {
     var filters: [BookFilter] = [] {
         didSet {
             filterView.reloadData()
+            // 첫 번째(전체) 칩을 기본 선택 상태로 표시한다.
+            DispatchQueue.main.async { [weak self] in
+                guard let self, !self.filters.isEmpty else { return }
+                self.filterView.selectItem(
+                    at: IndexPath(item: 0, section: 0),
+                    animated: false,
+                    scrollPosition: []
+                )
+            }
         }
     }
 
@@ -65,8 +74,9 @@ extension BookFilterView: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let list = filters[indexPath.item]
         let text = list.name
-        let font = UIFont.systemFont(ofSize: 14)
-        let padding: CGFloat = 8
+        let font = UIFont.customFont(ofSize: 15, weight: .medium)
+        // 좌우 inset(14)*2 + 알약 여유
+        let padding: CGFloat = 32
         let textAttributes = [NSAttributedString.Key.font: font]
         let textSize = (text as NSString).size(withAttributes: textAttributes)
         let height: CGFloat = 33

@@ -5,7 +5,6 @@ import SnapKit
 class QuoteCardView: UIView {
 
     private var shuffledImages: [String] = []
-    private var currentIndex: Int = 0
     private var lastImageName: String?
 
     private let images = (1...10).map { String(format: "quote%02d", $0)}
@@ -20,15 +19,14 @@ class QuoteCardView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
-        resetShuffledImages()
-        showNextImage()
+        showRandomImage()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func resetShuffledImages() {
+    func showRandomImage() {
         shuffledImages = images.shuffled()
 
         if let last = lastImageName,
@@ -36,18 +34,12 @@ class QuoteCardView: UIView {
            shuffledImages.count > 1 {
             shuffledImages.swapAt(0, 1)
         }
-        currentIndex = 0
-    }
 
-    func showNextImage() {
-        if currentIndex >= shuffledImages.count {
-            resetShuffledImages()
-        }
-        let imageName = shuffledImages[currentIndex]
-        currentIndex += 1
-
+        let imageName = shuffledImages[0]
         quoteCards.image = UIImage(named: imageName)
         lastImageName = imageName
+
+        print("QuoteCard new image: \(imageName)")
     }
 
     private func configureUI() {

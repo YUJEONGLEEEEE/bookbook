@@ -4,33 +4,36 @@ import SnapKit
 
 class BestsellerCardView: UIView {
 
-    private let blurBackgroundView: UIImageView = {
+    let blurBackgroundView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFill
         view.clipsToBounds = true
         return view
     }()
 
-    private let logoLabel: UILabel = {
+    private let overlayView = UIView()
+
+    let logoLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = .customMain
         label.text = " 읽담추천 "
         label.textColor = .customWh
         label.font = UIFont.customFont(ofSize: 13, weight: .medium)
         label.textAlignment = .center
-        label.layer.cornerRadius = 24
+        //  높이(32)의 1/2 → 완전한 캡슐 형태
+        label.layer.cornerRadius = 16
         label.clipsToBounds = true
         return label
     }()
 
-    private let bookCover: UIImageView = {
+    let bookCover: UIImageView = {
         let image = UIImageView()
         image.contentMode = .scaleAspectFit
         image.clipsToBounds = true
         return image
     }()
 
-    private let bookTitle: UILabel = {
+    let bookTitle: UILabel = {
         let label = UILabel()
         label.textColor = .bk1
         label.textAlignment = .center
@@ -39,13 +42,13 @@ class BestsellerCardView: UIView {
         return label
     }()
 
-    private let descriptionLabel: UILabel = {
+    let descriptionLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .left
         label.numberOfLines = 3
         label.lineBreakMode = .byTruncatingTail
         label.textColor = .bk2
-        label.font = UIFont.customFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
         return label
     }()
 
@@ -53,9 +56,14 @@ class BestsellerCardView: UIView {
         super.init(frame: frame)
         configureUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
     }
 
     func configure(coverImage: UIImage?, blurImage: UIImage?, title: String?, description: String?) {
@@ -71,16 +79,19 @@ class BestsellerCardView: UIView {
         bookTitle.text = "베스트셀러"
         descriptionLabel.text = "추천 도서를 불러오는 중입니다..."
     }
-
+    
     private func configureUI() {
         backgroundColor = .sub02
         layer.cornerRadius = 8
         clipsToBounds = true
         addSubviews([blurBackgroundView, bookTitle, descriptionLabel])
-        blurBackgroundView.addSubviews([logoLabel, bookCover])
+        blurBackgroundView.addSubviews([overlayView, logoLabel, bookCover])
         blurBackgroundView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalToSuperview()
             make.height.equalTo(280)
+        }
+        overlayView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
         logoLabel.snp.makeConstraints { make in
             make.width.equalTo(77)
@@ -93,9 +104,10 @@ class BestsellerCardView: UIView {
             make.width.equalTo(150)
             make.center.equalToSuperview()
         }
+        //  제목도 설명과 동일한 좌우 여백(inset 24)을 줘서 카드 밖으로 넘쳐 잘리지 않게 한다.
         bookTitle.snp.makeConstraints { make in
             make.top.equalTo(blurBackgroundView.snp.bottom).offset(16)
-            make.centerX.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(24)
         }
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(bookTitle.snp.bottom).offset(16)

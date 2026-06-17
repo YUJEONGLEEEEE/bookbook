@@ -1,44 +1,48 @@
 import SwiftUI
 
 struct AnimatedSymbolView: View {
-    @State private var isAnimating = false
+    var body: some View {
+        if #available(iOS 26.0, *) {
+            DrawingSymbolView()
+        } else {
+            PulseSymbolView()
+        }
+    }
+}
+
+// iOS 26+: draw-on / draw-off 효과
+@available(iOS 26.0, *)
+private struct DrawingSymbolView: View {
+    @State private var isDrawn = true
 
     var body: some View {
         Image(systemName: "scribble.variable")
-            .font(.system(size: 72))
-            .foregroundColor(Color(.customMain))
-            .modifier(AnimatedSymbolModifier(isAnimating: isAnimating))
-            .onAppear {
-                isAnimating = true
+            .font(.system(size: 44))
+            .foregroundStyle(Color(.customMain))
+            .symbolEffect(.drawOn, options: .speed(0.5), isActive: isDrawn)
+            .symbolEffect(.drawOff, options: .speed(0.5), isActive: !isDrawn)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .task {
+                while !Task.isCancelled {
+                    isDrawn = true
+                    try? await Task.sleep(nanoseconds: 2_500_000_000)
+                    isDrawn = false
+                    try? await Task.sleep(nanoseconds: 900_000_000)
+                }
             }
     }
 }
 
-struct AnimatedSymbolModifier: ViewModifier {
-    let isAnimating: Bool
+// iOS 26 미만 폴백: pulse 효과
+private struct PulseSymbolView: View {
+    @State private var isAnimating = false
 
-    func body(content: Content) -> some View {
-
-        if #available(iOS 26.0, *) {
-            // ✅ iOS 26 이상 → 진짜 “그려지는 효과”
-            content
-                .symbolEffect(
-                    .drawOn,
-                    options: .repeating.speed(1.2),
-                    isActive: isAnimating
-                )
-
-        } else {
-            // ✅ iOS 25 이하 → 유사한 느낌 직접 구현
-            content
-                .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                .scaleEffect(isAnimating ? 1.1 : 0.9)
-                .opacity(isAnimating ? 1 : 0.6)
-                .animation(
-                    .easeInOut(duration: 0.8)
-                    .repeatForever(autoreverses: true),
-                    value: isAnimating
-                )
-        }
+    var body: some View {
+        Image(systemName: "scribble.variable")
+            .font(.system(size: 44))
+            .foregroundColor(Color(.customMain))
+            .symbolEffect(.pulse, options: .repeating, isActive: isAnimating)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear { isAnimating = true }
     }
 }

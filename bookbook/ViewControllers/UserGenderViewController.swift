@@ -2,10 +2,12 @@
 import UIKit
 import SnapKit
 
-class UserGenderViewController: UIViewController {
+final class UserGenderViewController: UIViewController {
 
     private var selectedGender: Gender?
     private weak var selectedButton: UIButton?
+
+    var editContext: PreferenceEditContext?
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -45,6 +47,19 @@ class UserGenderViewController: UIViewController {
         buttonActions()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        preselectSavedGenderIfNeeded()
+        updateFinishButtonState()
+    }
+
+    private func preselectSavedGenderIfNeeded() {
+        guard selectedGender == nil,
+              let saved = CoreDataManager.shared.fetchGender() else { return }
+        let button = (saved == .male) ? maleButton : femaleButton
+        handleGenderSelection(gender: saved, button: button)
+    }
+
     private func updateButton(_ button: UIButton, isSelected: Bool) {
         button.setSelectedOverlay(isSelected)
     }
@@ -64,8 +79,16 @@ class UserGenderViewController: UIViewController {
     }
     @objc private func finishButtonClicked() {
         print(#function)
-        let vc = MainViewController()
-        navigationController?.pushViewController(vc, animated: true)
+        if UserSession.hasSeenTutorial {
+            // 편집(내취향 > 편집)으로 진입한 경우엔 메인에서 '취향 변경' 토스트
+            if editContext != nil {
+                ToastManager.shared.pendingMessage = "취향이 변경되었어요"
+            }
+            MainTabBarController.setAsRoot()
+        } else {
+            let tutorialVC = OnboardingViewController()
+            navigationController?.setViewControllers([tutorialVC], animated: true)
+        }
     }
     private func handleGenderSelection(gender: Gender, button: UIButton) {
         if let prevButton = selectedButton {
@@ -79,26 +102,40 @@ class UserGenderViewController: UIViewController {
         updateFinishButtonState()
     }
     private func updateFinishButtonState() {
+        let enabled: Bool
         if selectedGender == nil {
-            finishButton.isEnabled = false
-            finishButton.backgroundColor = .bk4
+            enabled = false
+        } else if let ctx = editContext {
+            // 편집 모드: 장르·연령·성별 중 하나라도 원본과 달라야 활성화
+            enabled = hasAnyChange(from: ctx)
         } else {
-            finishButton.isEnabled = true
-            finishButton.backgroundColor = .customMain
+            // 온보딩: 성별만 선택하면 활성화
+            enabled = true
         }
+        finishButton.isEnabled = enabled
+        finishButton.backgroundColor = enabled ? .customMain : .bk4
+    }
+
+    private func hasAnyChange(from ctx: PreferenceEditContext) -> Bool {
+        let currentGenres = Set(CoreDataManager.shared.fetchGenres())
+        let currentAge = CoreDataManager.shared.fetchAgeRange()
+        return currentGenres != ctx.genres
+            || currentAge != ctx.age
+            || selectedGender != ctx.gender
     }
 
     private func configureUI() {
         view.addSubviews([titleLabel, genderStackView, finishButton])
-        genderStackView.addArrangedSubviews([maleButton, femaleButton])
+        // Figma 순서: 여자(좌) · 남자(우)
+        genderStackView.addArrangedSubviews([femaleButton, maleButton])
 
         titleLabel.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(30)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(24)
         }
-
         genderStackView.snp.makeConstraints { make in
-            make.center.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(titleLabel.snp.bottom).offset(110)
+            make.centerX.equalToSuperview()
         }
         finishButton.snp.makeConstraints { make in
             make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)

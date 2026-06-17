@@ -92,7 +92,7 @@ class BookSortView: UIView {
 
     private func configureUI() {
         backgroundColor = .clear
-        
+
         addSubviews([sortStack, totalCountLabel])
         sortStack.addArrangedSubviews([accuracyButton, recommendButton, latestButton])
         sortStack.snp.makeConstraints { make in
