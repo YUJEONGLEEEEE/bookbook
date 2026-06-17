@@ -106,14 +106,17 @@ class SearchCollectionViewCell: UICollectionViewCell {
         bookmarked.setContentHuggingPriority(.required, for: .horizontal)
         bookmarked.setContentCompressionResistancePriority(.required, for: .horizontal)
 
+        // self-sizing 리스트 셀: 추정 높이와 충돌하지 않도록 하단 제약은 priority 999
         bookImage.snp.makeConstraints { make in
             make.width.equalTo(87)
             make.height.equalTo(123)
-            make.leading.verticalEdges.equalToSuperview()
+            make.leading.top.equalToSuperview()
+            make.bottom.equalToSuperview().priority(999)
         }
         mainStack.snp.makeConstraints { make in
             make.leading.equalTo(bookImage.snp.trailing).offset(16)
-            make.verticalEdges.trailing.equalToSuperview()
+            make.top.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().priority(999)
         }
         mainStack.setCustomSpacing(8, after: descriptionLabel)
     }
