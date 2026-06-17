@@ -189,6 +189,7 @@ class MyInfoViewController: UIViewController {
                     guard let self else { return }
                     // 계정 + 모든 활동 데이터 삭제
                     CoreDataManager.shared.deleteAllData()
+                    NotificationManager.resetAll()
                     UserSession.clear()
                     self.setRoot(BaseNavigationController(rootViewController: SignUpViewController()))
                 })

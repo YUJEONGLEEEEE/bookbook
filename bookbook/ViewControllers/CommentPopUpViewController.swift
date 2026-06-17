@@ -419,6 +419,7 @@ class CommentPopUpViewController: UIViewController {
                 rating: rating,
                 comment: text
             )
+            NotificationManager.checkBookRewardAfterComment()   // 새 책 획득 시 알림
             showSavedAlertThenDismiss(message: "작성한 책한줄이 저장되었어요.")
         }
     }
