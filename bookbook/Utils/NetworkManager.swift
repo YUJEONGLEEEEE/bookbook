@@ -136,7 +136,8 @@ final class NetworkManager {
         var booksByIsbn: [String: BookData] = [:]
         let group = DispatchGroup()
 
-        for isbnString in isbns.prefix(20) {
+        // 전체 북마크/마음 ISBN을 모두 조회 (페이지네이션이 전권을 페이징하도록)
+        for isbnString in isbns {
             group.enter()
             fetchAladinBook(isbn13: isbnString) { book in
                 defer { group.leave() }
