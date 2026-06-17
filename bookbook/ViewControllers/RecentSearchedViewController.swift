@@ -67,6 +67,10 @@ class RecentSearchedViewController: UIViewController {
         return label
     }()
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .customWh

@@ -97,6 +97,10 @@ class MainViewController: UIViewController {
         static let ranking = 3
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -234,8 +238,9 @@ class MainViewController: UIViewController {
                 NetworkManager.shared.bookLists(
                     queryType: "Bestseller",
                     category: categoryId
-                ) { result in
+                ) { [weak self] result in
                     defer { group.leave() }
+                    guard let self else { return }
 
                     let books: [BookData]
                     switch result {
@@ -246,15 +251,17 @@ class MainViewController: UIViewController {
                         books = []
                     }
 
-                    self.bookLockQueue.async {
+                    // sync: append를 group.leave() 전에 끝내 책 누락(레이스) 방지
+                    self.bookLockQueue.sync {
                         collectedBooks.append(books)
                     }
                 }
             }
         }
 
-        group.notify(queue: .main) {
+        group.notify(queue: .main) { [weak self] in
             LoadingManager.shared.hideLoading()
+            guard let self else { return }
             let allBooks = collectedBooks.flatMap { $0 }
             self.preferredBooks = Array(allBooks.shuffled().prefix(10))
             self.preferredCollectionView.reloadData()
@@ -267,9 +274,10 @@ class MainViewController: UIViewController {
 
         NetworkManager.shared.bookLists(
             queryType: "ItemNewAll",
-            category: 0) { result in
+            category: 0) { [weak self] result in
                 DispatchQueue.main.async {
                     LoadingManager.shared.hideLoading()
+                    guard let self else { return }
 
                     switch result {
                     case .success(let newBook):

@@ -154,6 +154,10 @@ class SearchViewController: UIViewController {
         return button
     }()
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -274,8 +278,9 @@ class SearchViewController: UIViewController {
             }
         }
 
-        group.notify(queue: .main) {
+        group.notify(queue: .main) { [weak self] in
             LoadingManager.shared.hideLoading()
+            guard let self else { return }
 
 //            ISBN 기준 중복 제거
             var seen = Set<String>()

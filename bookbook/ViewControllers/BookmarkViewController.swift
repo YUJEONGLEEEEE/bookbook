@@ -76,6 +76,10 @@ class BookmarkViewController: UIViewController {
         return button
     }()
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .customWh
