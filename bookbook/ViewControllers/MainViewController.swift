@@ -47,23 +47,6 @@ class MainViewController: UIViewController {
         return button
     }()
 
-    private lazy var notificationButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "bell"), for: .normal)
-        button.tintColor = .black
-        button.addTarget(self, action: #selector(notificationButtonTapped), for: .touchUpInside)
-        return button
-    }()
-
-    // 안읽은 알림 빨간 배지
-    private let notificationBadge: UIView = {
-        let view = UIView()
-        view.backgroundColor = .sub01
-        view.layer.cornerRadius = 4
-        view.isHidden = true
-        return view
-    }()
-
     // MARK: - 세로 스크롤 + 스택 (5개 섹션)
     private let scrollView: UIScrollView = {
         let view = UIScrollView()
@@ -133,9 +116,6 @@ class MainViewController: UIViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleLikeChanged), name: .bookLikeDidChange, object: nil
         )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(updateNotificationBadge), name: .appNotificationsDidChange, object: nil
-        )
 
         fetchAccountAndConfigure()
         fetchRecentBooks()
@@ -145,16 +125,6 @@ class MainViewController: UIViewController {
 
     @objc private func handleLikeChanged() {
         loadTopBooks()
-    }
-
-    @objc private func updateNotificationBadge() {
-        notificationBadge.isHidden = NotificationStore.unreadCount == 0
-    }
-
-    @objc private func notificationButtonTapped() {
-        let vc = NotificationListViewController()
-        vc.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(vc, animated: true)
     }
 
     @objc private func didTapHomeLogo() {
@@ -181,7 +151,6 @@ class MainViewController: UIViewController {
         quoteCard.showRandomImage()
         loadBestseller()
         refreshHomeIfNeeded()
-        updateNotificationBadge()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -438,8 +407,7 @@ class MainViewController: UIViewController {
 
     private func configureUI() {
         view.addSubviews([scrollView, topBar])
-        topBar.addSubviews([logoImageView, searchButton, notificationButton])
-        notificationButton.addSubview(notificationBadge)
+        topBar.addSubviews([logoImageView, searchButton])
         scrollView.addSubview(contentStack)
 
         let bestsellerContainer = makeBestsellerContainer()
@@ -474,16 +442,6 @@ class MainViewController: UIViewController {
             make.trailing.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
             make.size.equalTo(32)
-        }
-        notificationButton.snp.makeConstraints { make in
-            make.trailing.equalTo(searchButton.snp.leading).offset(-12)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(32)
-        }
-        notificationBadge.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(4)
-            make.trailing.equalToSuperview().inset(4)
-            make.size.equalTo(8)
         }
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(topBar.snp.bottom)

@@ -40,6 +40,28 @@ class MyPageViewController: UIViewController {
         return view
     }()
 
+    private lazy var notificationButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "bell"), for: .normal)
+        button.tintColor = .bk1
+        button.addTarget(self, action: #selector(notificationButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    // 안읽은 알림 빨간 배지
+    private let notificationBadge: UIView = {
+        let view = UIView()
+        view.backgroundColor = .sub01
+        view.layer.cornerRadius = 4
+        view.isHidden = true
+        view.isUserInteractionEnabled = false
+        return view
+    }()
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .customWh
@@ -49,11 +71,15 @@ class MyPageViewController: UIViewController {
         tableView.dataSource = self
         configureUI()
         buttonActions()
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(updateNotificationBadge), name: .appNotificationsDidChange, object: nil
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureProfile()
+        updateNotificationBadge()
     }
 
     // MARK: - UI
@@ -69,6 +95,30 @@ class MyPageViewController: UIViewController {
             item.hidesSharedBackground = true
         }
         navigationItem.leftBarButtonItem = item
+
+        // 우측: 알림 벨 + 배지
+        notificationButton.addSubview(notificationBadge)
+        notificationButton.snp.makeConstraints { make in
+            make.width.height.equalTo(32)
+        }
+        notificationBadge.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(2)
+            make.trailing.equalToSuperview().inset(2)
+            make.size.equalTo(8)
+        }
+        let bellItem = UIBarButtonItem(customView: notificationButton)
+        if #available(iOS 26.0, *) {
+            bellItem.hidesSharedBackground = true
+        }
+        navigationItem.rightBarButtonItem = bellItem
+    }
+
+    @objc private func updateNotificationBadge() {
+        notificationBadge.isHidden = NotificationStore.unreadCount == 0
+    }
+
+    @objc private func notificationButtonTapped() {
+        push(NotificationListViewController())
     }
 
     private func makeMenuButton(icon: String, title: String) -> UIButton {
