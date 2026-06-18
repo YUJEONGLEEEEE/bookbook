@@ -72,6 +72,9 @@ final class NotificationSettingsViewController: UIViewController {
         return stack
     }()
 
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .customWh
@@ -197,12 +200,22 @@ final class NotificationSettingsViewController: UIViewController {
     // MARK: - Layout
 
     private func configureUI() {
-        view.addSubviews([titleLabel, reminderSwitch, subLabel, separator,
-                          dayTitleLabel, dayStack,
-                          countTitleLabel, countValueLabel, countStepper, timeRowsStack])
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubviews([titleLabel, reminderSwitch, subLabel, separator,
+                                 dayTitleLabel, dayStack,
+                                 countTitleLabel, countValueLabel, countStepper, timeRowsStack])
+
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+        }
 
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(24)
+            make.top.equalToSuperview().offset(24)
             make.leading.equalToSuperview().offset(24)
         }
         reminderSwitch.snp.makeConstraints { make in
@@ -240,6 +253,7 @@ final class NotificationSettingsViewController: UIViewController {
         timeRowsStack.snp.makeConstraints { make in
             make.top.equalTo(countTitleLabel.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview().inset(24)
+            make.bottom.equalToSuperview().inset(24)   // contentView 높이 정의
         }
     }
 }
