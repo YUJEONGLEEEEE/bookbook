@@ -202,7 +202,8 @@ class MainViewController: UIViewController {
         let selectedGenres = CoreDataManager.shared.fetchGenres()
         usersChoices = selectedGenres.isEmpty ? baseGenres : selectedGenres
 
-        fetchPrefferedBooks(for: usersChoices)
+        // 어린이(child)면 라이트 노벨(CID 50927)을 추천에서 제외 (성별 무관)
+        fetchPrefferedBooks(for: usersChoices, excludeLightNovel: ageRange == .child)
     }
 
     //    장르 이름으로 bookfilter 찾기
@@ -211,7 +212,7 @@ class MainViewController: UIViewController {
     }
 
     //    사용자 맞춤 추천 책 가져오기
-    private func fetchPrefferedBooks(for genres: [String]) {
+    private func fetchPrefferedBooks(for genres: [String], excludeLightNovel: Bool = false) {
         let randomGenres = Array(genres.shuffled().prefix(3))
 
         guard !randomGenres.isEmpty else {
@@ -262,7 +263,10 @@ class MainViewController: UIViewController {
         group.notify(queue: .main) { [weak self] in
             LoadingManager.shared.hideLoading()
             guard let self else { return }
-            let allBooks = collectedBooks.flatMap { $0 }
+            var allBooks = collectedBooks.flatMap { $0 }
+            if excludeLightNovel {
+                allBooks = allBooks.filter { !$0.categoryName.contains("라이트 노벨") }
+            }
             self.preferredBooks = Array(allBooks.shuffled().prefix(10))
             self.preferredCollectionView.reloadData()
         }
