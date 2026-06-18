@@ -3,11 +3,12 @@ import UserNotifications
 
 // 시스템 로컬 푸시(UNUserNotificationCenter) + 앱 내 알림함 기록을 함께 처리
 enum NotificationManager {
-    private static let reminderId = "reading.reminder.daily"
     private static let notifiedKey = "notifiedRewardCounts"
     private static let reminderEnabledKey = "readingReminderEnabled"
     private static let reminderHourKey = "readingReminderHour"
     private static let reminderMinuteKey = "readingReminderMinute"
+    private static let reminderWeekdaysKey = "readingReminderWeekdays"
+    private static let reminderTimesKey = "readingReminderTimes"   // 하루 여러 번: [분(0~1439)]
 
     // MARK: - 권한
 
@@ -54,37 +55,65 @@ enum NotificationManager {
     static func resetAll() {
         NotificationStore.clear()
         UserDefaults.standard.removeObject(forKey: notifiedKey)
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [reminderId])
+        UserDefaults.standard.removeObject(forKey: reminderTimesKey)
         UserDefaults.standard.set(false, forKey: reminderEnabledKey)
+        clearScheduledReminders()
     }
 
-    // MARK: - 독서 리마인더 (매일 반복)
+    // MARK: - 독서 리마인더 (선택 요일 × 하루 여러 번)
 
     static var isReminderOn: Bool { UserDefaults.standard.bool(forKey: reminderEnabledKey) }
     static var reminderHour: Int { UserDefaults.standard.object(forKey: reminderHourKey) as? Int ?? 20 }
     static var reminderMinute: Int { UserDefaults.standard.object(forKey: reminderMinuteKey) as? Int ?? 0 }
 
-    static func setReminder(enabled: Bool, hour: Int, minute: Int) {
+    // 반복 요일 (Calendar 기준 1=일 ~ 7=토). 기본: 매일
+    static var reminderWeekdays: Set<Int> {
+        if let arr = UserDefaults.standard.array(forKey: reminderWeekdaysKey) as? [Int] { return Set(arr) }
+        return Set(1...7)
+    }
+
+    // 하루 알림 시간들 (자정 기준 분). 기본: 기존 단일 시간 → 없으면 20:00
+    static var reminderTimes: [Int] {
+        if let arr = UserDefaults.standard.array(forKey: reminderTimesKey) as? [Int], !arr.isEmpty { return arr }
+        return [reminderHour * 60 + reminderMinute]
+    }
+
+    static func setReminder(enabled: Bool, times: [Int], weekdays: Set<Int>) {
         UserDefaults.standard.set(enabled, forKey: reminderEnabledKey)
-        UserDefaults.standard.set(hour, forKey: reminderHourKey)
-        UserDefaults.standard.set(minute, forKey: reminderMinuteKey)
+        UserDefaults.standard.set(times, forKey: reminderTimesKey)
+        UserDefaults.standard.set(Array(weekdays), forKey: reminderWeekdaysKey)
 
+        clearScheduledReminders {
+            guard enabled, !weekdays.isEmpty, !times.isEmpty else { return }
+            let content = UNMutableNotificationContent()
+            content.title = "오늘의 독서 📖"
+            content.body = "책한줄을 작성하고 책탑을 쌓아보세요!"
+            content.sound = .default
+
+            let center = UNUserNotificationCenter.current()
+            // (선택 요일 × 하루 시간들) 조합마다 개별 반복 알림 등록
+            for weekday in weekdays {
+                for (index, minutes) in times.enumerated() {
+                    var comps = DateComponents()
+                    comps.weekday = weekday
+                    comps.hour = minutes / 60
+                    comps.minute = minutes % 60
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+                    let request = UNNotificationRequest(identifier: "reading.reminder.\(weekday).\(index)",
+                                                        content: content, trigger: trigger)
+                    center.add(request)
+                }
+            }
+        }
+    }
+
+    // 예약된 리마인더(reading.reminder*) 전부 제거 (구버전 식별자 포함)
+    private static func clearScheduledReminders(then completion: (() -> Void)? = nil) {
         let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [reminderId])
-        guard enabled else { return }
-
-        var dateComponents = DateComponents()
-        dateComponents.hour = hour
-        dateComponents.minute = minute
-
-        let content = UNMutableNotificationContent()
-        content.title = "오늘의 독서 📖"
-        content.body = "책한줄을 작성하고 책탑을 쌓아보세요!"
-        content.sound = .default
-
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: reminderId, content: content, trigger: trigger)
-        center.add(request)
+        center.getPendingNotificationRequests { requests in
+            let ids = requests.map { $0.identifier }.filter { $0.hasPrefix("reading.reminder") }
+            if !ids.isEmpty { center.removePendingNotificationRequests(withIdentifiers: ids) }
+            completion?()
+        }
     }
 }
