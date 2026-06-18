@@ -30,12 +30,13 @@ enum NotificationManager {
     static func checkBookRewardAfterComment() {
         CoreDataManager.shared.fetchComments { comments in
             let earned = BookReward.earned(for: comments.count)
-            var notified = Set(UserDefaults.standard.array(forKey: notifiedKey) as? [Int] ?? [])
-            let fresh = earned.filter { !notified.contains($0.count) }
+            // 책별 고유 식별자(imageName)로 dedup → 동일 count가 생겨도 안전
+            var notified = Set(UserDefaults.standard.array(forKey: notifiedKey) as? [String] ?? [])
+            let fresh = earned.filter { !notified.contains($0.imageName) }
             guard !fresh.isEmpty else { return }
             for reward in fresh {
                 sendBookReward(name: reward.name)
-                notified.insert(reward.count)
+                notified.insert(reward.imageName)
             }
             UserDefaults.standard.set(Array(notified), forKey: notifiedKey)
         }
