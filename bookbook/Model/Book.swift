@@ -35,6 +35,7 @@ struct BookData: Decodable {
 
     // 로컬 전용 필드 (API 응답에 없음)
     var searchCategoryId: Int = 0
+    // 알라딘 응답: 카테고리 번호
     var categoryId: Int64 = 0
     // 알라딘 카테고리 전체 경로 (예: "국내도서>자기계발>성공/처세")
     var categoryName: String = ""
@@ -43,7 +44,7 @@ struct BookData: Decodable {
 
     // API 응답에 존재하는 키만 디코딩
     enum CodingKeys: String, CodingKey {
-        case title, author, pubDate, description, isbn13, cover, publisher, categoryName
+        case title, author, pubDate, description, isbn13, cover, publisher, categoryName, categoryId
     }
 }
 
@@ -63,13 +64,17 @@ extension BookData {
         "성인/성애만화", "달력/기타", "잡지", "수험서/자격증", "전집/중고전집"
     ]
 
+    // 카테고리 번호(CID)로 직접 제외하는 분야
+    static let excludedCategoryIds: Set<Int64> = [181723, 181727]
+
     // 제외할 제목 키워드 (세트/전집)
     static let excludedTitleKeywords = ["세트", "전집"]
     // 세트 도서 제목 패턴 (예: 전 7권, 1~10권)
     static let volumeSetPatterns = [#"전\s*\d+\s*권"#, #"\d+\s*[~∼\-]\s*\d+\s*권"#]
 
     var isExcludedCategory: Bool {
-        BookData.excludedCategoryKeywords.contains { categoryName.contains($0) }
+        if BookData.excludedCategoryIds.contains(categoryId) { return true }
+        return BookData.excludedCategoryKeywords.contains { categoryName.contains($0) }
     }
     // 세트/전집 도서 여부
     var isSetBook: Bool {
@@ -92,5 +97,6 @@ extension BookData {
         cover = (try? c.decode(String.self, forKey: .cover)) ?? ""
         publisher = (try? c.decode(String.self, forKey: .publisher)) ?? ""
         categoryName = (try? c.decode(String.self, forKey: .categoryName)) ?? ""
+        categoryId = (try? c.decode(Int64.self, forKey: .categoryId)) ?? 0
     }
 }

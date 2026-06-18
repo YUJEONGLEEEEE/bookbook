@@ -148,8 +148,8 @@ final class NetworkManager {
         }
 
         group.notify(queue: .main) {
-            // 입력 ISBN 순서(최근 북마크 순)를 그대로 유지한다.
-            let ordered = isbns.compactMap { booksByIsbn[$0] }
+            // 입력 ISBN 순서(최근 북마크 순) 유지 + 제외 분야/세트 도서는 걸러낸다.
+            let ordered = isbns.compactMap { booksByIsbn[$0] }.filter { !$0.isExcluded }
             completion(ordered)
         }
     }
