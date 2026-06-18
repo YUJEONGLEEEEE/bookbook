@@ -54,8 +54,8 @@ enum NotificationManager {
     // 회원탈퇴 시 알림 데이터 전체 초기화
     static func resetAll() {
         NotificationStore.clear()
-        UserDefaults.standard.removeObject(forKey: notifiedKey)
-        UserDefaults.standard.removeObject(forKey: reminderTimesKey)
+        [notifiedKey, reminderTimesKey, reminderWeekdaysKey, reminderHourKey, reminderMinuteKey]
+            .forEach { UserDefaults.standard.removeObject(forKey: $0) }
         UserDefaults.standard.set(false, forKey: reminderEnabledKey)
         clearScheduledReminders()
     }
