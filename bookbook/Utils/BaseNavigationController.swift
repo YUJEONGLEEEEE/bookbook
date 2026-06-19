@@ -2,7 +2,7 @@
 import UIKit
 
 // 앱 전역 네비게이션 컨트롤러 (백버튼 커스텀 chevron 자동 교체)
-final class BaseNavigationController: UINavigationController, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
+class BaseNavigationController: UINavigationController, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()

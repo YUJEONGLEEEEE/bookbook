@@ -11,20 +11,6 @@ final class SignUpViewController: UIViewController {
     private var isNicknameFloating = false
     private var isPhoneNumberFloating = false
 
-    private let backgroundImage: UIImageView = {
-        let view = UIImageView()
-        view.contentMode = .scaleAspectFill
-        view.image = UIImage(named: "backgroundimage")
-        view.clipsToBounds = true
-        view.isUserInteractionEnabled = true
-        return view
-    }()
-
-    private let dimView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        return view
-    }()
 
     private let titleLabel: UILabel = {
         let label = UILabel() 
@@ -143,7 +129,7 @@ final class SignUpViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .clear   // 공유 배경(AuthNavigationController) 비치도록
         configureUI()
         setupKeyboardDismissMode()
         addTargets()
@@ -346,15 +332,7 @@ final class SignUpViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubview(backgroundImage)
-        backgroundImage.addSubview(dimView)
-        dimView.addSubviews([titleLabel, nicknameFloatingPlaceholder, nicknameField, nicknameUnderline, nicknameStatusLabel, phoneNumberFloatingPlaceholder, phoneNumberField, phoneNumberUnderline, phoneNumberStatusLabel, signInButton, signupButton])
-        backgroundImage.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        dimView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        view.addSubviews([titleLabel, nicknameFloatingPlaceholder, nicknameField, nicknameUnderline, nicknameStatusLabel, phoneNumberFloatingPlaceholder, phoneNumberField, phoneNumberUnderline, phoneNumberStatusLabel, signInButton, signupButton])
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(24)
             make.top.equalToSuperview().offset(140)

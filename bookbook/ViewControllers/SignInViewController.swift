@@ -8,21 +8,6 @@ class SignInViewController: UIViewController {
     private var isPhoneNumberValid = false
     private var isPhoneNumberFloating = false
 
-    private let backgroundImage: UIImageView = {
-        let view = UIImageView()
-        view.contentMode = .scaleAspectFill
-        view.image = UIImage(named: "backgroundimage")
-        view.clipsToBounds = true
-        view.isUserInteractionEnabled = true
-        return view
-    }()
-
-    private let dimView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        return view
-    }()
-
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .customFont(ofSize: 36, weight: .bold)
@@ -86,7 +71,7 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupWhiteBackButton()
-        view.backgroundColor = .white
+        view.backgroundColor = .clear   // 공유 배경(AuthNavigationController) 비치도록
         setupKeyboardDismissMode()
         configureUI()
         addTargets()
@@ -219,15 +204,7 @@ class SignInViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubview(backgroundImage)
-        backgroundImage.addSubview(dimView)
-        dimView.addSubviews([titleLabel, phoneNumberFloatingPlaceholder, phoneNumberField, phoneNumberUnderline, phoneNumberStatusLabel, signInButton])
-        backgroundImage.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        dimView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        view.addSubviews([titleLabel, phoneNumberFloatingPlaceholder, phoneNumberField, phoneNumberUnderline, phoneNumberStatusLabel, signInButton])
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(24)
             make.top.equalToSuperview().offset(140)

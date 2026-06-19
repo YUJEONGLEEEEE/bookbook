@@ -11,7 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: scene)
 
         window?.rootViewController = makeRootViewController()
-        window?.backgroundColor = .white
+        window?.backgroundColor = .black   // 화면전환 시 둥근 모서리에 흰 배경 비치는 것 방지
         window?.makeKeyAndVisible()
     }
 
@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
            CoreDataManager.shared.isOnboardingCompleted {
             return MainTabBarController()
         }
-        return BaseNavigationController(rootViewController: SignUpViewController())
+        return AuthNavigationController(rootViewController: SignUpViewController())
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
