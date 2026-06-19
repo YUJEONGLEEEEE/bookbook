@@ -145,6 +145,15 @@ final class CoreDataManager {
             return []
         }
     }
+
+    // 온보딩 미완료 이탈 시 선택값을 가입 직후 기본값(미선택)으로 되돌림
+    func resetOnboardingSelections() {
+        guard let account = fetchCurrentAccount() else { return }
+        account.age = 19
+        account.gender = ""
+        account.genres = Data() as NSObject
+        saveContext()
+    }
 }
 
 // MARK: - Liked

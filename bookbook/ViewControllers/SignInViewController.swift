@@ -176,7 +176,8 @@ class SignInViewController: UIViewController {
             ToastManager.shared.pendingMessage = greetings.randomElement()
             MainTabBarController.setAsRoot()
         } else {
-            // 온보딩 미완료(아직 가입 단계로 간주) → 환영 인사 + 취향 선택으로 이동
+            // 온보딩 미완료 → 완료 전 저장된 선택값 초기화 후 취향 선택부터 다시
+            CoreDataManager.shared.resetOnboardingSelections()
             ToastManager.shared.pendingMessage = "\(nickname)님 환영해요!"
             let preferenceVC = PreferenceCheckViewController()
             navigationController?.pushViewController(preferenceVC, animated: true)
