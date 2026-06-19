@@ -97,10 +97,9 @@ class MyPageViewController: UIViewController {
         navigationItem.leftBarButtonItem = item
 
         // 우측: 알림 벨 + 배지
+        // 바 버튼 커스텀뷰는 frame으로 크기 지정 (SnapKit width/height는 네비바 래퍼와 충돌)
         notificationButton.addSubview(notificationBadge)
-        notificationButton.snp.makeConstraints { make in
-            make.width.height.equalTo(32)
-        }
+        notificationButton.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
         notificationBadge.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(2)
             make.trailing.equalToSuperview().inset(2)

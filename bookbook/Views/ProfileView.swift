@@ -106,6 +106,7 @@ class ProfileView: UIView {
         phraseLabel.text = phrase
         promiseLabel.text = promise
         promiseLabel.isHidden = promise.isEmpty
-        bookImage.image = UIImage(named: bookImageName)
+        // 획득한 책이 없으면(빈 이름) 빈 에셋 조회로 인한 CUICatalog 경고가 나므로 nil 처리
+        bookImage.image = bookImageName.isEmpty ? nil : UIImage(named: bookImageName)
     }
 }
