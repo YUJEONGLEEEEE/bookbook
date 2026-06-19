@@ -26,9 +26,10 @@ class SearchViewController: UIViewController {
 
     private var resultCollectionViewHeightConstraint: Constraint?
 
-    private var searchContainerTopConstraint: Constraint?
+    private var searchTopInitialConstraint: Constraint?   // 초기: safeArea 기준
+    private var searchTopResultConstraint: Constraint?    // 결과: superview 기준(위로 당김)
     private let initialSearchTopOffset: CGFloat = 48
-    private let resultSearchTopOffset: CGFloat = 8
+    private let resultSearchTopOffset: CGFloat = 80
 
     private lazy var searchContainer: UIStackView = {
         let view = UIStackView()
@@ -88,6 +89,11 @@ class SearchViewController: UIViewController {
         let view = UICollectionView(frame: .zero, collectionViewLayout: makeResultLayout())
         view.backgroundColor = .white
         view.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: "SearchCollectionViewCell")
+        view.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+            withReuseIdentifier: "PaginationFooter"
+        )
         view.alwaysBounceVertical = true
         view.isHidden = true
         return view
@@ -105,6 +111,17 @@ class SearchViewController: UIViewController {
             let section = NSCollectionLayoutSection.list(using: config, layoutEnvironment: env)
             section.interGroupSpacing = 20
             section.contentInsets = .zero
+            // 페이지네이션을 섹션 푸터로 → 결과와 함께 스크롤됨
+            let footerSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(56)
+            )
+            let footer = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: footerSize,
+                elementKind: UICollectionView.elementKindSectionFooter,
+                alignment: .bottom
+            )
+            section.boundarySupplementaryItems = [footer]
             return section
         }
     }
@@ -345,14 +362,20 @@ class SearchViewController: UIViewController {
 
     // MARK: - Layout Management
 
-    private func setSearchTop(_ offset: CGFloat) {
-        searchContainerTopConstraint?.update(offset: offset)
+    private func setSearchTop(isResult: Bool) {
+        if isResult {
+            searchTopInitialConstraint?.deactivate()
+            searchTopResultConstraint?.activate()
+        } else {
+            searchTopResultConstraint?.deactivate()
+            searchTopInitialConstraint?.activate()
+        }
         UIView.animate(withDuration: 0.25) { self.view.layoutIfNeeded() }
     }
 
     private func showInitialLayout() {
         navigationItem.leftBarButtonItem?.customView?.isHidden = false
-        setSearchTop(initialSearchTopOffset)
+        setSearchTop(isResult: false)
         startView.isHidden = false
         startView.showEmptyState(false)
         filterView.isHidden = true
@@ -365,7 +388,7 @@ class SearchViewController: UIViewController {
 
     private func showSearchResultLayout(hasResult: Bool) {
         navigationItem.leftBarButtonItem?.customView?.isHidden = true
-        setSearchTop(resultSearchTopOffset)
+        setSearchTop(isResult: true)
 
         if hasResult {
             startView.isHidden = true
@@ -543,14 +566,16 @@ class SearchViewController: UIViewController {
 
     private func configureUI() {
 
-        view.addSubviews([searchContainer, startView, filterView, boldSeparator, sortView, resultCollectionView, paginationStackView])
+        view.addSubviews([searchContainer, startView, filterView, boldSeparator, sortView, resultCollectionView])
         searchContainer.addArrangedSubviews([searchField, searchButton])
 
         searchContainer.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
-            searchContainerTopConstraint = make.top.equalTo(view.safeAreaLayoutGuide).offset(initialSearchTopOffset).constraint
+            searchTopInitialConstraint = make.top.equalTo(view.safeAreaLayoutGuide).offset(initialSearchTopOffset).constraint
+            searchTopResultConstraint = make.top.equalToSuperview().offset(resultSearchTopOffset).constraint
             make.height.equalTo(60)
         }
+        searchTopResultConstraint?.deactivate()   // 시작은 초기 상태
 
         searchButton.snp.makeConstraints { make in
             make.size.equalTo(24)
@@ -581,13 +606,7 @@ class SearchViewController: UIViewController {
         resultCollectionView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.top.equalTo(sortView.snp.bottom).offset(24)
-            make.bottom.equalTo(paginationStackView.snp.top).offset(-16)
-        }
-
-        paginationStackView.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(16)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(12)
-            make.height.equalTo(24)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }
@@ -691,6 +710,22 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width, height: 123)
+    }
+
+    // 페이지네이션을 섹션 푸터에 담아 결과 목록과 함께 스크롤되도록 함
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
+        )
+        if paginationStackView.superview !== footer {
+            footer.addSubview(paginationStackView)
+            paginationStackView.snp.remakeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(16)
+                make.centerY.equalToSuperview()
+                make.height.equalTo(24)
+            }
+        }
+        return footer
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
