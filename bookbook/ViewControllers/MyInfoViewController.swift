@@ -175,7 +175,7 @@ class MyInfoViewController: UIViewController {
         alertWithCancel(message: "로그아웃하시겠습니까?") { [weak self] in
             // 세션만 정리 (계정 데이터 유지)
             UserSession.clear()
-            self?.setRoot(BaseNavigationController(rootViewController: SignUpViewController()))
+            self?.setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
         }
     }
 
@@ -191,7 +191,7 @@ class MyInfoViewController: UIViewController {
                     CoreDataManager.shared.deleteAllData()
                     NotificationManager.resetAll()
                     UserSession.clear()
-                    self.setRoot(BaseNavigationController(rootViewController: SignUpViewController()))
+                    self.setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
                 })
             ]
         )

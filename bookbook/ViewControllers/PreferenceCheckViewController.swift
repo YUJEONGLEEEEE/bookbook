@@ -310,7 +310,7 @@ final class PreferenceCheckViewController: UIViewController {
             UserSession.clear()
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let window = scene.windows.first else { return }
-            window.rootViewController = BaseNavigationController(rootViewController: SignUpViewController())
+            window.rootViewController = AuthNavigationController(rootViewController: SignUpViewController())
             UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil)
             window.makeKeyAndVisible()
         }
