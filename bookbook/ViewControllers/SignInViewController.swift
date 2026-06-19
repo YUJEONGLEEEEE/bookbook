@@ -228,7 +228,8 @@ class SignInViewController: UIViewController {
             make.top.equalTo(phoneNumberUnderline.snp.bottom).offset(10)
         }
         signInButton.snp.makeConstraints { make in
-            make.horizontalEdges.bottom.equalToSuperview().inset(22)
+            make.horizontalEdges.equalToSuperview().inset(24)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }
