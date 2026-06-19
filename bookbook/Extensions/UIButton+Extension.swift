@@ -81,7 +81,7 @@ extension UIButton {
         snp.makeConstraints { make in
             make.size.equalTo(size)
         }
-        configureSelectableOverlay()
+        configureSelectableOverlay(with: image)
     }
 
     private var overlayView: UIView? {
@@ -92,12 +92,12 @@ extension UIButton {
             objc_setAssociatedObject(self, ButtonOverlayKey.overlay, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
-    func configureSelectableOverlay() {
+    func configureSelectableOverlay(with image: UIImage?) {
         if overlayView != nil { return }
-        let overlay = UIView()
-        overlay.backgroundColor = UIColor.customMain.withAlphaComponent(0.8)
-        overlay.layer.cornerRadius = 8
-        overlay.clipsToBounds = true
+        // 단색 사각형 대신 이미지와 동일한 형태(둥근 모서리 포함)로 덮이도록 템플릿 이미지 사용
+        let overlay = UIImageView(image: image?.withRenderingMode(.alwaysTemplate))
+        overlay.contentMode = .scaleToFill
+        overlay.tintColor = UIColor.customMain.withAlphaComponent(0.8)
         overlay.isUserInteractionEnabled = false
         overlay.alpha = 0
 
