@@ -133,7 +133,9 @@ final class NetworkManager {
             return
         }
 
+        print("📚 북마크 조회 시작: 요청 \(isbns.count)개")
         var booksByIsbn: [String: BookData] = [:]
+        var failedISBNs: [String] = []
         let group = DispatchGroup()
 
         // 전체 북마크/마음 ISBN을 모두 조회 (페이지네이션이 전권을 페이징하도록)
@@ -143,13 +145,17 @@ final class NetworkManager {
                 defer { group.leave() }
                 if let book {
                     booksByIsbn[isbnString] = book
+                } else {
+                    failedISBNs.append(isbnString)
                 }
             }
         }
 
         group.notify(queue: .main) {
-            // 입력 ISBN 순서(최근 북마크 순) 유지 + 제외 분야/세트 도서는 걸러낸다.
-            let ordered = isbns.compactMap { booksByIsbn[$0] }.filter { !$0.isExcluded }
+            // 사용자가 직접 담은 책이므로 제외(세트/전집 등) 없이 모두 표시. 입력 순서(최근 북마크 순) 유지.
+            let ordered = isbns.compactMap { booksByIsbn[$0] }
+            print("📚 북마크 결과: 요청 \(isbns.count) / 조회성공 \(booksByIsbn.count) / 실패 \(failedISBNs.count) / 최종 \(ordered.count)")
+            if !failedISBNs.isEmpty { print("⚠️ 알라딘 조회 실패 ISBN: \(failedISBNs)") }
             completion(ordered)
         }
     }
