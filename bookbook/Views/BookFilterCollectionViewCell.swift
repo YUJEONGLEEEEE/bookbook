@@ -7,7 +7,7 @@ class BookFilterCollectionViewCell: UICollectionViewCell {
     let filterTitle: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont.customFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.customFont(ofSize: 14, weight: .medium)
         label.textColor = .bk3
         return label
     }()
@@ -40,5 +40,6 @@ class BookFilterCollectionViewCell: UICollectionViewCell {
     private func updateAppearance() {
         contentView.backgroundColor = isSelected ? .bk1 : .clear
         filterTitle.textColor = isSelected ? .customWh : .bk3
+        filterTitle.font = UIFont.customFont(ofSize: 14, weight: isSelected ? .bold : .medium)
     }
 }

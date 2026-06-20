@@ -46,7 +46,7 @@ class BookSortView: UIView {
         let formatted = NumberFormatter.countFormatter
             .string(from: NSNumber(value: count)) ?? "0"
 
-        totalCountLabel.text = "\(formatted)권"
+        totalCountLabel.text = "\(formatted)건"
     }
 
     private func buttonActions() {
