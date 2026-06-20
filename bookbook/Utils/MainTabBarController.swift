@@ -54,17 +54,25 @@ final class MainTabBarController: UITabBarController {
     }
 }
 
+// 이미 선택된 탭을 다시 누르면 호출 — 각 탭 루트 VC가 콘텐츠를 초기화/새로고침
+protocol TabReselectable: AnyObject {
+    func handleTabReselect()
+}
+
 extension MainTabBarController: UITabBarControllerDelegate {
-    // 이미 선택된 탭을 다시 누른 경우 처리
+    // 이미 선택된 탭을 다시 누른 경우만 처리 (다른 탭에서 이동해 온 경우는 이전 상태 유지)
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        if tabBarController.selectedViewController === viewController,
-           let nav = viewController as? UINavigationController {
-            // 찾기 탭 재탭 → 루트로 이동 + 검색 초기 화면으로 리셋
-            // 찾기 탭 재탭 → 루트로 이동 + 검색 초기 화면으로 리셋
-            if let searchVC = nav.viewControllers.first as? SearchViewController {
-                nav.popToRootViewController(animated: false)
-                searchVC.resetToInitialScreen()
-            }
+        guard tabBarController.selectedViewController === viewController,
+              let nav = viewController as? UINavigationController else {
+            return true
+        }
+        // 푸시된 상세 화면이 있으면 먼저 루트로 이동
+        if nav.viewControllers.count > 1 {
+            nav.popToRootViewController(animated: true)
+        }
+        // 루트 화면 콘텐츠 새로고침/초기화
+        if let reselectable = nav.viewControllers.first as? TabReselectable {
+            reselectable.handleTabReselect()
         }
         return true
     }

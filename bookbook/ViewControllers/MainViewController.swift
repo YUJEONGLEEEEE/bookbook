@@ -519,6 +519,24 @@ class MainViewController: UIViewController {
     }
 }
 
+// MARK: - TabReselectable
+extension MainViewController: TabReselectable {
+    // 홈 탭 재탭 → 새로고침 + 최상단 이동
+    // handleRefresh가 콘텐츠 높이를 바꿔(레이아웃) 스크롤 애니메이션을 덮어쓰므로,
+    // 갱신·레이아웃을 먼저 끝낸 뒤 다음 런루프에 최상단으로 이동한다.
+    func handleTabReselect() {
+        handleRefresh()
+        view.layoutIfNeeded()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.scrollView.setContentOffset(
+                CGPoint(x: 0, y: -self.scrollView.adjustedContentInset.top),
+                animated: true
+            )
+        }
+    }
+}
+
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

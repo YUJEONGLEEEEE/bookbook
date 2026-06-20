@@ -286,8 +286,18 @@ class MyCommentsViewController: UIViewController {
     }
 }
 
+// MARK: - TabReselectable
+extension MyCommentsViewController: TabReselectable {
+    // 책한줄 탭 재탭 → 1페이지로 + 리로드 + 최상단
+    func handleTabReselect() {
+        currentPage = 1
+        loadComments()
+        commentsTableView.setContentOffset(CGPoint(x: 0, y: -commentsTableView.contentInset.top), animated: true)
+    }
+}
+
 extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return pagedComments.count
     }

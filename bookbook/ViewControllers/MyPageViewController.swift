@@ -210,6 +210,15 @@ class MyPageViewController: UIViewController {
     @objc private func towerTapped()   { push(LevelEventViewController()) }
 }
 
+// MARK: - TabReselectable
+extension MyPageViewController: TabReselectable {
+    // 내공간 탭 재탭 → 최상단 이동 + 리로드
+    func handleTabReselect() {
+        tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: true)
+        tableView.reloadData()
+    }
+}
+
 // MARK: - ProfileViewProtocol
 extension MyPageViewController: ProfileViewProtocol {
     func profileTapped() {

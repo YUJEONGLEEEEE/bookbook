@@ -701,6 +701,15 @@ class SearchViewController: UIViewController {
     }
 }
 
+// MARK: - TabReselectable
+
+extension SearchViewController: TabReselectable {
+    // 찾기 탭 재탭 → 검색 초기 화면으로
+    func handleTabReselect() {
+        resetToInitialScreen()
+    }
+}
+
 // MARK: - UITextFieldDelegate
 
 extension SearchViewController: UITextFieldDelegate {
