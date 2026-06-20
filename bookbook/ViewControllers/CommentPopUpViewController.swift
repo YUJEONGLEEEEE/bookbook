@@ -33,7 +33,7 @@ class CommentPopUpViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    private let starWidth: CGFloat = 48
+    private let starWidth: CGFloat = 40   // Figma: 별 1개 40 (행 232 = 40×5 + 8×4)
     private let totalStars: CGFloat = 5
 
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
@@ -154,7 +154,7 @@ class CommentPopUpViewController: UIViewController {
         button.contentVerticalAlignment = .fill
         button.imageView?.contentMode = .scaleAspectFit
         button.snp.makeConstraints { make in
-            make.size.equalTo(48)
+            make.size.equalTo(40)   // Figma: 별 40×40
         }
         return button
     }
@@ -213,6 +213,7 @@ class CommentPopUpViewController: UIViewController {
     private let verticalSeparateLine: UIView = {
         let view = UIView()
         view.addVerticalLine()
+        view.backgroundColor = .bk5   // Figma: 버튼 구분선 bk5 (lightGray 덮어쓰기)
         return view
     }()
 
@@ -228,7 +229,8 @@ class CommentPopUpViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
+        // 팝업 뒤 배경을 살짝 어둡게(뒤 화면과 구분되는 정도)
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
         setupKeyboardDismissMode()
         bookTitle.text = bookTitleText
         bookAuthor.text = bookAuthorText
@@ -509,13 +511,15 @@ class CommentPopUpViewController: UIViewController {
         }
         textfieldView.snp.makeConstraints { make in
             make.top.equalTo(writeLabel.snp.bottom).offset(16)
-            make.horizontalEdges.equalToSuperview().inset(24)
+            make.horizontalEdges.equalToSuperview().inset(24)   // 폭 290 (338 - 24×2)
+            make.height.equalTo(80)                              // Figma: 텍스트창 H80
         }
         commentField.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(16)
+            // 80 높이 박스 안에서 세로 중앙이 아닌 상단에 placeholder/텍스트 정렬
+            make.top.horizontalEdges.equalToSuperview().inset(16)
         }
         buttonLine.snp.makeConstraints { make in
-            make.top.equalTo(textfieldView.snp.bottom).offset(40)
+            // 버튼 바로 위 1pt bk5 선 (top 제약 제거해 height 1과 충돌 방지)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(buttonStackView.snp.top)
         }
