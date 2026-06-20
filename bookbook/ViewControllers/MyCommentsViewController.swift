@@ -229,13 +229,20 @@ class MyCommentsViewController: UIViewController {
     private func configureCell(_ cell: MyCommentsTableViewCell, with comment: Comment) {
         cell.rateLabel.text = String(format: "%.1f", comment.rating)
 
-        let filledCount = Int((comment.rating + 0.01).rounded())
+        let rating = Double(comment.rating)
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         for (index, iv) in cell.rateView.enumerated() {
-            if index < filledCount {
+            let position = Double(index)
+            if rating >= position + 1 {
+                // 꽉 찬 별
                 iv.image = UIImage(systemName: "star.fill", withConfiguration: config)
                 iv.tintColor = .customMain
+            } else if rating >= position + 0.5 {
+                // 반 별 (0.5점 단위)
+                iv.image = UIImage(systemName: "star.leadinghalf.filled", withConfiguration: config)
+                iv.tintColor = .customMain
             } else {
+                // 빈 별
                 iv.image = UIImage(systemName: "star", withConfiguration: config)
                 iv.tintColor = .bk4
             }
