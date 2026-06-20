@@ -506,6 +506,8 @@ final class DetailViewController: UIViewController {
     }
 
     private func configureUI() {
+        // 자동 safe-area inset을 끄면 배경 이미지가 상태바·네비바 뒤(화면 최상단)까지 꽉 참 (Figma)
+        scrollView.contentInsetAdjustmentBehavior = .never
         view.addSubviews([scrollView, fixedView, commentContainer])
         scrollView.addSubview(contentView)
         fixedView.addSubviews([secondSeparator, likeStack, bookmarkButton])
@@ -538,7 +540,7 @@ final class DetailViewController: UIViewController {
         }
         backgroundImage.snp.makeConstraints { make in
             make.top.horizontalEdges.equalToSuperview()
-            make.height.equalTo(376)
+            make.height.equalTo(430)   // Figma 376 + 상태바 54 (상태바 뒤까지 이미지 채움)
         }
         overlayView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
