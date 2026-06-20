@@ -313,8 +313,10 @@ extension BookmarkViewController: UICollectionViewDelegate, UICollectionViewData
 
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             let cancelBookmark = UIAction(
-                title: "북마크 취소",
-                image: UIImage(systemName: "bookmark.slash"),
+                title: "내책장에서 빼기",
+                image: UIImage(named: "blackshelf")?
+                    .withRenderingMode(.alwaysTemplate)
+                    .withTintColor(.customAlert, renderingMode: .alwaysOriginal),
                 attributes: .destructive
             ) { _ in
                 self?.confirmDeleteBookmark(at: actualIndex)

@@ -164,7 +164,7 @@ class SearchViewController: UIViewController {
             CoreDataManager.shared.toggleBookmark(isbn13: isbn, categoryId: 0)
             completion(true)
         }
-        action.image = UIImage(systemName: "bookmark.fill")
+        action.image = UIImage(named: "blackshelf")?.withRenderingMode(.alwaysTemplate)
         action.backgroundColor = .customMain
         let configuration = UISwipeActionsConfiguration(actions: [action])
         configuration.performsFirstActionWithFullSwipe = true

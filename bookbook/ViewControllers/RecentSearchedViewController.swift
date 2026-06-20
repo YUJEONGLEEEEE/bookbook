@@ -149,7 +149,7 @@ class RecentSearchedViewController: UIViewController {
             CoreDataManager.shared.toggleBookmark(isbn13: isbn, categoryId: 0)
             done(true)
         }
-        action.image = UIImage(systemName: "bookmark.fill")
+        action.image = UIImage(named: "blackshelf")?.withRenderingMode(.alwaysTemplate)
         action.backgroundColor = .customMain
         let config = UISwipeActionsConfiguration(actions: [action])
         config.performsFirstActionWithFullSwipe = true
