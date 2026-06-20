@@ -36,8 +36,8 @@ final class NetworkManager {
             "SearchTarget": "Book",
             "MaxResults": 20,
             "Start": (page - 1) * 20 + 1,
-            "Sort": "Accuracy",
-            "outofStockfilter": 1
+            "Sort": "Accuracy"
+            // outofStockfilter 제거: 켜면 재고 도서만 반환돼 totalResults(전체 매칭)와 어긋나 뒤 페이지가 빔
         ]
         if let category {
             parameters["CategoryId"] = category

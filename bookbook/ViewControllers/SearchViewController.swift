@@ -12,7 +12,8 @@ class SearchViewController: UIViewController {
     private var searchBooks: [BookData] = []
 
     private var selectedFilter: BookFilter? = nil
-    private var allFilters: [BookFilter] { filters }
+    // 찾기 화면은 '전체' 칩 없이 장르칩만 (전체 = 미선택 상태) — Figma
+    private var allFilters: [BookFilter] { filters.filter { $0.name != "전체" } }
 
     private var currentSort: BookSortOption = .accuracy
 
@@ -26,19 +27,23 @@ class SearchViewController: UIViewController {
 
     private var resultCollectionViewHeightConstraint: Constraint?
 
-    private var searchTopInitialConstraint: Constraint?   // 초기: safeArea 기준
-    private var searchTopResultConstraint: Constraint?    // 결과: superview 기준(위로 당김)
-    private let initialSearchTopOffset: CGFloat = 48
-    private let resultSearchTopOffset: CGFloat = 80
+    private var searchTopInitialConstraint: Constraint?   // 초기: safeArea + 48
+    private var searchTopResultConstraint: Constraint?    // 결과: 네비바 숨김 → safeArea(=아일랜드 바닥) + 8
+    private let initialSearchTopOffset: CGFloat = 8   // 네비바(타이틀) 바로 아래로 검색창 올림
+    private let resultSearchTopOffset: CGFloat = 8
+
+    // 결과 스크롤 방향에 따른 탭바 hide/show
+    private var lastScrollY: CGFloat = 0
+    private var isTabBarHidden = false
 
     private lazy var searchContainer: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
-        view.spacing = 16
+        view.spacing = 24   // Figma: 검색어/X/돋보기 간격 24
         view.alignment = .center
         view.distribution = .fill
         view.backgroundColor = .bk6
-        view.layer.cornerRadius = 30
+        view.layer.cornerRadius = 32
         view.clipsToBounds = true
         view.isLayoutMarginsRelativeArrangement = true
         view.layoutMargins = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
@@ -61,8 +66,18 @@ class SearchViewController: UIViewController {
         field.returnKeyType = .search
         field.autocorrectionType = .no
         field.spellCheckingType = .yes
-        field.clearButtonMode = .whileEditing
+        field.clearButtonMode = .never   // 시스템 클리어 대신 커스텀 X 버튼 사용(Figma 위치/크기 일치)
         return field
+    }()
+
+    // Figma: 검색어 옆 24px 원형 X (x258), 시스템 클리어보다 크고 위치 정확
+    private let clearButton: UIButton = {
+        let button = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+        button.setImage(UIImage(systemName: "xmark.circle.fill", withConfiguration: config), for: .normal)
+        button.tintColor = .bk3
+        button.isHidden = true
+        return button
     }()
 
     private let searchButton: UIButton = {
@@ -74,6 +89,15 @@ class SearchViewController: UIViewController {
     }()
 
     private let startView = StartSearchView()
+
+    // 필터 줄 왼쪽 고정 라벨 (Figma)
+    private let genreLabel: UILabel = {
+        let label = UILabel()
+        label.text = "장르"
+        label.font = UIFont.customFont(ofSize: 15, weight: .bold)
+        label.textColor = .bk1
+        return label
+    }()
 
     private let filterView = BookFilterView()
 
@@ -95,6 +119,8 @@ class SearchViewController: UIViewController {
             withReuseIdentifier: "PaginationFooter"
         )
         view.alwaysBounceVertical = true
+        view.showsVerticalScrollIndicator = false
+        view.contentInsetAdjustmentBehavior = .never   // 하단 inset 수동 제어(탭바 hide 시 끝까지)
         view.isHidden = true
         return view
     }()
@@ -114,7 +140,7 @@ class SearchViewController: UIViewController {
             // 페이지네이션을 섹션 푸터로 → 결과와 함께 스크롤됨
             let footerSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(56)
+                heightDimension: .absolute(104)   // 페이지네이션 24 + 하단 간격 64 + 상단 여백 16
             )
             let footer = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: footerSize,
@@ -182,8 +208,9 @@ class SearchViewController: UIViewController {
 
         searchField.delegate = self
         filterView.delegate = self
+        filterView.autoSelectsFirst = false   // 기본 미선택(=전체)
+        filterView.allowsDeselect = true      // 선택칩 재탭 시 전체로
         filterView.filters = allFilters
-        selectedFilter = allFilters.first
         sortView.delegate = self
         resultCollectionView.delegate = self
         resultCollectionView.dataSource = self
@@ -202,6 +229,19 @@ class SearchViewController: UIViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleBookStateChanged), name: .bookBookmarkDidChange, object: nil
         )
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // 초기(검색 전)엔 '찾기' 타이틀 표시, 검색 결과 상태에선 네비바 숨김(검색창이 아일랜드 바로 아래로)
+        navigationController?.setNavigationBarHidden(!currentQuery.isEmpty, animated: animated)
+        setTabBar(hidden: false, animated: false)   // 진입 시 탭바 노출 상태로
+        lastScrollY = resultCollectionView.contentOffset.y
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        setTabBar(hidden: false, animated: false)   // 떠날 때 탭바 복원(다른 화면 영향 방지)
     }
 
     @objc private func handleBookStateChanged() {
@@ -227,13 +267,30 @@ class SearchViewController: UIViewController {
 
     private func searchAction() {
         searchButton.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(clearButtonTapped), for: .touchUpInside)
+        searchField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
+    }
+    @objc private func searchTextChanged() {
+        clearButton.isHidden = (searchField.text ?? "").isEmpty
+    }
+    @objc private func clearButtonTapped() {
+        searchField.text = nil
+        clearButton.isHidden = true
+        resetSearchResult()
     }
     @objc private func searchButtonTapped() {
         print(#function)
         guard let query = searchField.text, !query.isEmpty else { return }
         currentPage = 1
-        startSearch(query: query, filter: selectedFilter)
+        resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
+        startSearch(query: query, filter: nil)
         view.endEditing(true)
+    }
+
+    // 새 검색어 검색 시 장르 필터를 전체(미선택)로 리셋
+    private func resetFilterToAll() {
+        selectedFilter = nil
+        filterView.clearSelection()
     }
 
     private func startSearch(query: String, filter: BookFilter? = nil) {
@@ -321,20 +378,29 @@ class SearchViewController: UIViewController {
                     .map { $0.element }
             }
 
-            self.totalResults = apiTotalResults
+            // 페이지 이동 중 빈 응답이 0으로 와도 이전 totalResults 유지(페이지네이션 보존)
+            if apiTotalResults > 0 || self.currentPage == 1 {
+                self.totalResults = apiTotalResults
+            }
 
             self.resultCollectionView.reloadData()
             self.updateResultCollectionViewHeight()
+            // 새 결과/페이지 진입 시 항상 최상단으로
+            self.resultCollectionView.setContentOffset(.zero, animated: false)
+            self.lastScrollY = 0
             self.sortView.updateTotalCount(self.totalResults)
 
-            let totalPages = max(1, (self.totalResults + 19) / 20)
+            let totalPages = max(1, (self.totalResults + 19) / 20)   // 검색결과 수 기준(포트폴리오: 디자인 그대로)
             self.startView.reloadData(recent: self.recentSearches, popular: self.popularSearches)
 
             let hasResult = !self.searchBooks.isEmpty
-            self.showSearchResultLayout(hasResult: hasResult)
+            // 장르 선택/페이지 이동 중 빈 결과면 '검색결과 없음' 전체화면 대신 레이아웃(필터칩·정렬·페이지네이션) 유지
+            // → 사용자가 다른 장르/전체/다른 페이지로 빠져나갈 수 있게. (새 검색어 전체검색이 0건일 때만 빈 화면)
+            let keepResultLayout = hasResult || self.selectedFilter != nil || (self.currentPage > 1 && self.totalResults > 0)
+            self.showSearchResultLayout(hasResult: keepResultLayout)
             self.searchField.resignFirstResponder()
 
-            if hasResult {
+            if keepResultLayout {
                 self.setupPaginationButtons(totalPages: totalPages)
             } else {
                 self.paginationStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -363,6 +429,8 @@ class SearchViewController: UIViewController {
     // MARK: - Layout Management
 
     private func setSearchTop(isResult: Bool) {
+        // 결과 상태에선 네비바 숨김(검색창이 아일랜드 바로 아래로), 초기엔 표시('찾기' 타이틀)
+        navigationController?.setNavigationBarHidden(isResult, animated: true)
         if isResult {
             searchTopInitialConstraint?.deactivate()
             searchTopResultConstraint?.activate()
@@ -373,11 +441,28 @@ class SearchViewController: UIViewController {
         UIView.animate(withDuration: 0.25) { self.view.layoutIfNeeded() }
     }
 
+    // 스크롤 방향에 따라 탭바를 내렸다(숨김)/올렸다(노출)
+    private func setTabBar(hidden: Bool, animated: Bool = true) {
+        guard let tabBar = tabBarController?.tabBar else { return }
+        let baseY = tabBar.superview?.bounds.height ?? UIScreen.main.bounds.height
+        let targetY = hidden ? baseY : baseY - tabBar.frame.height
+        // 탭바 보일 땐 탭바 높이만큼 하단 여백, 숨길 땐 0(콘텐츠가 화면 끝까지)
+        let inset: CGFloat = hidden ? 0 : tabBar.frame.height
+        isTabBarHidden = hidden
+        guard tabBar.frame.origin.y != targetY || resultCollectionView.contentInset.bottom != inset else { return }
+        UIView.animate(withDuration: animated ? 0.25 : 0, delay: 0, options: .curveEaseOut) {
+            tabBar.frame.origin.y = targetY
+            self.resultCollectionView.contentInset.bottom = inset
+            self.resultCollectionView.verticalScrollIndicatorInsets.bottom = inset
+        }
+    }
+
     private func showInitialLayout() {
         navigationItem.leftBarButtonItem?.customView?.isHidden = false
         setSearchTop(isResult: false)
         startView.isHidden = false
         startView.showEmptyState(false)
+        genreLabel.isHidden = true
         filterView.isHidden = true
         boldSeparator.isHidden = true
         sortView.isHidden = true
@@ -392,6 +477,7 @@ class SearchViewController: UIViewController {
 
         if hasResult {
             startView.isHidden = true
+            genreLabel.isHidden = false
             filterView.isHidden = false
             boldSeparator.isHidden = false
             sortView.isHidden = false
@@ -400,6 +486,7 @@ class SearchViewController: UIViewController {
         } else {
             startView.isHidden = false
             startView.showEmptyState(true)
+            genreLabel.isHidden = true
             filterView.isHidden = true
             boldSeparator.isHidden = true
             sortView.isHidden = true
@@ -413,6 +500,7 @@ class SearchViewController: UIViewController {
         currentPage = 1
         totalResults = 0
         searchBooks.removeAll()
+        clearButton.isHidden = true
         resultCollectionView.reloadData()
         updateResultCollectionViewHeight()
         showInitialLayout()
@@ -438,8 +526,9 @@ class SearchViewController: UIViewController {
         previousButton.addTarget(self, action: #selector(previousPageTapped), for: .touchUpInside)
         paginationStackView.addArrangedSubview(previousButton)
 
-        let startPage = max(1, currentPage - 4)
-        let endPage = min(totalPages, startPage + 9)
+        // 10페이지 단위 고정 블록 (1~10, 11~20 …) — 현재 페이지가 속한 블록을 보여줌
+        let startPage = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let endPage = min(totalPages, startPage + maxPagesShown - 1)
 
         guard startPage <= endPage else { return }
 
@@ -479,7 +568,7 @@ class SearchViewController: UIViewController {
         }
     }
     @objc private func nextPageTapped() {
-        let totalPages = (totalResults + 19) / 20  // 올림
+        let totalPages = (totalResults + 19) / 20  // 올림 (검색결과 수 기준)
         if currentPage < totalPages {
             currentPage += 1
             jumpToPage(currentPage)
@@ -488,20 +577,11 @@ class SearchViewController: UIViewController {
 
     private func jumpToPage(_ page: Int) {
         guard !currentQuery.isEmpty else { return }
-        guard let filter = selectedFilter else { return }
+        // selectedFilter가 nil이면 '전체'(장르 미선택) — 그대로 전달(startSearch가 nil=전체 처리)
         currentPage = page
         isLoading = true
-        startSearch(query: currentQuery, filter: filter)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if self.searchBooks.count > 0 {
-                self.resultCollectionView.scrollToItem(
-                    at: IndexPath(item: 0, section: 0),
-                    at: .top,
-                    animated: false
-                )
-            }
-        }
+        startSearch(query: currentQuery, filter: selectedFilter)
+        // 최상단 스크롤은 startSearch 완료 블록에서 처리(reloadData 직후)
     }
 
     // MARK: - Search History Management
@@ -566,18 +646,21 @@ class SearchViewController: UIViewController {
 
     private func configureUI() {
 
-        view.addSubviews([searchContainer, startView, filterView, boldSeparator, sortView, resultCollectionView])
-        searchContainer.addArrangedSubviews([searchField, searchButton])
+        view.addSubviews([searchContainer, startView, genreLabel, filterView, boldSeparator, sortView, resultCollectionView])
+        searchContainer.addArrangedSubviews([searchField, clearButton, searchButton])
 
         searchContainer.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             searchTopInitialConstraint = make.top.equalTo(view.safeAreaLayoutGuide).offset(initialSearchTopOffset).constraint
-            searchTopResultConstraint = make.top.equalToSuperview().offset(resultSearchTopOffset).constraint
+            searchTopResultConstraint = make.top.equalTo(view.safeAreaLayoutGuide).offset(resultSearchTopOffset).constraint
             make.height.equalTo(60)
         }
         searchTopResultConstraint?.deactivate()   // 시작은 초기 상태
 
         searchButton.snp.makeConstraints { make in
+            make.size.equalTo(24)
+        }
+        clearButton.snp.makeConstraints { make in
             make.size.equalTo(24)
         }
 
@@ -586,8 +669,13 @@ class SearchViewController: UIViewController {
             make.top.equalTo(searchContainer.snp.bottom).offset(32)
         }
 
+        genreLabel.snp.makeConstraints { make in
+            make.leading.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.centerY.equalTo(filterView)
+        }
         filterView.snp.makeConstraints { make in
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
+            make.leading.equalTo(genreLabel.snp.trailing).offset(12)
+            make.trailing.equalTo(view.safeAreaLayoutGuide)
             make.top.equalTo(searchContainer.snp.bottom).offset(24)
             make.height.equalTo(33)
         }
@@ -606,7 +694,7 @@ class SearchViewController: UIViewController {
         resultCollectionView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.top.equalTo(sortView.snp.bottom).offset(24)
-            make.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()   // 화면 끝까지(탭바 아래) — 탭바 숨기면 콘텐츠가 끝까지 참
         }
     }
 }
@@ -618,7 +706,8 @@ extension SearchViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let query = textField.text, !query.isEmpty else { return false }
         currentPage = 1
-        startSearch(query: query, filter: selectedFilter)
+        resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
+        startSearch(query: query, filter: nil)
         textField.resignFirstResponder()
         return true
     }
@@ -660,6 +749,14 @@ extension SearchViewController: BookFilterProtocol, BookSortProtocol {
         }
     }
 
+    // 선택칩 해제 → 전체(장르 필터 없음)로 재검색
+    func bookFilterViewDidClearSelection(_ view: BookFilterView) {
+        selectedFilter = nil
+        guard !currentQuery.isEmpty else { return }
+        currentPage = 1
+        startSearch(query: currentQuery, filter: nil)
+    }
+
     func sortView(_ view: BookSortView, didSelect sort: BookSortOption) {
         currentSort = sort
 
@@ -672,8 +769,10 @@ extension SearchViewController: BookFilterProtocol, BookSortProtocol {
 extension SearchViewController: StartSearchProtocol {
     func startSearchView(_ view: StartSearchView, didSelectQuery query: String) {
         searchField.text = query
+        clearButton.isHidden = false
         currentPage = 1
-        startSearch(query: query, filter: selectedFilter)
+        resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
+        startSearch(query: query, filter: nil)
     }
 
     func didDeleteRecentSearch(at index: Int) {
@@ -721,7 +820,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
             footer.addSubview(paginationStackView)
             paginationStackView.snp.remakeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(16)
-                make.centerY.equalToSuperview()
+                make.bottom.equalToSuperview().inset(64)   // 페이지네이션 ~ 푸터(superview) 하단 간격 64
                 make.height.equalTo(24)
             }
         }
@@ -738,6 +837,21 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         ))
         let detailVC = DetailViewController(isbn13: book.isbn13Int)
         navigationController?.pushViewController(detailVC, animated: true)
+    }
+
+    // 결과 리스트 스크롤: 아래로 내리면 탭바 숨김, 위로 올리면 노출
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard scrollView === resultCollectionView, !searchBooks.isEmpty else { return }
+        let y = scrollView.contentOffset.y
+        let dy = y - lastScrollY
+        if y <= 0 {
+            setTabBar(hidden: false)
+        } else if dy > 8 {
+            setTabBar(hidden: true)
+        } else if dy < -8 {
+            setTabBar(hidden: false)
+        }
+        lastScrollY = y
     }
 
 }
