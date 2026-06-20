@@ -47,6 +47,8 @@ class SearchViewController: UIViewController {
         view.clipsToBounds = true
         view.isLayoutMarginsRelativeArrangement = true
         view.layoutMargins = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+        // safe area가 레이아웃 마진에 더해져 고정 높이(60)와 충돌하는 제약 경고 방지
+        view.insetsLayoutMarginsFromSafeArea = false
         return view
     }()
 
