@@ -34,8 +34,16 @@ class BookmarkViewController: UIViewController {
         layout.scrollDirection = .vertical
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.register(BookmarkCollectionViewCell.self, forCellWithReuseIdentifier: "BookmarkCollectionViewCell")
+        // 페이지네이션을 섹션 푸터로 → 결과와 함께 스크롤됨
+        view.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+            withReuseIdentifier: "PaginationFooter"
+        )
         view.backgroundColor = .clear
         view.showsVerticalScrollIndicator = true
+        // 검색결과 화면처럼 탭바 아래까지 콘텐츠가 차도록 자동 inset 끔(하단 inset 수동 제어)
+        view.contentInsetAdjustmentBehavior = .never
         return view
     }()
 
@@ -110,6 +118,16 @@ class BookmarkViewController: UIViewController {
         super.viewWillAppear(animated)
         currentPage = 1
         loadBookmarkedBooks()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // collectionView가 탭바 아래까지 차므로, 푸터(페이지네이션)/마지막 줄이 탭바에 가리지 않게 탭바 높이만큼 하단 여백
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        if collectionView.contentInset.bottom != tabBarHeight {
+            collectionView.contentInset.bottom = tabBarHeight
+            collectionView.verticalScrollIndicatorInsets.bottom = tabBarHeight
+        }
     }
 
     private func loadBookmarkedBooks() {
@@ -218,7 +236,8 @@ class BookmarkViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubviews([filterView, separator, collectionView, emptyLabel, paginationStackView])
+        // paginationStackView는 collectionView 섹션 푸터에 동적으로 담는다(콘텐츠와 함께 스크롤)
+        view.addSubviews([filterView, separator, collectionView, emptyLabel])
 
         filterView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
@@ -234,19 +253,13 @@ class BookmarkViewController: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(separator.snp.bottom).offset(32)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.bottom.equalTo(paginationStackView.snp.top).offset(-80)
+            make.bottom.equalToSuperview()   // 검색결과처럼 탭바 아래까지 콘텐츠가 참
         }
 
         emptyLabel.snp.makeConstraints { make in
             make.center.equalTo(view.safeAreaLayoutGuide)
         }
 
-        paginationStackView.snp.makeConstraints { make in
-            make.top.equalTo(collectionView.snp.bottom).offset(64)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(48)
-            make.bottom.equalToSuperview().inset(24)
-        }
     }
 
 }
@@ -258,6 +271,16 @@ extension BookmarkViewController: BookFilterProtocol {
         selectedFilter = filter
         currentPage = 1
         applyFilter()
+    }
+}
+
+// MARK: - TabReselectable
+extension BookmarkViewController: TabReselectable {
+    // 내책장 탭 재탭 → 1페이지로 + 리로드 + 최상단
+    func handleTabReselect() {
+        currentPage = 1
+        applyFilter()
+        collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.contentInset.top), animated: true)
     }
 }
 
@@ -302,6 +325,30 @@ extension BookmarkViewController: UICollectionViewDelegate, UICollectionViewData
         let width = (collectionView.frame.width - columnSpacing) / 2
         let height: CGFloat = 318  // 고정 높이 (이미지 239 + 텍스트)
         return CGSize(width: width, height: height)
+    }
+
+    // 페이지네이션 푸터: 2페이지 이상일 때만 높이 확보(콘텐츠와 함께 스크롤)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        guard totalPages > 1 else { return .zero }
+        return CGSize(width: collectionView.frame.width, height: 88)   // 상단 여백 24 + 페이지네이션 48 + 하단 16
+    }
+
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
+        )
+        // 단일 paginationStackView 인스턴스를 푸터로 이동
+        if paginationStackView.superview !== footer {
+            paginationStackView.removeFromSuperview()
+            footer.addSubview(paginationStackView)
+            paginationStackView.snp.remakeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview().offset(24)
+                make.height.equalTo(48)
+            }
+        }
+        return footer
     }
 
     // MARK: - 북마크 취소 (롱프레스 컨텍스트 메뉴 → 알럿)
