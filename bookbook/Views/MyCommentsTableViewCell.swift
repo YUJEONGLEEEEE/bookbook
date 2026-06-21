@@ -69,7 +69,7 @@ class MyCommentsTableViewCell: UITableViewCell {
         label.font = UIFont.customFont(ofSize: 17, weight: .medium)
         label.textColor = .bk1
         label.textAlignment = .center
-        label.numberOfLines = 1
+        label.numberOfLines = 0   // 한 줄 넘으면 생략(…) 대신 줄바꿈
         return label
     }()
 

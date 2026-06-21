@@ -178,12 +178,27 @@ class CommentPopUpViewController: UIViewController {
         return view
     }()
 
-    private let commentField: UITextField = {
-        let field = UITextField()
-        field.placeholder = "한 줄로 표현해 보세요. (20자 이내)"
-        field.textAlignment = .left
-        field.textColor = .bk1
-        return field
+    // 폭을 넘으면 가로로 이어지지 않고 줄바꿈되도록 UITextView 사용
+    private let commentField: UITextView = {
+        let view = UITextView()
+        view.font = UIFont.customFont(ofSize: 16, weight: .regular)
+        view.textColor = .bk1
+        view.textAlignment = .left
+        view.backgroundColor = .clear
+        view.isScrollEnabled = false
+        view.textContainerInset = .zero
+        view.textContainer.lineFragmentPadding = 0
+        return view
+    }()
+
+    // UITextView는 placeholder가 없어 라벨로 대체 (입력 시작 시 숨김)
+    private let placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.text = "한 줄로 표현해 보세요. (20자 이내)"
+        label.font = UIFont.customFont(ofSize: 16, weight: .regular)
+        label.textColor = .bk3
+        label.numberOfLines = 0
+        return label
     }()
 
     private let buttonLine: UIView = {
@@ -283,6 +298,7 @@ class CommentPopUpViewController: UIViewController {
         if let initialComment {
             commentField.text = initialComment
         }
+        placeholderLabel.isHidden = !(commentField.text ?? "").isEmpty
         updateSaveButtonState()
     }
 
@@ -376,7 +392,6 @@ class CommentPopUpViewController: UIViewController {
     private func addTargetActions() {
         dateButton.addTarget(self, action: #selector(dateButtonTapped), for: .touchUpInside)
         datePicker.addTarget(self, action: #selector(dateSelected), for: .valueChanged)
-        commentField.addTarget(self, action: #selector(addText(_:)), for: .editingChanged)
         cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
     }
@@ -390,9 +405,6 @@ class CommentPopUpViewController: UIViewController {
         hasSelectedDate = true
         dateButton.setTitle(DateFormatter.yyyyMMdd.string(from: datePicker.date), for: .normal)
         datePicker.isHidden = true
-        updateSaveButtonState()
-    }
-    @objc func addText(_ sender: UITextField) {
         updateSaveButtonState()
     }
     @objc func cancelButtonTapped() {
@@ -465,7 +477,7 @@ class CommentPopUpViewController: UIViewController {
         popupView.addSubviews([bookStack, separateLine, whenLabel, dateButton, datePicker, howLabel, starStackView, writeLabel, textfieldView, buttonLine, buttonStackView])
         bookStack.addArrangedSubviews([bookImage, titleAuthorStack])
         titleAuthorStack.addArrangedSubviews([bookTitle, bookAuthor])
-        textfieldView.addSubview(commentField)
+        textfieldView.addSubviews([commentField, placeholderLabel])
         buttonStackView.addArrangedSubviews([cancelButton, verticalSeparateLine, saveButton])
 
         popupView.snp.makeConstraints { make in
@@ -515,8 +527,14 @@ class CommentPopUpViewController: UIViewController {
             make.height.equalTo(80)                              // Figma: 텍스트창 H80
         }
         commentField.snp.makeConstraints { make in
-            // 80 높이 박스 안에서 세로 중앙이 아닌 상단에 placeholder/텍스트 정렬
+            // 80 높이 박스 안에서 세로 중앙이 아닌 상단에 텍스트 정렬 (넘치면 줄바꿈)
             make.top.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.lessThanOrEqualToSuperview().inset(16)
+        }
+        placeholderLabel.snp.makeConstraints { make in
+            // 텍스트 시작 위치와 동일하게 (commentField textContainerInset=0 기준)
+            make.top.leading.equalToSuperview().inset(16)
+            make.trailing.equalToSuperview().inset(16)
         }
         buttonLine.snp.makeConstraints { make in
             // 버튼 바로 위 1pt bk5 선 (top 제약 제거해 height 1과 충돌 방지)
@@ -533,11 +551,16 @@ class CommentPopUpViewController: UIViewController {
     }
 }
 
-extension CommentPopUpViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let text = textField.text ?? ""
-        guard let stringRange = Range(range, in: text) else { return false }
-        let updatedText = text.replacingCharacters(in: stringRange, with: string)
-        return updatedText.count <= 20
+extension CommentPopUpViewController: UITextViewDelegate {
+    // 20자 제한
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        let current = textView.text ?? ""
+        guard let r = Range(range, in: current) else { return false }
+        return current.replacingCharacters(in: r, with: text).count <= 20
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        placeholderLabel.isHidden = !textView.text.isEmpty
+        updateSaveButtonState()
     }
 }
