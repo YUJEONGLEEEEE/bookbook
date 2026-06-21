@@ -403,7 +403,12 @@ final class DetailViewController: UIViewController {
     private func fetchComment(for isbn13: Int64) -> Comment? {
         let request: NSFetchRequest<Comment> = Comment.fetchRequest()
         request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "isbn13 == %lld", isbn13)
+        // 현재 계정의 책한줄만 조회 (다른 계정 데이터가 잡히지 않도록)
+        if let account = CoreDataManager.shared.fetchCurrentAccount() {
+            request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", isbn13, account)
+        } else {
+            request.predicate = NSPredicate(format: "isbn13 == %lld", isbn13)
+        }
 
         do {
             return try CoreDataManager.shared.context.fetch(request).first

@@ -7,7 +7,7 @@ extension UIFont {
 
         switch weight {
         case .bold:
-            fontName = "AppleSDGothicNeo-Bolď"
+            fontName = "AppleSDGothicNeo-Bold"
         case .semibold:
             fontName = "AppleSDGothicNeo-SemiBold"
         case .medium:

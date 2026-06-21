@@ -149,6 +149,10 @@ final class LevelEventViewController: UIViewController {
     private static func lastShownCount() -> Int {
         UserDefaults.standard.integer(forKey: lastGaugeCountKey)
     }
+    // 회원탈퇴 시 게이지 진행 기록 초기화
+    static func clearProgress() {
+        UserDefaults.standard.removeObject(forKey: lastGaugeCountKey)
+    }
 
     // 직전에 보여준 작성 수를 현재 레벨 기준 비율로 환산 → 애니메이션 시작점
     private func previousLevelRatio(earnedCount: Int, writtenCount: Int) -> CGFloat {

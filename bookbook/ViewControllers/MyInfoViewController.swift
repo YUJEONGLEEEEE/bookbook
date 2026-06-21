@@ -193,6 +193,10 @@ class MyInfoViewController: UIViewController {
                     // 계정 + 모든 활동 데이터 삭제
                     CoreDataManager.shared.deleteAllData()
                     NotificationManager.resetAll()
+                    // 전역 UserDefaults 상태도 초기화 (다음 계정에 누락 방지)
+                    LevelRewardStore.clear()
+                    RecentSearchStore.clear()
+                    LevelEventViewController.clearProgress()
                     UserSession.clear()
                     self.setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
                 })

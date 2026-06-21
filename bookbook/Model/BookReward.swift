@@ -58,4 +58,9 @@ enum LevelRewardStore {
     static func retain(_ counts: Set<Int>) {
         UserDefaults.standard.set(Array(acknowledged().intersection(counts)), forKey: key)
     }
+
+    // 회원탈퇴 시 전체 초기화
+    static func clear() {
+        UserDefaults.standard.removeObject(forKey: key)
+    }
 }

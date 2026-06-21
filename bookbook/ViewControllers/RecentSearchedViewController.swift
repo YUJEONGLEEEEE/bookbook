@@ -43,6 +43,11 @@ enum RecentSearchStore {
             UserDefaults.standard.set(data, forKey: key)
         }
     }
+
+    // 회원탈퇴 시 전체 초기화
+    static func clear() {
+        UserDefaults.standard.removeObject(forKey: key)
+    }
 }
 
 class RecentSearchedViewController: UIViewController {
