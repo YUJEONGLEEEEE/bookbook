@@ -2,7 +2,7 @@
 import UIKit
 import SnapKit
 
-class ProfileView: UIView {
+class LevelEventCardView: UIView {
 
     weak var delegate: ProfileViewProtocol?
 
@@ -28,14 +28,6 @@ class ProfileView: UIView {
         let label = UILabel()
         label.font = UIFont.customFont(ofSize: 24, weight: .bold)
         label.textColor = .bk1
-        label.numberOfLines = 1
-        return label
-    }()
-
-    private let promiseLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.customFont(ofSize: 12, weight: .regular)
-        label.textColor = .bk2
         label.numberOfLines = 1
         return label
     }()
@@ -76,7 +68,7 @@ class ProfileView: UIView {
         clipsToBounds = true
         layer.insertSublayer(gradientLayer, at: 0)
 
-        addSubviews([bookImage, phraseLabel, nicknameLabel, promiseLabel])
+        addSubviews([bookImage, phraseLabel, nicknameLabel])
 
         bookImage.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(32)
@@ -94,18 +86,11 @@ class ProfileView: UIView {
             make.leading.equalToSuperview().offset(16)
             make.trailing.lessThanOrEqualTo(bookImage.snp.leading).offset(-12)
         }
-        promiseLabel.snp.makeConstraints { make in
-            make.top.equalTo(nicknameLabel.snp.bottom).offset(4)
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.lessThanOrEqualTo(bookImage.snp.leading).offset(-12)
-        }
     }
 
-    func configure(nickname: String, phrase: String, promise: String, bookImageName: String) {
+    func configure(nickname: String, phrase: String, bookImageName: String) {
         nicknameLabel.text = nickname
         phraseLabel.text = phrase
-        promiseLabel.text = promise
-        promiseLabel.isHidden = promise.isEmpty
         // 획득한 책이 없으면(빈 이름) 빈 에셋 조회로 인한 CUICatalog 경고가 나므로 nil 처리
         bookImage.image = bookImageName.isEmpty ? nil : UIImage(named: bookImageName)
     }
