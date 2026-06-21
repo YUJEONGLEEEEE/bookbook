@@ -49,7 +49,7 @@
 
 ### <img src="bookbook/Assets.xcassets/TabBarItem/mypage_on.imageset/mypage_on@2x.png" width="20"> 내공간 (마이페이지)
 - 프로필 카드(획득 책 · 다짐 한마디)
-- 내 정보 · 내 취향 · 최근 검색한 책 · 공지/FAQ · 1:1 문의 · 이용약관 · 앱 버전
+- 내 정보 · 내 취향 · 최근 본 책 · 공지/FAQ · 1:1 문의 · 이용약관 · 앱 버전
 
 ## 기술 스택
 
@@ -145,7 +145,7 @@ bookbook is an iOS reading-record app: search for books, save them to your shelf
 
 ### <img src="bookbook/Assets.xcassets/TabBarItem/mypage_on.imageset/mypage_on@2x.png" width="20"> My Space (My Page)
 - Profile card (earned book · personal motto)
-- My Info · My Preferences · Recent searches · Notices/FAQ · 1:1 Inquiry · Terms · App version
+- My Info · My Preferences · Recently viewed books · Notices/FAQ · 1:1 Inquiry · Terms · App version
 
 ## Tech Stack
 
