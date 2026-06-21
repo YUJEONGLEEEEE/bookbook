@@ -17,6 +17,7 @@ class CommentPopUpViewController: UIViewController {
     private var initialComment: String?
     private var isEditMode: Bool = false
     private var editingComment: Comment?
+    private var isSaving = false   // 저장 중복(더블탭) 방지
     private var hasSelectedDate = false
 
     var onCommentUpdated: (() -> Void)?
@@ -412,11 +413,12 @@ class CommentPopUpViewController: UIViewController {
         dismiss(animated: true)
     }
     @objc func saveButtonTapped() {
-        debugLog(#function)
-
         let text = commentField.text ?? ""
 
         guard isFormValid() else { return }
+        // 빠른 더블탭으로 중복 저장(+보상 중복 집계)되는 것 방지
+        guard !isSaving else { return }
+        isSaving = true
 
         if let editingComment {
             let ok = CoreDataManager.shared.updateComment(
@@ -425,7 +427,7 @@ class CommentPopUpViewController: UIViewController {
                 rating: rating,
                 text: text
             )
-            guard ok else { showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
+            guard ok else { isSaving = false; showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
             showSavedAlertThenDismiss(message: "책한줄이 수정되었어요.")
         } else {
             let ok = CoreDataManager.shared.saveComment(
@@ -434,7 +436,7 @@ class CommentPopUpViewController: UIViewController {
                 rating: rating,
                 comment: text
             )
-            guard ok else { showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
+            guard ok else { isSaving = false; showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
             NotificationManager.checkBookRewardAfterComment()   // 새 책 획득 시 알림
             showSavedAlertThenDismiss(message: "작성한 책한줄이 저장되었어요.")
         }

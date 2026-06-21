@@ -515,7 +515,8 @@ final class DetailViewController: UIViewController {
         authorLabel.text = book.author.cleanAuthor()
         publisherLabel.text = book.publisher
         pubDateLabel.text = DateFormatter.yearFormatter.string(from: book.pubdate.toDate())
-        isbnLabel.text = book.isbn
+        // 네이버 isbn은 "isbn10 isbn13" 형태일 수 있어 마지막(=ISBN13) 토큰만 표시
+        isbnLabel.text = book.isbn.split(separator: " ").last.map(String.init) ?? book.isbn
         descriptionLabel.text = book.description
         descriptionLabel.setLineAndParagraphSpacing(lineSpacing: 6, paragraphSpacing: 12)
         loadBookImages(bookCoverUrl: book.image)
