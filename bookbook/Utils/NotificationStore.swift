@@ -6,7 +6,8 @@ extension Notification.Name {
 }
 
 enum NotificationStore {
-    private static let key = "appNotifications"
+    // 앱 알림함은 계정별로 분리
+    private static var key: String { UserSession.scopedKey("appNotifications") }
     private static let maxCount = 50
 
     static func all() -> [AppNotification] {

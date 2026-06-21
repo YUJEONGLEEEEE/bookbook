@@ -3,7 +3,8 @@ import UserNotifications
 
 // 시스템 로컬 푸시(UNUserNotificationCenter) + 앱 내 알림함 기록을 함께 처리
 enum NotificationManager {
-    private static let notifiedKey = "notifiedRewardCounts"
+    // 알림 dedup은 계정별로 분리 (다른 계정이 같은 책 알림을 또 받거나 막지 않도록)
+    private static var notifiedKey: String { UserSession.scopedKey("notifiedRewardCounts") }
     private static let reminderEnabledKey = "readingReminderEnabled"
     private static let reminderHourKey = "readingReminderHour"
     private static let reminderMinuteKey = "readingReminderMinute"
@@ -87,9 +88,15 @@ enum NotificationManager {
     }
 
     // 회원탈퇴 시 알림 데이터 전체 초기화
-    static func resetAll() {
+    // 현재 계정의 알림 데이터(알림함 + 보상 dedup) 정리 — UserSession.clear() 전에 호출해야 함
+    static func clearAccountState() {
         NotificationStore.clear()
-        [notifiedKey, reminderTimesKey, reminderWeekdaysKey, reminderHourKey, reminderMinuteKey]
+        UserDefaults.standard.removeObject(forKey: notifiedKey)
+    }
+
+    // 기기 전역 리마인더 설정/예약 정리 — 마지막 계정 탈퇴 시
+    static func clearReminders() {
+        [reminderTimesKey, reminderWeekdaysKey, reminderHourKey, reminderMinuteKey]
             .forEach { UserDefaults.standard.removeObject(forKey: $0) }
         UserDefaults.standard.set(false, forKey: reminderEnabledKey)
         clearScheduledReminders()

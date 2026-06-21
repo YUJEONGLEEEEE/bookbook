@@ -14,7 +14,8 @@ struct RecentBook: Codable {
 }
 
 enum RecentSearchStore {
-    private static let key = "recentSearchedBooks"
+    // 계정별로 분리 (다른 계정 데이터를 이어받지 않도록)
+    private static var key: String { UserSession.scopedKey("recentSearchedBooks") }
     // 최근 본 책 최대 10개 보관
     private static let limit = 10
 

@@ -582,16 +582,20 @@ class SearchViewController: UIViewController {
 
     // MARK: - Search History Management
 
+    // 검색 기록도 계정별로 분리
+    private var searchHistoryKey: String { UserSession.scopedKey("searchHistory") }
+    private var recentSearchesKey: String { UserSession.scopedKey("recentSearches") }
+
     private func saveSearchHistory() {
-        UserDefaults.standard.set(searchHistory, forKey: "searchHistory")
-        UserDefaults.standard.set(recentSearches, forKey: "recentSearches")
+        UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)
+        UserDefaults.standard.set(recentSearches, forKey: recentSearchesKey)
     }
 
     private func loadSearchHistory() {
-        if let savedHistory = UserDefaults.standard.dictionary(forKey: "searchHistory") as? [String: Int] {
+        if let savedHistory = UserDefaults.standard.dictionary(forKey: searchHistoryKey) as? [String: Int] {
             searchHistory = savedHistory
         }
-        if let savedRecent = UserDefaults.standard.array(forKey: "recentSearches") as? [String] {
+        if let savedRecent = UserDefaults.standard.array(forKey: recentSearchesKey) as? [String] {
             recentSearches = savedRecent
         }
         startView.reloadData(recent: recentSearches, popular: popularSearches)

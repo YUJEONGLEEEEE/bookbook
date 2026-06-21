@@ -214,16 +214,19 @@ class MyInfoViewController: UIViewController {
     }
 
     private func performWithdraw() {
+        // 현재 계정의 계정별 로컬 데이터 정리 (UserSession.clear 전에 — 키가 현재 계정 UUID 기준)
+        LevelRewardStore.clear()
+        RecentSearchStore.clear()
+        LevelEventViewController.clearProgress()
+        NotificationManager.clearAccountState()
+
         // 현재 계정과 그 활동 데이터만 삭제 (다른 계정은 보존)
         CoreDataManager.shared.deleteCurrentAccount()
+        let isLastAccount = CoreDataManager.shared.accountCount() == 0
         UserSession.clear()
-        // 기기에 계정이 하나도 안 남았을 때만 전역 UserDefaults 상태 초기화
-        // (다른 계정이 남아있으면 그 계정 데이터라 보존)
-        if CoreDataManager.shared.accountCount() == 0 {
-            NotificationManager.resetAll()
-            LevelRewardStore.clear()
-            RecentSearchStore.clear()
-            LevelEventViewController.clearProgress()
+        // 기기에 계정이 하나도 안 남았을 때만 기기 전역(리마인더) 정리
+        if isLastAccount {
+            NotificationManager.clearReminders()
         }
         setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
     }

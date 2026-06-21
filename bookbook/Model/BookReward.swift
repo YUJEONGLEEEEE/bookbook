@@ -42,7 +42,8 @@ struct BookReward {
 
 // 보상 팝업 노출 여부 기록
 enum LevelRewardStore {
-    private static let key = "acknowledgedRewardCounts"
+    // 계정별로 분리 (다른 계정의 보상 연출 상태를 이어받지 않도록)
+    private static var key: String { UserSession.scopedKey("acknowledgedRewardCounts") }
 
     static func acknowledged() -> Set<Int> {
         Set(UserDefaults.standard.array(forKey: key) as? [Int] ?? [])

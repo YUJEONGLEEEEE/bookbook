@@ -143,7 +143,8 @@ final class LevelEventViewController: UIViewController {
     }
 
     // 직전에 게이지로 보여준 작성 수 (방문 간 증가분만 차오르게 하기 위함)
-    private static let lastGaugeCountKey = "levelEventLastShownCount"
+    // 계정별로 분리
+    private static var lastGaugeCountKey: String { UserSession.scopedKey("levelEventLastShownCount") }
     private static func saveLastShownCount(_ count: Int) {
         UserDefaults.standard.set(count, forKey: lastGaugeCountKey)
     }

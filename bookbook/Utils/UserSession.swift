@@ -38,6 +38,12 @@ enum UserSession {
         UserDefaults.standard.removeObject(forKey: phoneKey)
     }
 
+    /// 현재 계정 UUID로 네임스페이스한 UserDefaults 키 (계정별 데이터 분리용).
+    /// 계정 미설정 시 "guest" 슬롯 사용.
+    static func scopedKey(_ base: String) -> String {
+        "\(base)_\(currentAccountUUID?.uuidString ?? "guest")"
+    }
+
     // MARK: - 튜토리얼 노출 여부
 
     /// 현재 계정이 튜토리얼을 이미 봤는지 여부.
