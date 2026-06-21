@@ -23,6 +23,8 @@ class MyCommentsViewController: UIViewController {
         view.estimatedRowHeight = 143
         view.backgroundColor = .clear
         view.showsVerticalScrollIndicator = false
+        // 탭바 아래까지 콘텐츠가 차도록 자동 inset 끔(하단 inset 수동 제어)
+        view.contentInsetAdjustmentBehavior = .never
         return view
     }()
     
@@ -62,6 +64,18 @@ class MyCommentsViewController: UIViewController {
         button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
         return button
     }()
+
+    // plain 테이블의 섹션 푸터는 하단에 고정(floating)되므로, 스크롤되는 tableFooterView로 페이지네이션을 담는다
+    private lazy var paginationFooter: UIView = {
+        let container = UIView()
+        container.addSubview(paginationStackView)
+        paginationStackView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(24)
+            make.height.equalTo(24)
+        }
+        return container
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,6 +92,16 @@ class MyCommentsViewController: UIViewController {
         super.viewWillAppear(animated)
         currentPage = 1
         loadComments()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // 테이블이 탭바 아래까지 차므로, 마지막 셀/페이지네이션이 탭바에 가리지 않게 탭바 높이만큼 하단 여백
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        if commentsTableView.contentInset.bottom != tabBarHeight {
+            commentsTableView.contentInset.bottom = tabBarHeight
+            commentsTableView.verticalScrollIndicatorInsets.bottom = tabBarHeight
+        }
     }
     
     private func loadComments() {
@@ -106,10 +130,10 @@ class MyCommentsViewController: UIViewController {
             pagedComments = []
         }
         commentsTableView.reloadData()
-        
+
         let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
-        paginationStackView.isHidden = (totalResults == 0)
         setupPaginationButtons(totalPages: totalPages)
+        updatePaginationFooter(visible: totalResults > 0)
     }
     
     // 한 권당 하나의 코멘트만 유지
@@ -207,23 +231,31 @@ class MyCommentsViewController: UIViewController {
     }
     
     private func configureUI() {
-        view.addSubviews([commentsTableView, emptyLabel, paginationStackView])
-        
+        // paginationStackView는 tableFooterView(paginationFooter)에 담겨 콘텐츠와 함께 스크롤됨
+        view.addSubviews([commentsTableView, emptyLabel])
+
         commentsTableView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(26)
-            make.bottom.equalTo(paginationStackView.snp.top).offset(-32)
+            make.bottom.equalToSuperview()   // 탭바 아래까지 콘텐츠가 참
         }
-        
-        paginationStackView.snp.makeConstraints { make in
-            make.height.equalTo(24)
-            make.centerX.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(24)
-        }
-        
+
         emptyLabel.snp.makeConstraints { make in
             make.center.equalTo(view.safeAreaLayoutGuide)
         }
+    }
+
+    // 페이지네이션을 스크롤되는 tableFooterView로 표시/숨김
+    private func updatePaginationFooter(visible: Bool) {
+        guard visible else {
+            commentsTableView.tableFooterView = nil
+            return
+        }
+        paginationStackView.isHidden = false
+        // 너비는 UITableView가 자동으로 테이블 폭에 맞춤. 높이만 지정 (상단 24 + 페이지네이션 24 + 하단 16)
+        paginationFooter.frame = CGRect(x: 0, y: 0, width: commentsTableView.bounds.width, height: 64)
+        paginationFooter.layoutIfNeeded()
+        commentsTableView.tableFooterView = paginationFooter
     }
     
     private func configureCell(_ cell: MyCommentsTableViewCell, with comment: Comment) {

@@ -23,7 +23,12 @@ class LikedViewController: UIViewController {
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
         view.register(LikedCollectionViewCell.self, forCellWithReuseIdentifier: "LikedCollectionViewCell")
-        view.backgroundColor = .clear
+        // 페이지네이션을 섹션 푸터로 → 결과와 함께 스크롤됨
+        view.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
+            withReuseIdentifier: "PaginationFooter"
+        )
         view.showsVerticalScrollIndicator = true
         return view
     }()
@@ -209,16 +214,12 @@ class LikedViewController: UIViewController {
     }
 
     private func configureUI() {
-        view.addSubviews([collectionView, emptyLabel, paginationStackView])
+        // paginationStackView는 collectionView 섹션 푸터에 동적으로 담는다(콘텐츠와 함께 스크롤)
+        view.addSubviews([collectionView, emptyLabel])
         collectionView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(32)
-            make.bottom.equalTo(paginationStackView.snp.top).offset(-32)
-        }
-        paginationStackView.snp.makeConstraints { make in
-            make.height.equalTo(24)
-            make.centerX.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(32)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         emptyLabel.snp.makeConstraints { make in
             make.center.equalTo(view.safeAreaLayoutGuide)
@@ -258,6 +259,29 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
         let height: CGFloat = 193
 
         return CGSize(width: width, height: height)
+    }
+
+    // 페이지네이션 푸터: 2페이지 이상일 때만 높이 확보(콘텐츠와 함께 스크롤)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        guard totalPages > 1 else { return .zero }
+        return CGSize(width: collectionView.frame.width, height: 64)   // 상단 24 + 페이지네이션 24 + 하단 16
+    }
+
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let footer = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
+        )
+        if paginationStackView.superview !== footer {
+            paginationStackView.removeFromSuperview()
+            footer.addSubview(paginationStackView)
+            paginationStackView.snp.remakeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview().offset(24)
+                make.height.equalTo(24)
+            }
+        }
+        return footer
     }
 
     func collectionView(_ collectionView: UICollectionView, canEditItemAt indexPath: IndexPath) -> Bool {
