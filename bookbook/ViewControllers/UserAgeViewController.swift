@@ -120,6 +120,8 @@ final class UserAgeViewController: UIViewController {
         handleAgeSelection(range: .senior, button: seniorButton)
     }
     @objc private func nextButtonClicked() {
+        // 더블탭으로 다음 화면이 중복 push되는 것 방지
+        guard navigationController?.topViewController === self else { return }
         let vc = UserGenderViewController()
         vc.editContext = editContext
         vc.pendingGenres = pendingGenres

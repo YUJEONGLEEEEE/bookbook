@@ -6,6 +6,7 @@ final class OnboardingViewController: UIViewController {
 
     private let imageNames = ["tutorial_01", "tutorial_02"]
     private var currentIndex = 0
+    private var isFinishing = false
 
     private let tutorialImageView: UIImageView = {
         let view = UIImageView()
@@ -59,6 +60,9 @@ final class OnboardingViewController: UIViewController {
     }
 
     private func finishTutorial() {
+        // 마지막 페이지 더블탭으로 setAsRoot가 중복 실행되는 것 방지
+        guard !isFinishing else { return }
+        isFinishing = true
         // 현재 계정이 튜토리얼을 봤다고 기록 → 재가입(새 UUID) 전까지 다시 노출되지 않는다.
         UserSession.markTutorialSeen()
         MainTabBarController.setAsRoot()

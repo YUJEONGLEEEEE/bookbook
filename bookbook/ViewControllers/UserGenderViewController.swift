@@ -12,6 +12,9 @@ final class UserGenderViewController: UIViewController {
     var pendingGenres: [String] = []
     var pendingAge: AgeRange?
 
+    // '완료' 더블탭으로 저장·화면전환이 중복 실행되는 것 방지
+    private var isFinishing = false
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.introTitleLabel(title: "성별을 알려주세요")
@@ -81,6 +84,8 @@ final class UserGenderViewController: UIViewController {
         handleGenderSelection(gender: .female, button: femaleButton)
     }
     @objc private func finishButtonClicked() {
+        guard !isFinishing else { return }
+        isFinishing = true
         // '완료' 시점에 장르·연령·성별을 한 번에 저장 (탭마다 저장하지 않음 → 도중 이탈 시 변경 안 남김)
         CoreDataManager.shared.selectGenres(pendingGenres)
         if let age = pendingAge { CoreDataManager.shared.updateAgeRange(age) }

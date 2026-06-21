@@ -349,6 +349,8 @@ final class PreferenceCheckViewController: UIViewController {
     }
 
     private func pushAgeViewController(genres: [String]) {
+        // 더블탭으로 다음 화면이 중복 push되는 것 방지
+        guard navigationController?.topViewController === self else { return }
         let ageVC = UserAgeViewController()
         ageVC.pendingGenres = genres   // 저장은 마지막 '완료'에서 일괄 처리
         // 편집 모드면 원본 스냅샷 전달
