@@ -52,13 +52,17 @@ final class CoreDataManager {
 
     // MARK: - Save
 
-    private func saveContext() {
-        guard context.hasChanges else { return }
+    // 저장 성공 여부를 반환. 실패 시 변경을 롤백해 메모리 컨텍스트 일관성 유지.
+    @discardableResult
+    private func saveContext() -> Bool {
+        guard context.hasChanges else { return true }
         do {
             try context.save()
-            debugLog("coredata 저장 성공")
+            return true
         } catch {
             debugLog("CoreData save error: \(error)")
+            context.rollback()
+            return false
         }
     }
 
