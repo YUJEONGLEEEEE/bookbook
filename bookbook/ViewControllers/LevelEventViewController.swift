@@ -121,19 +121,46 @@ final class LevelEventViewController: UIViewController {
         guard !didProcess else {
             setGauge(ratio: levelRatio(writtenCount: writtenCount), animated: false)
             showStaticTower(level: earned.count)
+            Self.saveLastShownCount(writtenCount)
             return
         }
         didProcess = true
 
         if newlyEarned.isEmpty {
-            setGauge(ratio: levelRatio(writtenCount: writtenCount), animated: false)
+            // 새 책 없는 평소 방문: 직전에 보여준 위치에서 새로 추가된 책한줄 만큼만 차오름
+            // (첫 방문은 0부터, 이후 방문은 증가분만큼)
             showStaticTower(level: earned.count)
+            setGauge(ratio: previousLevelRatio(earnedCount: earned.count, writtenCount: writtenCount), animated: false)
+            setGauge(ratio: levelRatio(writtenCount: writtenCount), animated: true)
+            Self.saveLastShownCount(writtenCount)
         } else {
             let startEarned = earned.count - newlyEarned.count
             setGauge(ratio: 0, animated: false)
             showStaticTower(level: startEarned)
             runRewardSequence(newlyEarned, finalWrittenCount: writtenCount)
         }
+    }
+
+    // 직전에 게이지로 보여준 작성 수 (방문 간 증가분만 차오르게 하기 위함)
+    private static let lastGaugeCountKey = "levelEventLastShownCount"
+    private static func saveLastShownCount(_ count: Int) {
+        UserDefaults.standard.set(count, forKey: lastGaugeCountKey)
+    }
+    private static func lastShownCount() -> Int {
+        UserDefaults.standard.integer(forKey: lastGaugeCountKey)
+    }
+
+    // 직전에 보여준 작성 수를 현재 레벨 기준 비율로 환산 → 애니메이션 시작점
+    private func previousLevelRatio(earnedCount: Int, writtenCount: Int) -> CGFloat {
+        let last = Self.lastShownCount()
+        // 기록이 없거나(첫 방문) 현재보다 큰 경우(삭제 등) 0부터
+        guard last > 0, last <= writtenCount else { return 0 }
+        let thresholds = BookReward.cumulativeThresholds()
+        let prevCumulative = earnedCount > 0 ? thresholds[earnedCount - 1] : 0
+        guard last >= prevCumulative else { return 0 }   // 직전 기록이 현재 레벨 시작 이전이면 0부터
+        let required = earnedCount < BookReward.all.count ? BookReward.all[earnedCount].count : 1
+        let inLevel = last - prevCumulative
+        return required > 0 ? min(1.0, max(0.0, CGFloat(inLevel) / CGFloat(required))) : 0
     }
 
     // 보상 연출 시퀀스 (게이지 → gif → 팝업)
@@ -145,6 +172,7 @@ final class LevelEventViewController: UIViewController {
                 updateGaugeLabels(writtenCount: finalWrittenCount)
                 setGauge(ratio: 0, animated: false)
                 setGauge(ratio: levelRatio(writtenCount: finalWrittenCount), animated: true)
+                Self.saveLastShownCount(finalWrittenCount)
                 return
             }
             let reward = queue.removeFirst()
@@ -162,7 +190,7 @@ final class LevelEventViewController: UIViewController {
                 self.playTowerGif(level: level) { [weak self] in
                     guard let self else { return }
                     // ③ 팝업
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
                         guard let self else { return }
                         let popup = BookRewardPopUpViewController(reward: reward)
                         popup.onConfirm = {
@@ -221,7 +249,8 @@ final class LevelEventViewController: UIViewController {
             make.width.equalTo(track).multipliedBy(max(0.0001, min(1.0, ratio)))
         }
         if animated {
-            UIView.animate(withDuration: 0.5, animations: { self.view.layoutIfNeeded() },
+            UIView.animate(withDuration: 1.4, delay: 0, options: .curveEaseInOut,
+                           animations: { self.view.layoutIfNeeded() },
                            completion: { _ in completion?() })
         } else {
             view.layoutIfNeeded()
