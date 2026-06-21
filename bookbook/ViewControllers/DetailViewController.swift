@@ -369,25 +369,35 @@ final class DetailViewController: UIViewController {
             }) { [weak self] _ in
                 guard let self else { return }
 
-                if self.fetchComment(for: Int64(self.bookISBN)) != nil {
-                    self.showAlert(message: "이미 작성된 책한줄이 있어요.")
+                if let existing = self.fetchComment(for: Int64(self.bookISBN)) {
+                    // 이미 작성된 책한줄 → 확인 누르면 해당 책한줄 편집 팝업
+                    self.showAlert(message: "이미 작성된 책한줄이 있어요.") { [weak self] in
+                        self?.presentCommentPopup(editing: existing)
+                    }
                     return
                 }
-                let popupVC = CommentPopUpViewController(
-                    isbn13: Int64(self.bookISBN),
-                    title: self.bookTitle.text ?? "",
-                    author: self.authorLabel.text ?? "",
-                    imageURL: self.bookData?.image ?? nil
-                )
-                popupVC.onCommentUpdated = { [weak self] in
-                    guard let self else { return }
-                    let myCommentsVC = MyCommentsViewController()
-                    self.navigationController?.pushViewController(myCommentsVC, animated: true)
-                }
-                popupVC.modalPresentationStyle = .overFullScreen
-                popupVC.modalTransitionStyle = .crossDissolve
-                self.present(popupVC, animated: true)
+                self.presentCommentPopup(editing: nil)
             }
+    }
+
+    // 책한줄 작성/편집 팝업 표시 (editing이 있으면 편집 모드)
+    private func presentCommentPopup(editing comment: Comment?) {
+        let popupVC = CommentPopUpViewController(
+            isbn13: Int64(bookISBN),
+            title: bookTitle.text ?? "",
+            author: authorLabel.text ?? "",
+            imageURL: bookData?.image
+        )
+        if let comment {
+            popupVC.configureForEdit(comment: comment)
+        }
+        popupVC.onCommentUpdated = { [weak self] in
+            guard let self else { return }
+            self.navigationController?.pushViewController(MyCommentsViewController(), animated: true)
+        }
+        popupVC.modalPresentationStyle = .overFullScreen
+        popupVC.modalTransitionStyle = .crossDissolve
+        present(popupVC, animated: true)
     }
 
     private func fetchComment(for isbn13: Int64) -> Comment? {
