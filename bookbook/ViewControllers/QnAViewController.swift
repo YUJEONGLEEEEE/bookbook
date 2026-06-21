@@ -270,8 +270,8 @@ final class QnaTableViewCell: UITableViewCell {
 
         expandedView.addSubview(contentStack)
         contentStack.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(16)
-            make.horizontalEdges.equalToSuperview().inset(24)
+            make.top.bottom.equalToSuperview().inset(32)   // Figma: 답변 영역 상하 32
+            make.horizontalEdges.equalToSuperview().inset(24)   // 좌우 24
         }
 
         contentView.addSubviews([mainStack, bottomLine])
