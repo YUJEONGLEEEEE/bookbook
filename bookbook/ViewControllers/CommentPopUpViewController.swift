@@ -419,20 +419,22 @@ class CommentPopUpViewController: UIViewController {
         guard isFormValid() else { return }
 
         if let editingComment {
-            CoreDataManager.shared.updateComment(
+            let ok = CoreDataManager.shared.updateComment(
                 editingComment,
                 readDate: datePicker.date,
                 rating: rating,
                 text: text
             )
+            guard ok else { showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
             showSavedAlertThenDismiss(message: "책한줄이 수정되었어요.")
         } else {
-            CoreDataManager.shared.saveComment(
+            let ok = CoreDataManager.shared.saveComment(
                 isbn13: bookISBN,
                 readDate: datePicker.date,
                 rating: rating,
                 comment: text
             )
+            guard ok else { showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
             NotificationManager.checkBookRewardAfterComment()   // 새 책 획득 시 알림
             showSavedAlertThenDismiss(message: "작성한 책한줄이 저장되었어요.")
         }

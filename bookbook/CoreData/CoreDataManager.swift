@@ -82,11 +82,12 @@ final class CoreDataManager {
     }
 
     // 내 정보 저장 (닉네임 + 다짐 한마디)
-    func updateProfile(nickname: String, promise: String) {
-        guard let account = fetchCurrentAccount() else { return }
+    @discardableResult
+    func updateProfile(nickname: String, promise: String) -> Bool {
+        guard let account = fetchCurrentAccount() else { return false }
         account.nickname = nickname
         account.promise = promise
-        saveContext()
+        return saveContext()
     }
 
     // 회원탈퇴: 모든 CoreData 데이터 삭제 (앱 최초 진입 상태로)
@@ -481,8 +482,9 @@ extension CoreDataManager {
 
 extension CoreDataManager {
 
-    func saveComment(isbn13: Int64, readDate: Date, rating: Double, comment: String) {
-        guard let account = fetchCurrentAccount() else { return }
+    @discardableResult
+    func saveComment(isbn13: Int64, readDate: Date, rating: Double, comment: String) -> Bool {
+        guard let account = fetchCurrentAccount() else { return false }
         let entity = Comment(context: context)
         entity.account = account
         entity.isbn13 = isbn13
@@ -490,14 +492,15 @@ extension CoreDataManager {
         entity.rating = rating
         entity.comment = comment
         entity.createdAt = Date()
-        saveContext()
+        return saveContext()
     }
 
-    func updateComment(_ comment: Comment, readDate: Date, rating: Double, text: String) {
+    @discardableResult
+    func updateComment(_ comment: Comment, readDate: Date, rating: Double, text: String) -> Bool {
         comment.readDate = readDate
         comment.rating = rating
         comment.comment = text
-        saveContext()
+        return saveContext()
     }
 
     func fetchComments(completion: @escaping ([Comment]) -> Void) {

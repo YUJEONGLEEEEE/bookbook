@@ -166,7 +166,10 @@ class MyInfoViewController: UIViewController {
             guard let self else { return }
             let name = self.nameField.text ?? ""
             let promise = self.promiseField.text ?? ""
-            CoreDataManager.shared.updateProfile(nickname: name, promise: promise)
+            guard CoreDataManager.shared.updateProfile(nickname: name, promise: promise) else {
+                self.showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요.")
+                return
+            }
             self.initialName = name
             self.initialPromise = promise
             self.updateSaveButtonState()
