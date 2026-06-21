@@ -53,4 +53,9 @@ enum LevelRewardStore {
         counts.forEach { set.insert($0) }
         UserDefaults.standard.set(Array(set), forKey: key)
     }
+
+    // 현재 획득 상태인 보상만 남기고 제거 (기록 삭제로 미획득이 된 책은 해제 → 재획득 시 연출 재생)
+    static func retain(_ counts: Set<Int>) {
+        UserDefaults.standard.set(Array(acknowledged().intersection(counts)), forKey: key)
+    }
 }

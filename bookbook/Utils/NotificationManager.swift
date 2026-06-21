@@ -23,7 +23,9 @@ enum NotificationManager {
     static func sendBookReward(name: String) {
         let body = "‘\(name)’\(name.objectParticle) 획득했어요! 책탑이 한 칸 올라갔어요."
         NotificationStore.add(AppNotification(kind: .bookReward, title: "새 책 획득 🎉", body: body))
-        fireLocalPush(title: "새 책 획득 🎉", body: body)
+        // userInfo로 종류를 실어 탭 시 라우팅(책탑쌓기)에 사용
+        fireLocalPush(title: "새 책 획득 🎉", body: body,
+                      userInfo: ["kind": AppNotificationKind.bookReward.rawValue])
     }
 
     // 책한줄 작성 후 새로 획득한 책이 있으면 알림 (책탑쌓기 방문 없이도 즉시, 책당 1회)
@@ -42,11 +44,26 @@ enum NotificationManager {
         }
     }
 
-    private static func fireLocalPush(title: String, body: String) {
+    // 책한줄 삭제 등으로 작성 수가 줄면, 더 이상 획득 상태가 아닌 책의 알림/연출 기록을 해제한다.
+    // → 다시 임계치를 넘기면 재획득 알림·애니메이션·팝업이 정상적으로 다시 나옴.
+    static func syncRewardState() {
+        CoreDataManager.shared.fetchComments { comments in
+            let earned = BookReward.earned(for: comments.count)
+            let earnedImageNames = Set(earned.map { $0.imageName })
+            // 알림 dedup 기록 정리 (현재 획득분만 유지)
+            let notified = Set(UserDefaults.standard.array(forKey: notifiedKey) as? [String] ?? [])
+            UserDefaults.standard.set(Array(notified.intersection(earnedImageNames)), forKey: notifiedKey)
+            // 팝업/연출 확인 기록 정리
+            LevelRewardStore.retain(Set(earned.map { $0.count }))
+        }
+    }
+
+    private static func fireLocalPush(title: String, body: String, userInfo: [AnyHashable: Any] = [:]) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
+        content.userInfo = userInfo
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)

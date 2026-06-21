@@ -354,6 +354,8 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
                     guard let self else { return }
                     
                     CoreDataManager.shared.deleteComment(comment)
+                    // 삭제로 미획득이 된 책의 알림/연출 기록 해제 → 재획득 시 연출 재생
+                    NotificationManager.syncRewardState()
 
                     self.allComments.removeAll { $0.objectID == comment.objectID }
                     self.totalResults = self.allComments.count
