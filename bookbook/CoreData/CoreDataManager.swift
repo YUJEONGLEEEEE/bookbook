@@ -53,8 +53,10 @@ final class CoreDataManager {
     // MARK: - Save
 
     // 저장 성공 여부를 반환. 실패 시 변경을 롤백해 메모리 컨텍스트 일관성 유지.
+    // viewContext는 메인 큐 컨텍스트이므로 반드시 메인 스레드에서 접근해야 한다(디버그에서 위반 시 즉시 감지).
     @discardableResult
     private func saveContext() -> Bool {
+        assert(Thread.isMainThread, "CoreData(viewContext) 저장은 메인 스레드에서만 호출해야 함")
         guard context.hasChanges else { return true }
         do {
             try context.save()
