@@ -244,8 +244,9 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyPageTableViewCell", for: indexPath) as! MyPageTableViewCell
         let title = menuTitles[indexPath.row]
-        // 앱 버전 행에만 버전 표시
-        let trailing = (title == "앱 버전") ? "1.0.1" : nil
+        // 앱 버전 행에만 버전 표시 (번들의 실제 버전 사용)
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let trailing = (title == "앱 버전") ? appVersion : nil
         cell.configure(title: title, trailing: trailing)
         return cell
     }

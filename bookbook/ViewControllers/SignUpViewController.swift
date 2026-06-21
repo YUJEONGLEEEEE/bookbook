@@ -10,6 +10,7 @@ final class SignUpViewController: UIViewController {
     private var isPhoneNumberValid = false
     private var isNicknameFloating = false
     private var isPhoneNumberFloating = false
+    private var isSubmitting = false   // 제출 중복(더블탭) 방지
 
 
     private let titleLabel: UILabel = {
@@ -136,6 +137,11 @@ final class SignUpViewController: UIViewController {
         setupDelegates()
         setupPhonePadAccessoryToolbar()
         activateSignUpButton()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isSubmitting = false   // 되돌아오면 다시 제출 가능
     }
 
     deinit {
@@ -272,7 +278,7 @@ final class SignUpViewController: UIViewController {
         navigationController?.pushViewController(signInVC, animated: true)
     }
     @objc private func signUp() {
-        print(#function)
+        guard !isSubmitting else { return }
         guard let nickname = nicknameField.text,
               !nickname.isEmpty,
               let phoneNumber = phoneNumberField.text,
@@ -293,6 +299,7 @@ final class SignUpViewController: UIViewController {
         // 최초 가입 → 다음 화면(취향 선택)에서 환영 토스트
         ToastManager.shared.pendingMessage = "\(nickname)님 환영해요!"
 
+        isSubmitting = true
         let preferVC = PreferenceCheckViewController()
         navigationController?.pushViewController(preferVC, animated: true)
     }

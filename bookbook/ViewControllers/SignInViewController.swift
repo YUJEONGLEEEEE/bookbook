@@ -7,6 +7,7 @@ class SignInViewController: UIViewController {
     private var phoneNumberDelegate: AccountValidationDelegate!
     private var isPhoneNumberValid = false
     private var isPhoneNumberFloating = false
+    private var isSubmitting = false   // 제출 중복(더블탭) 방지
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -83,6 +84,7 @@ class SignInViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupWhiteBackButton()
+        isSubmitting = false   // 되돌아오면 다시 제출 가능
     }
 
     deinit {
@@ -150,7 +152,7 @@ class SignInViewController: UIViewController {
         }
     }
     @objc private func signIn() {
-        print(#function)
+        guard !isSubmitting else { return }
         guard let phoneNumber = phoneNumberField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !phoneNumber.isEmpty,
               isPhoneNumberValid else { return }
@@ -170,6 +172,7 @@ class SignInViewController: UIViewController {
 
         let nickname = account.nickname ?? "회원"
 
+        isSubmitting = true   // 이 지점부터 화면 전환 — 중복 진입 차단
         if CoreDataManager.shared.isOnboardingCompleted {
             // 온보딩을 마친 기존 회원 → 랜덤 인사 + 곧장 메인 탭바로 진입
             let greetings = ["\(nickname)님 안녕하세요!", "\(nickname)님 좋은 하루예요!"]

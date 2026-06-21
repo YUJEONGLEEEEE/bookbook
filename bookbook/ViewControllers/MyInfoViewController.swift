@@ -151,8 +151,8 @@ class MyInfoViewController: UIViewController {
         let name = nameField.text ?? ""
         let promise = promiseField.text ?? ""
         let changed = (name != initialName) || (promise != initialPromise)
-        // 이름은 바꾸지 않았으면(기존값 유지) 유효로 처리, 새로 바꿀 때만 2~8자 규칙 적용
-        let nameValid = (name == initialName) || (2...8).contains(name.count)
+        // 이름은 바꾸지 않았으면(기존값 유지) 유효로 처리, 새로 바꿀 땐 가입과 동일 규칙(2~8자·숫자/특수문자 불가)
+        let nameValid = (name == initialName) || (NicknameValidator.validate(name) == .valid)
         let valid = nameValid && promise.count <= 20
         saveButton.isEnabled = changed && valid
         saveButton.alpha = saveButton.isEnabled ? 1.0 : 0.4

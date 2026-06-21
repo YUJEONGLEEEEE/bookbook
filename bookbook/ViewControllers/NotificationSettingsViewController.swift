@@ -193,8 +193,38 @@ final class NotificationSettingsViewController: UIViewController {
             return (c.hour ?? 20) * 60 + (c.minute ?? 0)
         }
         let weekdays = Set(dayButtons.filter { $0.isSelected }.map { $0.tag })
-        NotificationManager.setReminder(enabled: reminderSwitch.isOn, times: times, weekdays: weekdays)
-        if reminderSwitch.isOn { NotificationManager.requestAuthorization() }
+
+        guard reminderSwitch.isOn else {
+            NotificationManager.setReminder(enabled: false, times: times, weekdays: weekdays)
+            return
+        }
+        // 켤 때만 권한 확인 — 거부 상태면 스위치 되돌리고 설정 안내
+        NotificationManager.ensureAuthorization { [weak self] granted in
+            guard let self else { return }
+            if granted {
+                NotificationManager.setReminder(enabled: true, times: times, weekdays: weekdays)
+            } else {
+                self.reminderSwitch.setOn(false, animated: true)
+                self.updateEnabledState()
+                NotificationManager.setReminder(enabled: false, times: times, weekdays: weekdays)
+                self.presentPermissionAlert()
+            }
+        }
+    }
+
+    private func presentPermissionAlert() {
+        let alert = UIAlertController(
+            title: "알림 권한이 필요해요",
+            message: "리마인더를 받으려면 설정에서 읽담 알림을 켜주세요.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "설정 열기", style: .default) { _ in
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
+            }
+        })
+        present(alert, animated: true)
     }
 
     // MARK: - Layout

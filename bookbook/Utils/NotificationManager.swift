@@ -13,8 +13,25 @@ enum NotificationManager {
     // MARK: - 권한
 
     static func requestAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            print("알림 권한 허용: \(granted)")
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in }
+    }
+
+    // 권한 확인/요청 후 최종 허용 여부를 메인 스레드로 콜백 (리마인더 켤 때 사용)
+    static func ensureAuthorization(completion: @escaping (Bool) -> Void) {
+        let center = UNUserNotificationCenter.current()
+        center.getNotificationSettings { settings in
+            switch settings.authorizationStatus {
+            case .authorized, .provisional, .ephemeral:
+                DispatchQueue.main.async { completion(true) }
+            case .denied:
+                DispatchQueue.main.async { completion(false) }
+            case .notDetermined:
+                center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
+                    DispatchQueue.main.async { completion(granted) }
+                }
+            @unknown default:
+                DispatchQueue.main.async { completion(false) }
+            }
         }
     }
 

@@ -107,7 +107,7 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
             cell.answerLabel.text = item.answer
             return cell
         }
-        fatalError("Invalid Section")
+        return UITableViewCell()
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
