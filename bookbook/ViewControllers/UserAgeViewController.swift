@@ -104,19 +104,15 @@ final class UserAgeViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
     }
     @objc private func childrenButtonClicked() {
-        debugLog(#function)
         handleAgeSelection(range: .child, button: childButton)
     }
     @objc private func adolescenceButtonClicked() {
-        debugLog(#function)
         handleAgeSelection(range: .teen, button: teenButton)
     }
     @objc private func adultButtonClicked() {
-        debugLog(#function)
         handleAgeSelection(range: .adult, button: adultButton)
     }
     @objc private func seniorButtonClicked() {
-        debugLog(#function)
         handleAgeSelection(range: .senior, button: seniorButton)
     }
     @objc private func nextButtonClicked() {

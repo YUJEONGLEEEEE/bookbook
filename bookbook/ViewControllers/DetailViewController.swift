@@ -310,7 +310,6 @@ final class DetailViewController: UIViewController {
     }
     @objc private func didTapLikeButton() {
         let isAddingLike = !isLikedByUser
-        debugLog("좋아요 토글: \(isAddingLike ? "추가" : "취소")")
 
         if isLikedByUser {
             CoreDataManager.shared.decrementLikeCount(for: bookISBN)
@@ -487,7 +486,6 @@ final class DetailViewController: UIViewController {
     }
 
     private func callRequest(isbn: Int) {
-        debugLog("네이버 ISBN 상세 정보 요청: \(isbn)")
         LoadingManager.shared.showLoading(on: view)
         NetworkManager.shared.bookDetail(isbn: isbn) { [weak self] result in
             LoadingManager.shared.hideLoading()

@@ -47,10 +47,8 @@ final class OnboardingViewController: UIViewController {
     @objc func tapImage() {
         currentIndex += 1
         if currentIndex < imageNames.count {
-            debugLog("gotonextpage")
             showImage()
         } else {
-            debugLog("LastPage")
             finishTutorial()
         }
     }

@@ -25,7 +25,6 @@ final class NetworkManager {
         page: Int = 1,
         completion: @escaping (Result<BookInfo, AFError>) -> Void
     ) {
-        debugLog("검색: \(query), 페이지: \(page), 정렬: \(sort)")
 
         let url = APIKey.aladinSearchURL
         var parameters: [String: Any] = [
@@ -53,7 +52,6 @@ final class NetworkManager {
         .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
-                debugLog(value)
                 // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
                 completion(.success(value.filteringExcluded()))
             case .failure(let error):
@@ -64,7 +62,6 @@ final class NetworkManager {
     }
 
     func bookLists(queryType: String, category: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
-        debugLog("listRequest: \(queryType)")
 
         let url = APIKey.aladinListURL
         let parameters: [String: Any] = [
@@ -86,7 +83,6 @@ final class NetworkManager {
         .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
-                debugLog(value)
                 // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
                 completion(.success(value.filteringExcluded()))
             case .failure(let error):
@@ -97,7 +93,6 @@ final class NetworkManager {
     }
 
     func bookDetail(isbn: Int, completion: @escaping (Result<naverBookInfo, AFError>) -> Void) {
-        debugLog(#function)
 
         let url = APIKey.naverDetailURL
         let headers: HTTPHeaders = [
@@ -117,7 +112,6 @@ final class NetworkManager {
         .responseDecodable(of: naverBookInfo.self) { response in
             switch response.result {
             case .success(let value):
-                debugLog("네이버 검색 성공: \(isbn)")
                 completion(.success(value))
             case .failure(let error):
                 debugLog("네이버 검색 실패: \(isbn)")
@@ -133,7 +127,6 @@ final class NetworkManager {
             return
         }
 
-        debugLog("📚 북마크 조회 시작: 요청 \(isbns.count)개")
         var booksByIsbn: [String: BookData] = [:]
         var failedISBNs: [String] = []
         let group = DispatchGroup()

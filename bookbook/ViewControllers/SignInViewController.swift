@@ -127,7 +127,6 @@ class SignInViewController: UIViewController {
         signInButton.addTarget(self, action: #selector(signIn), for: .touchUpInside)
     }
     @objc private func beginEditingPhoneNumber() {
-        debugLog(#function)
         guard !isPhoneNumberFloating else { return }
         isPhoneNumberFloating = true
         phoneNumberField.attributedPlaceholder = nil
@@ -138,7 +137,6 @@ class SignInViewController: UIViewController {
         }
     }
     @objc private func endEditingPhoneNumber() {
-        debugLog(#function)
         if phoneNumberField.text?.isEmpty ?? true {
             isPhoneNumberFloating = false
             UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut]) {

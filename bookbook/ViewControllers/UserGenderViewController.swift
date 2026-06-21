@@ -76,11 +76,9 @@ final class UserGenderViewController: UIViewController {
         finishButton.addTarget(self, action: #selector(finishButtonClicked), for: .touchUpInside)
     }
     @objc private func maleButtonClicked() {
-        debugLog(#function)
         handleGenderSelection(gender: .male, button: maleButton)
     }
     @objc private func femaleButtonClicked() {
-        debugLog(#function)
         handleGenderSelection(gender: .female, button: femaleButton)
     }
     @objc private func finishButtonClicked() {

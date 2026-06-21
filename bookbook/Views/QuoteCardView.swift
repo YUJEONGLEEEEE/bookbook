@@ -39,7 +39,6 @@ class QuoteCardView: UIView {
         quoteCards.image = UIImage(named: imageName)
         lastImageName = imageName
 
-        debugLog("QuoteCard new image: \(imageName)")
     }
 
     private func configureUI() {

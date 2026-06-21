@@ -55,19 +55,16 @@ class BookSortView: UIView {
         latestButton.addTarget(self, action: #selector(latestButtonTapped), for: .touchUpInside)
     }
     @objc private func accuracyButtonTapped() {
-        debugLog(#function)
         guard currentSort != .accuracy else { return }
         updateSelectedButton(.accuracy)
         delegate?.sortView(self, didSelect: .accuracy)
     }
     @objc private func recommendButtonTapped(){
-        debugLog(#function)
         guard currentSort != .recommend else { return }
         updateSelectedButton(.recommend)
         delegate?.sortView(self, didSelect: .recommend)
     }
     @objc private func latestButtonTapped() {
-        debugLog(#function)
         guard currentSort != .latest else { return }
         updateSelectedButton(.latest)
         delegate?.sortView(self, didSelect: .latest)

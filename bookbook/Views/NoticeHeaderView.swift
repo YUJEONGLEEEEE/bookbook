@@ -39,7 +39,6 @@ class NoticeHeaderView: UITableViewHeaderFooterView {
     }
 
     @objc private func moreButtonTapped() {
-        debugLog(#function)
         delegate?.headerViewButtonTapped(self)
     }
 

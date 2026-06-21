@@ -52,7 +52,6 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
     }
 
     func headerViewButtonTapped(_ headerView: NoticeHeaderView) {
-        debugLog(#function)
         let vc = NoticeViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -112,11 +111,9 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 {
-            debugLog(#function)
             let vc = NoticeViewController()
             navigationController?.pushViewController(vc, animated: true)
         } else if indexPath.section == 1 {
-            debugLog(#function)
             qnaExpandedStates[indexPath.row].toggle()
             tableView.reloadRows(at: [indexPath], with: .automatic)
         }

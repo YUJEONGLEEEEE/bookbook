@@ -135,7 +135,6 @@ final class CoreDataManager {
         do {
             account.genres = try JSONEncoder().encode(genres) as NSObject
             saveContext()
-            debugLog("genres 저장 성공: \(genres)")
         } catch {
             debugLog("genres 저장 실패: \(error)")
         }
@@ -171,7 +170,6 @@ final class CoreDataManager {
         }
         do {
             let genres = try JSONDecoder().decode([String].self, from: genreData)
-            debugLog("genres 로드 성공: \(genres)")
             return genres
         } catch {
             debugLog("genres 로드 실패: \(error)")
@@ -349,7 +347,6 @@ extension CoreDataManager {
         do {
             if let existing = try context.fetch(request).first {
                 context.delete(existing)   // 연결된 Book 캐시도 Cascade로 삭제
-                debugLog("북마크 취소: \(isbn13)")
             } else {
                 let newBookmark = Bookmark(context: context)
                 newBookmark.isbn13 = Int64(isbn13)
@@ -359,7 +356,6 @@ extension CoreDataManager {
                 if let book = book {
                     newBookmark.book = makeCachedBook(from: book)
                 }
-                debugLog("북마크 추가: \(isbn13), 카테고리: \(categoryId)")
             }
             saveContext()
             postBookStateChange(name: .bookBookmarkDidChange, isbn13: isbn13)

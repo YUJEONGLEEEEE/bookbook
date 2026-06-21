@@ -281,7 +281,6 @@ class SearchViewController: UIViewController {
         resetSearchResult()
     }
     @objc private func searchButtonTapped() {
-        debugLog(#function)
         guard let query = searchField.text, !query.isEmpty else { return }
         currentPage = 1
         resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
@@ -611,7 +610,6 @@ class SearchViewController: UIViewController {
         recentSearches.remove(at: index)
         saveSearchHistory()
         startView.reloadData(recent: recentSearches, popular: popularSearches)
-        debugLog("최근검색어 삭제: \(index)")
     }
 
     // 기본 인기 키워드
@@ -739,12 +737,10 @@ extension SearchViewController: UITextFieldDelegate {
 
         if current.isEmpty && !new.isEmpty {
             startView.isHidden = true
-            debugLog("검색어 입력 시작")
         }
 
         if !current.isEmpty, new.isEmpty {
             resetSearchResult()
-            debugLog("검색결과 초기화")
         }
         return true
     }
@@ -755,7 +751,6 @@ extension SearchViewController: UITextFieldDelegate {
 extension SearchViewController: BookFilterProtocol, BookSortProtocol {
 
     func bookFilterView(_ view: BookFilterView, didSelectFilter filter: BookFilter) {
-        debugLog("필터 선택: \(filter.name)")
         selectedFilter = filter
 
         if !currentQuery.isEmpty {
@@ -843,7 +838,6 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        debugLog(#function)
         let book = searchBooks[indexPath.item]
         // '최근 본 책' 기록은 상세페이지(DetailViewController) 진입 시 일괄 처리
         let detailVC = DetailViewController(isbn13: book.isbn13Int)

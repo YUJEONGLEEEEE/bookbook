@@ -409,7 +409,6 @@ class CommentPopUpViewController: UIViewController {
         updateSaveButtonState()
     }
     @objc func cancelButtonTapped() {
-        debugLog(#function)
         dismiss(animated: true)
     }
     @objc func saveButtonTapped() {

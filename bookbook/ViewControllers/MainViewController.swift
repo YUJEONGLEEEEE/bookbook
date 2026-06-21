@@ -248,7 +248,6 @@ class MainViewController: UIViewController {
                 guard let categoryId = Int(categoryIdString) else { continue }
 
                 group.enter()
-                debugLog("무작위 선택: \(genre) (ID: \(categoryId)) 검색 중...")
                 NetworkManager.shared.bookLists(
                     queryType: "Bestseller",
                     category: categoryId
@@ -286,7 +285,6 @@ class MainViewController: UIViewController {
     }
 
     private func fetchRecentBooks() {
-        debugLog("최근 신간 불러오기 - ItemNewAll")
         LoadingManager.shared.showLoading(on: view)
 
         NetworkManager.shared.bookLists(
@@ -300,7 +298,6 @@ class MainViewController: UIViewController {
                     case .success(let newBook):
                         self.recentBooks = Array(newBook.item.prefix(10))
                         self.recentCollectionView.reloadData()
-                        debugLog("신간 \(self.recentBooks.count)개 로드 완료")
                     case .failure(let error):
                         debugLog("신간 로드 실패: \(error)")
                         self.recentBooks = []
