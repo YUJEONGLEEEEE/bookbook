@@ -9,6 +9,8 @@ final class UserAgeViewController: UIViewController {
 
     // 편집 모드 원본 스냅샷
     var editContext: PreferenceEditContext?
+    // 이전 화면(취향)에서 넘어온 선택 장르 — 저장은 마지막 '완료'에서 한 번에
+    var pendingGenres: [String] = []
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -118,9 +120,10 @@ final class UserAgeViewController: UIViewController {
         handleAgeSelection(range: .senior, button: seniorButton)
     }
     @objc private func nextButtonClicked() {
-        debugLog(#function)
         let vc = UserGenderViewController()
         vc.editContext = editContext
+        vc.pendingGenres = pendingGenres
+        vc.pendingAge = selectedAgeRange   // 저장은 '완료'에서
         navigationController?.pushViewController(vc, animated: true)
     }
     private func handleAgeSelection(range: AgeRange, button: UIButton) {
@@ -130,8 +133,7 @@ final class UserAgeViewController: UIViewController {
         selectedButton = button
         selectedAgeRange = range
         updateButton(button, isSelected: true)
-
-        CoreDataManager.shared.updateAgeRange(range)
+        // 탭 시 즉시 저장하지 않음 — '완료'에서 일괄 저장(도중 이탈 시 변경 안 남김)
         updateNextButtonState()
     }
     private func updateNextButtonState() {

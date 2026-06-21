@@ -8,6 +8,9 @@ final class UserGenderViewController: UIViewController {
     private weak var selectedButton: UIButton?
 
     var editContext: PreferenceEditContext?
+    // 이전 화면들에서 넘어온 선택 — 저장은 '완료'에서 한 번에
+    var pendingGenres: [String] = []
+    var pendingAge: AgeRange?
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -78,7 +81,11 @@ final class UserGenderViewController: UIViewController {
         handleGenderSelection(gender: .female, button: femaleButton)
     }
     @objc private func finishButtonClicked() {
-        debugLog(#function)
+        // '완료' 시점에 장르·연령·성별을 한 번에 저장 (탭마다 저장하지 않음 → 도중 이탈 시 변경 안 남김)
+        CoreDataManager.shared.selectGenres(pendingGenres)
+        if let age = pendingAge { CoreDataManager.shared.updateAgeRange(age) }
+        if let gender = selectedGender { CoreDataManager.shared.updateGender(gender) }
+
         if UserSession.hasSeenTutorial {
             // 편집(내취향 > 편집)으로 진입한 경우엔 메인에서 '취향 변경' 토스트
             if editContext != nil {
@@ -97,8 +104,7 @@ final class UserGenderViewController: UIViewController {
         selectedButton = button
         selectedGender = gender
         updateButton(button, isSelected: true)
-
-        CoreDataManager.shared.updateGender(gender)
+        // 탭 시 즉시 저장하지 않음 — '완료'에서 일괄 저장
         updateFinishButtonState()
     }
     private func updateFinishButtonState() {
@@ -117,10 +123,9 @@ final class UserGenderViewController: UIViewController {
     }
 
     private func hasAnyChange(from ctx: PreferenceEditContext) -> Bool {
-        let currentGenres = Set(CoreDataManager.shared.fetchGenres())
-        let currentAge = CoreDataManager.shared.fetchAgeRange()
-        return currentGenres != ctx.genres
-            || currentAge != ctx.age
+        // 저장 전이므로 DB가 아니라 '대기 중인 선택값'으로 변경 여부 판단
+        return Set(pendingGenres) != ctx.genres
+            || pendingAge != ctx.age
             || selectedGender != ctx.gender
     }
 

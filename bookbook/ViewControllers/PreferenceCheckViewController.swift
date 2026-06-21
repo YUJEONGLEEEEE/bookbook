@@ -341,19 +341,16 @@ final class PreferenceCheckViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     @objc private func skipButtonTapped() {
-        debugLog(#function)
-        CoreDataManager.shared.selectGenres([])
-        pushAgeViewController()
+        // "취향을 모르겠어요" → 빈 장르(연령/성별 추천 사용). 저장은 '완료'에서.
+        pushAgeViewController(genres: [])
     }
     @objc private func nextButtonTapped() {
-        debugLog(#function)
-        let genresArray = Array(selectedGenres)
-        CoreDataManager.shared.selectGenres(genresArray)
-        pushAgeViewController()
+        pushAgeViewController(genres: Array(selectedGenres))
     }
 
-    private func pushAgeViewController() {
+    private func pushAgeViewController(genres: [String]) {
         let ageVC = UserAgeViewController()
+        ageVC.pendingGenres = genres   // 저장은 마지막 '완료'에서 일괄 처리
         // 편집 모드면 원본 스냅샷 전달
         if isEditMode {
             ageVC.editContext = PreferenceEditContext(
