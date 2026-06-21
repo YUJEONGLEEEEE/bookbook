@@ -82,6 +82,18 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
         return cell
     }
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let item = items[indexPath.row]
+        switch item.kind {
+        case .bookReward:
+            // 책 획득 알림 → 책탑쌓기 페이지로 이동
+            navigationController?.pushViewController(LevelEventViewController(), animated: true)
+        default:
+            break
+        }
+    }
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let item = items[indexPath.row]
         let delete = UIContextualAction(style: .destructive, title: "삭제") { [weak self] _, _, done in
