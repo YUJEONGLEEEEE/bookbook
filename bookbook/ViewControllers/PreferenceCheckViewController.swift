@@ -252,11 +252,7 @@ final class PreferenceCheckViewController: UIViewController {
         if isEditMode { applyGenreSelectionOverlays() }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        // 가입/로그인 직후 환영 토스트
-        showPendingToast()
-    }
+    // 환영 토스트는 취향선택이 아니라 튜토리얼 이후 메인 진입 시 표시 (MainViewController.viewDidAppear)
 
     // MARK: - 편집(취소) 처리
 
