@@ -326,4 +326,45 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
 
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
+
+    // 꾹누르기(롱프레스 컨텍스트 메뉴) → 마음표현취소
+    func collectionView(_ collectionView: UICollectionView,
+                        contextMenuConfigurationForItemAt indexPath: IndexPath,
+                        point: CGPoint) -> UIContextMenuConfiguration? {
+        let actualIndex = (currentPage - 1) * itemsPerPage + indexPath.item
+        guard actualIndex < allLikedBooks.count else { return nil }
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            let cancelLike = UIAction(
+                title: "마음표현취소",
+                image: UIImage(named: "heart")?
+                    .withRenderingMode(.alwaysTemplate)
+                    .withTintColor(.customAlert, renderingMode: .alwaysOriginal),
+                attributes: .destructive
+            ) { _ in
+                self?.confirmCancelLike(at: actualIndex)
+            }
+            return UIMenu(children: [cancelLike])
+        }
+    }
+
+    private func confirmCancelLike(at index: Int) {
+        guard index < allLikedBooks.count else { return }
+        let book = allLikedBooks[index]
+
+        alertWithCancel(
+            message: "이 책을 마음서랍에서 꺼내시겠어요?",
+            cancelTitle: "놔두기",
+            confirmTitle: "꺼내기",
+            successMessage: "마음서랍에서 삭제했어요.",
+            okHandler: { [weak self] in
+                guard let self else { return }
+                CoreDataManager.shared.decrementLikeCount(for: book.isbn13Int)
+                self.allLikedBooks.removeAll { $0.isbn13 == book.isbn13 }
+                self.totalResults = self.allLikedBooks.count
+                self.applyPagination()
+                self.updateEmptyState()
+            }
+        )
+    }
 }
