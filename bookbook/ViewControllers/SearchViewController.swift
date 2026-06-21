@@ -841,11 +841,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print(#function)
         let book = searchBooks[indexPath.item]
-        // 최근 검색한 책 기록
-        RecentSearchStore.add(RecentBook(
-            isbn13: book.isbn13, title: book.title, author: book.author,
-            publisher: book.publisher, cover: book.cover, description: book.description
-        ))
+        // '최근 본 책' 기록은 상세페이지(DetailViewController) 진입 시 일괄 처리
         let detailVC = DetailViewController(isbn13: book.isbn13Int)
         navigationController?.pushViewController(detailVC, animated: true)
     }

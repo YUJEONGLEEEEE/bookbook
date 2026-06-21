@@ -503,6 +503,16 @@ final class DetailViewController: UIViewController {
         descriptionLabel.setLineAndParagraphSpacing(lineSpacing: 6, paragraphSpacing: 12)
         loadBookImages(bookCoverUrl: book.image)
         updateButtonUI()
+
+        // 상세페이지로 확인한 책은 진입 경로와 무관하게 '최근 본 책'에 저장 (최대 10개)
+        RecentSearchStore.add(RecentBook(
+            isbn13: String(bookISBN),
+            title: book.title,
+            author: book.author,
+            publisher: book.publisher,
+            cover: book.image,
+            description: book.description
+        ))
     }
 
     private func configureUI() {

@@ -28,7 +28,7 @@ class MyPageViewController: UIViewController {
     }()
 
     // MARK: - 하단 메뉴 테이블
-    private let menuTitles = ["최근 검색한 책", "공지사항", "자주 묻는 질문", "1:1 문의", "이용약관", "앱 버전"]
+    private let menuTitles = ["최근 본 책", "공지사항", "자주 묻는 질문", "1:1 문의", "이용약관", "앱 버전"]
 
     private let tableView: UITableView = {
         let view = UITableView()

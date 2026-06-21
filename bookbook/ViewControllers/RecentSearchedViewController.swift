@@ -3,7 +3,7 @@ import UIKit
 import Kingfisher
 import SnapKit
 
-// MARK: - 최근 검색한 책 저장소 (UserDefaults)
+// MARK: - 최근 본 책 저장소 (UserDefaults)
 struct RecentBook: Codable {
     let isbn13: String
     let title: String
@@ -15,7 +15,7 @@ struct RecentBook: Codable {
 
 enum RecentSearchStore {
     private static let key = "recentSearchedBooks"
-    // 최근 검색한 책 최대 10개 보관
+    // 최근 본 책 최대 10개 보관
     private static let limit = 10
 
     static func all() -> [RecentBook] {
@@ -59,7 +59,7 @@ class RecentSearchedViewController: UIViewController {
 
     private let emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "아직 검색한 책이 없어요"
+        label.text = "아직 본 책이 없어요"
         label.font = UIFont.customFont(ofSize: 16, weight: .medium)
         label.textColor = .bk3
         label.textAlignment = .center
@@ -74,7 +74,7 @@ class RecentSearchedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .customWh
-        navigationItem.title = "최근 검색한 책"
+        navigationItem.title = "최근 본 책"
         collectionView.delegate = self
         collectionView.dataSource = self
         configureUI()
@@ -156,7 +156,7 @@ class RecentSearchedViewController: UIViewController {
         return config
     }
 
-    // 오른쪽 스와이프 → 최근 검색한 책 리스트에서 삭제
+    // 오른쪽 스와이프 → 최근 본 책 리스트에서 삭제
     private func removeSwipe(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard indexPath.item < books.count else { return nil }
         let isbn = books[indexPath.item].isbn13
