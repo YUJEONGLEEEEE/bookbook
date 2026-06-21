@@ -291,6 +291,8 @@ final class DetailViewController: UIViewController {
         super.viewWillAppear(animated)
         // 찾기 화면이 네비바를 숨겼을 수 있으므로 상세 진입 시 복원(백버튼 노출)
         navigationController?.setNavigationBarHidden(false, animated: animated)
+        // 블러 배경 위라 기본 검정 백버튼이 안 보여 흰색(customWh)으로 표시
+        setupWhiteBackButton()
         DispatchQueue.main.async {
             self.updateButtonUI()
         }
