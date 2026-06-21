@@ -221,13 +221,9 @@ class MyCommentsViewController: UIViewController {
     }
     
     private func scrollToTop() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            if self.commentsTableView.numberOfRows(inSection: 0) > 0 {
-                self.commentsTableView.scrollToRow(at: IndexPath(row: 0, section: 0),
-                                                   at: .top,
-                                                   animated: false)
-            }
-        }
+        // reloadData 직후 레이아웃 강제 → 타이밍 핵 없이 즉시 최상단으로
+        commentsTableView.layoutIfNeeded()
+        commentsTableView.setContentOffset(CGPoint(x: 0, y: -commentsTableView.adjustedContentInset.top), animated: false)
     }
     
     private func configureUI() {

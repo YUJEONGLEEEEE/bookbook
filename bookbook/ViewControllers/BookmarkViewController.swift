@@ -209,18 +209,14 @@ class BookmarkViewController: UIViewController {
         currentPage = sender.tag
         setupPaginationButtons(totalPages: (totalResults + itemsPerPage - 1) / itemsPerPage)
         collectionView.reloadData()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
-        }
+        scrollToTopOfList()
     }
     @objc private func previousPageTapped() {
         if currentPage > 1 {
             currentPage -= 1
             setupPaginationButtons(totalPages: (totalResults + itemsPerPage - 1) / itemsPerPage)
             collectionView.reloadData()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
-            }
+            scrollToTopOfList()
         }
     }
     @objc private func nextPageTapped() {
@@ -229,10 +225,14 @@ class BookmarkViewController: UIViewController {
             currentPage += 1
             setupPaginationButtons(totalPages: totalPages)
             collectionView.reloadData()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
-            }
+            scrollToTopOfList()
         }
+    }
+
+    // 페이지 변경 후 최상단으로 (reloadData 직후 레이아웃 강제 → 타이밍 핵 없이 즉시)
+    private func scrollToTopOfList() {
+        collectionView.layoutIfNeeded()
+        collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top), animated: false)
     }
 
     private func configureUI() {

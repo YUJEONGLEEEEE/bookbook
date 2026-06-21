@@ -204,13 +204,9 @@ class LikedViewController: UIViewController {
     }
 
     private func scrollToTop() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            if self.collectionView.numberOfItems(inSection: 0) > 0 {
-                self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0),
-                                                 at: .top,
-                                                 animated: false)
-            }
-        }
+        // reloadData 직후 레이아웃 강제 → 타이밍 핵 없이 즉시 최상단으로
+        collectionView.layoutIfNeeded()
+        collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top), animated: false)
     }
 
     private func configureUI() {
