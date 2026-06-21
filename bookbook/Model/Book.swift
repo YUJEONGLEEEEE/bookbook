@@ -9,7 +9,6 @@ struct BookInfo: Decodable {
         case totalResults, item
     }
 
-    // 제외 대상(참고서/교과서/세트 도서) 필터링
     func filteringExcluded() -> BookInfo {
         var copy = self
         copy.item = item.filter { !$0.isExcluded }
@@ -35,7 +34,6 @@ struct BookData: Decodable {
 
     // 로컬 전용 필드 (API 응답에 없음)
     var searchCategoryId: Int = 0
-    // 알라딘 응답: 카테고리 번호
     var categoryId: Int64 = 0
     // 알라딘 카테고리 전체 경로 (예: "국내도서>자기계발>성공/처세")
     var categoryName: String = ""
@@ -67,7 +65,6 @@ extension BookData {
     // 카테고리 번호(CID)로 직접 제외하는 분야
     static let excludedCategoryIds: Set<Int64> = [181723, 181727]
 
-    // 제외할 제목 키워드 (세트/전집)
     static let excludedTitleKeywords = ["세트", "전집"]
     // 세트 도서 제목 패턴 (예: 전 7권, 1~10권)
     static let volumeSetPatterns = [#"전\s*\d+\s*권"#, #"\d+\s*[~∼\-]\s*\d+\s*권"#]
@@ -76,12 +73,10 @@ extension BookData {
         if BookData.excludedCategoryIds.contains(categoryId) { return true }
         return BookData.excludedCategoryKeywords.contains { categoryName.contains($0) }
     }
-    // 세트/전집 도서 여부
     var isSetBook: Bool {
         if BookData.excludedTitleKeywords.contains(where: { title.contains($0) }) { return true }
         return BookData.volumeSetPatterns.contains { title.range(of: $0, options: .regularExpression) != nil }
     }
-    // 목록에서 제외할 책 (제외 분야 또는 세트/전집)
     var isExcluded: Bool { isExcludedCategory || isSetBook }
 }
 

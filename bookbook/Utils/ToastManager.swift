@@ -12,7 +12,6 @@ final class ToastManager {
 
     private init() {}
 
-    // 대기 메시지가 있으면 해당 화면에서 표시하고 비운다.
     func showPending(in viewController: UIViewController) {
         guard let message = pendingMessage else { return }
         pendingMessage = nil

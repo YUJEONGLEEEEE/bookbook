@@ -13,7 +13,6 @@ extension String {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    // 작가 표시용: HTML 제거 + "(지은이)" 제거 + 공백/쉼표 정리
     func cleanAuthor() -> String {
         var result = cleanHTML().replacingOccurrences(of: "(지은이)", with: "")
         result = result.replacingOccurrences(of: " ,", with: ",")

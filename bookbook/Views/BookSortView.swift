@@ -1,5 +1,3 @@
-// searchviewcontroller -> 책 검색결과 정렬 && 검색결과 총 갯수
-
 import UIKit
 import SnapKit
 

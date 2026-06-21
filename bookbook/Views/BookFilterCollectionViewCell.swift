@@ -36,7 +36,6 @@ class BookFilterCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    // 선택 시: 검정 알약 + 흰 글씨 / 미선택 시: 투명 배경 + 회색 글씨 (피그마)
     private func updateAppearance() {
         contentView.backgroundColor = isSelected ? .bk1 : .clear
         filterTitle.textColor = isSelected ? .customWh : .bk3

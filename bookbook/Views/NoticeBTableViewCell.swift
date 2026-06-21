@@ -85,7 +85,6 @@ class NoticeBTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
 
-        // 펼쳐지는 본문 영역
         descriptionView.addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(24)

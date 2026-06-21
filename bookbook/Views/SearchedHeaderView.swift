@@ -1,5 +1,3 @@
-// SearchViewController - RecentSearchedCollectionViewCell, PopularSearchedCollectionViewCell
-
 import UIKit
 import SnapKit
 

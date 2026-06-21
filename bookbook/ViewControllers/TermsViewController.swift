@@ -1,5 +1,3 @@
-// 이용약관 페이지
-
 import UIKit
 import SnapKit
 

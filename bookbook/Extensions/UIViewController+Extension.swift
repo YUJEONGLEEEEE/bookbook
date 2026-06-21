@@ -101,7 +101,6 @@ extension UIViewController {
         }
     }
 
-    // 공통 커스텀 얼럿 present
     func presentCustomAlert(title: String? = nil, message: String, actions: [CustomAlertAction], input: CustomAlertTextInput? = nil) {
         let alert = CustomAlertViewController(title: title, message: message, actions: actions, input: input)
         present(alert, animated: true)
@@ -111,13 +110,11 @@ extension UIViewController {
         presentCustomAlert(message: message, actions: [CustomAlertAction(title: "확인")])
     }
 
-    // API 오류 공통 안내
     func showErrorAlert() {
         guard presentedViewController == nil else { return }
         showAlert(message: "오류가 발생했어요.\n잠시 후 다시 시도해주세요.")
     }
 
-    // 확인 핸들러가 필요한 얼럿
     func showAlert(message: String, onConfirm: @escaping () -> Void) {
         presentCustomAlert(message: message, actions: [CustomAlertAction(title: "확인", handler: onConfirm)])
     }
@@ -151,7 +148,6 @@ extension UIViewController {
         )
     }
 
-    // 로그인 직후 환영 토스트
     func showPendingToast() {
         ToastManager.shared.showPending(in: self)
     }

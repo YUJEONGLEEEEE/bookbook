@@ -139,7 +139,6 @@ class MyCommentsViewController: UIViewController {
         updatePaginationFooter(visible: totalPages > 1)
     }
     
-    // 한 권당 하나의 코멘트만 유지
     private func uniqueByBook(_ comments: [Comment]) -> [Comment] {
         let sorted = comments.sorted {
             ($0.createdAt ?? .distantPast) > ($1.createdAt ?? .distantPast)
@@ -244,7 +243,6 @@ class MyCommentsViewController: UIViewController {
         }
     }
 
-    // 페이지네이션을 스크롤되는 tableFooterView로 표시/숨김
     private func updatePaginationFooter(visible: Bool) {
         guard visible else {
             commentsTableView.tableFooterView = nil
@@ -265,7 +263,6 @@ class MyCommentsViewController: UIViewController {
         for (index, iv) in cell.rateView.enumerated() {
             let position = Double(index)
             if rating >= position + 1 {
-                // 꽉 찬 별
                 iv.image = UIImage(systemName: "star.fill", withConfiguration: config)
                 iv.tintColor = .customMain
             } else if rating >= position + 0.5 {
@@ -273,7 +270,6 @@ class MyCommentsViewController: UIViewController {
                 iv.image = UIImage(systemName: "star.leadinghalf.filled", withConfiguration: config)
                 iv.tintColor = .customMain
             } else {
-                // 빈 별
                 iv.image = UIImage(systemName: "star", withConfiguration: config)
                 iv.tintColor = .bk4
             }
@@ -287,7 +283,6 @@ class MyCommentsViewController: UIViewController {
             cell.dateLabel.text = ""
         }
         
-        // 책 제목
         cell.bookButton.setTitle("책 제목 불러오는 중…", for: .normal)
         
         let isbn = comment.isbn13
@@ -319,7 +314,6 @@ class MyCommentsViewController: UIViewController {
 
 // MARK: - TabReselectable
 extension MyCommentsViewController: TabReselectable {
-    // 책한줄 탭 재탭 → 1페이지로 + 리로드 + 최상단
     func handleTabReselect() {
         currentPage = 1
         loadComments()

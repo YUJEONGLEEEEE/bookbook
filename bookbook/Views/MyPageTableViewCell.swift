@@ -12,7 +12,6 @@ class MyPageTableViewCell: UITableViewCell {
         return label
     }()
 
-    // 앱 버전 등 우측에 표시할 보조 텍스트
     let trailingLabel: UILabel = {
         let label = UILabel()
         label.textColor = .bk3

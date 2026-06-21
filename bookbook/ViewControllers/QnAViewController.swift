@@ -13,7 +13,6 @@ struct QnaItem {
 
 class QnAViewController: UIViewController {
 
-    // 샘플 문의 내역
     private let sampleBody = "내책장에 책을 담았는데 취소하고 싶어요.\n매번 책 눌러서 들어가서 취소하기 귀찮은데 쉽게 하는방법 없나요?"
     private let sampleAnswer = "안녕하세요.\n책과 대화하는 앱, 읽담입니다.\n\n언제나 읽담을 사랑해주셔서 감사드립니다.\n\n내책장에 담긴 책을 누른채 오른쪽으로 스와이프하면 책 상세페이지에 들어가지 않고도 바로 취소하기가 가능합니다. 해당 기능으로 쉽고 편리하게 읽담을 사용해주세요.\n\n감사합니다."
 
@@ -22,7 +21,6 @@ class QnAViewController: UIViewController {
         QnaItem(date: "2026.03.18", question: "내책장 취소 어떻게 하나요?", questionBody: sampleBody, answer: sampleAnswer),
         QnaItem(date: "2026.03.01", question: "내책장 취소 어떻게 하나요?", questionBody: sampleBody, answer: sampleAnswer)
     ]
-    // 펼쳐진 행들
     private var expandedRows = Set<Int>()
 
     private let headerLabel: UILabel = {
@@ -270,8 +268,8 @@ final class QnaTableViewCell: UITableViewCell {
 
         expandedView.addSubview(contentStack)
         contentStack.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(32)   // Figma: 답변 영역 상하 32
-            make.horizontalEdges.equalToSuperview().inset(24)   // 좌우 24
+            make.top.bottom.equalToSuperview().inset(32)
+            make.horizontalEdges.equalToSuperview().inset(24)
         }
 
         contentView.addSubviews([mainStack, bottomLine])

@@ -7,10 +7,10 @@ final class LevelEventViewController: UIViewController {
 
     private var didProcess = false
     private var currentEarnedCount = 0
-    private var playingLevel = 0             // 현재 재생 중인 gif의 권수
+    private var playingLevel = 0
     private var gifCompletion: (() -> Void)?
     private var gifTimeoutWorkItem: DispatchWorkItem?   // gif 완료 타임아웃(보류 시 취소)
-    private var lastFrameCache: [Int: UIImage] = [:]   // gif 마지막 프레임 캐시
+    private var lastFrameCache: [Int: UIImage] = [:]
 
     private let backgroundImage: UIImageView = {
         let view = UIImageView()
@@ -29,7 +29,6 @@ final class LevelEventViewController: UIViewController {
         return label
     }()
 
-    // 책탑 (gif 애니메이션 + 정적 이미지 공용)
     private let towerView: AnimatedImageView = {
         let view = AnimatedImageView()
         view.contentMode = .scaleAspectFit
@@ -79,7 +78,6 @@ final class LevelEventViewController: UIViewController {
         return label
     }()
 
-    // 하단 탭바 숨김
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         hidesBottomBarWhenPushed = true
@@ -114,7 +112,6 @@ final class LevelEventViewController: UIViewController {
         updateGoalLabel(latest: earned.last)
         updateGaugeLabels(writtenCount: writtenCount)
 
-        // 새로 획득한 보상 찾기
         let ack = LevelRewardStore.acknowledged()
         let newlyEarned = earned.filter { !ack.contains($0.count) }
 
@@ -244,11 +241,11 @@ final class LevelEventViewController: UIViewController {
     // MARK: - 게이지 비율 (한 레벨당 게이지 하나: 현재 레벨의 0→100%)
     private func levelRatio(writtenCount: Int) -> CGFloat {
         let earnedCount = BookReward.earned(for: writtenCount).count
-        if earnedCount >= BookReward.all.count { return 1.0 }   // 모든 레벨 완료
+        if earnedCount >= BookReward.all.count { return 1.0 }
         let thresholds = BookReward.cumulativeThresholds()
         let prevCumulative = earnedCount > 0 ? thresholds[earnedCount - 1] : 0
-        let required = BookReward.all[earnedCount].count        // 현 레벨에서 필요한 횟수
-        let inLevel = writtenCount - prevCumulative             // 현 레벨에서 작성한 횟수
+        let required = BookReward.all[earnedCount].count
+        let inLevel = writtenCount - prevCumulative
         return required > 0 ? min(1.0, max(0.0, CGFloat(inLevel) / CGFloat(required))) : 0
     }
 
@@ -334,7 +331,6 @@ final class LevelEventViewController: UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.height.equalTo(90)
         }
-        // 책탑: 전체 폭 + GIF 비율(804:1320) 유지, 책더미 바닥(=캔버스 바닥)을 게이지 카드 위 48pt에 고정
         towerView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
             make.height.equalTo(towerView.snp.width).multipliedBy(1320.0 / 804.0)
@@ -349,7 +345,6 @@ final class LevelEventViewController: UIViewController {
             make.leading.verticalEdges.equalToSuperview()
             make.width.equalTo(0)
         }
-        // 라벨은 트랙 아래, 좌/우 끝을 트랙에 맞춤
         doneLabel.snp.makeConstraints { make in
             make.top.equalTo(track.snp.bottom).offset(4)
             make.leading.equalTo(track)

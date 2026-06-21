@@ -24,8 +24,7 @@ final class LoadingManager {
     func showLoading(on view: UIView) {
         DispatchQueue.main.async {
             self.loadingCount += 1
-            self.pendingView = view   // 항상 가장 최근 요청 화면을 대상으로
-            // 바로 그 화면에 이미 떠 있으면 재사용
+            self.pendingView = view
             if let dim = self.dimView, dim.window != nil, dim.superview === view { return }
             // 다른/사라진 화면(예: 가려진 홈)에 남아있던 오버레이는 정리하고 새 화면에 다시 표시
             if self.dimView != nil { self.cleanupOverlay() }

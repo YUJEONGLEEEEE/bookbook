@@ -1,7 +1,6 @@
 import UIKit
 import SnapKit
 
-// 책탑쌓기 보상 획득 팝업 (책 표지 + 안내 + 확인)
 // 여러 개를 순차로 띄울 수 있도록 onConfirm 콜백으로 다음 팝업을 연결한다.
 final class BookRewardPopUpViewController: UIViewController {
 

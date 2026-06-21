@@ -49,7 +49,6 @@ class RecentSearchedCollectionViewCell: UICollectionViewCell {
     }
 
     private func configureUI() {
-        // 흰 배경 + 연한 회색 테두리 캡슐 (피그마)
         contentView.backgroundColor = .customWh
         contentView.layer.borderWidth = 1
         contentView.layer.borderColor = UIColor.bk6.cgColor

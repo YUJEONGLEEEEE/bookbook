@@ -16,7 +16,6 @@ class BookFilterView: UIView {
         didSet {
             filterView.reloadData()
             guard autoSelectsFirst else { return }
-            // 첫 번째(전체) 칩을 기본 선택 상태로 표시한다.
             DispatchQueue.main.async { [weak self] in
                 guard let self, !self.filters.isEmpty else { return }
                 self.filterView.selectItem(
@@ -58,7 +57,6 @@ class BookFilterView: UIView {
         }
     }
 
-    // 선택된 칩 모두 해제 (= 전체) + 맨 앞으로 스크롤
     func clearSelection() {
         filterView.indexPathsForSelectedItems?.forEach {
             filterView.deselectItem(at: $0, animated: false)

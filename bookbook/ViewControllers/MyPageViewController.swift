@@ -48,7 +48,6 @@ class MyPageViewController: UIViewController {
         return button
     }()
 
-    // 안읽은 알림 빨간 배지
     private let notificationBadge: UIView = {
         let view = UIView()
         view.backgroundColor = .sub01
@@ -96,7 +95,6 @@ class MyPageViewController: UIViewController {
         }
         navigationItem.leftBarButtonItem = item
 
-        // 우측: 알림 벨 + 배지
         // 바 버튼 커스텀뷰는 frame으로 크기 지정 (SnapKit width/height는 네비바 래퍼와 충돌)
         notificationButton.addSubview(notificationBadge)
         notificationButton.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
@@ -141,11 +139,9 @@ class MyPageViewController: UIViewController {
             guard let self else { return }
             let earned = BookReward.earned(for: comments.count)
 
-            // 책 획득 관련 문구 풀 구성
             var pool: [String] = []
             if let next = BookReward.next(after: comments.count) {
                 if let latest = earned.last {
-                    // 책 획득 O: 최신 획득 메시지 + 다음 책을 향한 노력 메시지
                     pool.append("목표 달성! \(latest.name)\(latest.name.objectParticle) 획득했어요.")
                     pool.append("\(next.name)\(next.name.objectParticle) 받기 위해 노력 중이에요!")
                 } else {
@@ -153,7 +149,6 @@ class MyPageViewController: UIViewController {
                     pool.append("책한줄을 작성하고 첫 책 받아보세요!")
                 }
             } else {
-                // 모든 레벨 완료(최종 백과사전 획득)
                 pool.append("백과사전 획득 성공!")
             }
             // 내 정보에서 작성한 다짐 한마디도 같은 랜덤 풀에 포함
@@ -215,7 +210,6 @@ class MyPageViewController: UIViewController {
 
 // MARK: - TabReselectable
 extension MyPageViewController: TabReselectable {
-    // 내공간 탭 재탭 → 최상단 이동 + 리로드
     func handleTabReselect() {
         tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: true)
         tableView.reloadData()
@@ -225,7 +219,6 @@ extension MyPageViewController: TabReselectable {
 // MARK: - ProfileViewProtocol
 extension MyPageViewController: ProfileViewProtocol {
     func profileTapped() {
-        // 상단 이벤트 카드 → 레벨 이벤트 페이지
         push(LevelEventViewController())
     }
 

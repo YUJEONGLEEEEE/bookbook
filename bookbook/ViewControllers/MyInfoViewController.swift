@@ -146,7 +146,6 @@ class MyInfoViewController: UIViewController {
         updateSaveButtonState()
     }
 
-    // 저장 버튼 활성화 상태 갱신
     private func updateSaveButtonState() {
         let name = nameField.text ?? ""
         let promise = promiseField.text ?? ""
@@ -161,7 +160,7 @@ class MyInfoViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func saveTapped() {
-        view.endEditing(true)   // 저장 누르는 순간 커서/키보드 내림
+        view.endEditing(true)
         alertWithCancel(message: "저장하시겠습니까?") { [weak self] in
             guard let self else { return }
             let name = self.nameField.text ?? ""

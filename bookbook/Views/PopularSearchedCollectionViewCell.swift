@@ -1,5 +1,3 @@
-// SearchViewController - SearchedCollectionView section2
-
 import UIKit
 import SnapKit
 

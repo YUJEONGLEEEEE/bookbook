@@ -153,7 +153,6 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
 }
 
-// 칩 왼쪽 정렬 레이아웃
 final class LeftAlignedFlowLayout: UICollectionViewFlowLayout {
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }

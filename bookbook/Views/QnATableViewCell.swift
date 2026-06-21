@@ -72,7 +72,6 @@ class QnATableViewCell: UITableViewCell {
             make.centerY.equalTo(titleLabel)
         }
 
-        // 펼쳐지는 답변 영역
         answerView.addSubview(answerLabel)
         answerLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(24)

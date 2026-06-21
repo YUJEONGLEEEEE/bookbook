@@ -57,7 +57,6 @@ enum UserSession {
         return UserDefaults.standard.bool(forKey: tutorialSeenKeyPrefix + uuid.uuidString)
     }
 
-    /// 현재 계정이 튜토리얼을 봤다고 기록한다.
     static func markTutorialSeen() {
         guard let uuid = currentAccountUUID else { return }
         UserDefaults.standard.set(true, forKey: tutorialSeenKeyPrefix + uuid.uuidString)

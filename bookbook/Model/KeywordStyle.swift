@@ -1,5 +1,3 @@
-// popularSearchedCollectionViewCell
-
 import UIKit
 
 enum KeywordStyle {

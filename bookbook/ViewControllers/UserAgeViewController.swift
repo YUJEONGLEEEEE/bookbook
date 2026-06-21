@@ -80,7 +80,6 @@ final class UserAgeViewController: UIViewController {
         preselectSavedAgeIfNeeded()
     }
 
-    // 저장된 연령대 미리 선택
     private func preselectSavedAgeIfNeeded() {
         guard selectedAgeRange == nil,
               let saved = CoreDataManager.shared.fetchAgeRange() else { return }

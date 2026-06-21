@@ -1,7 +1,6 @@
 
 import UIKit
 
-// 앱의 메인 탭바
 final class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
@@ -43,7 +42,6 @@ final class MainTabBarController: UITabBarController {
         tabBar.unselectedItemTintColor = .bk3
     }
 
-    // 윈도우 루트를 메인 탭바로 교체
     static func setAsRoot() {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
@@ -70,7 +68,6 @@ extension MainTabBarController: UITabBarControllerDelegate {
         if nav.viewControllers.count > 1 {
             nav.popToRootViewController(animated: true)
         }
-        // 루트 화면 콘텐츠 새로고침/초기화
         if let reselectable = nav.viewControllers.first as? TabReselectable {
             reselectable.handleTabReselect()
         }

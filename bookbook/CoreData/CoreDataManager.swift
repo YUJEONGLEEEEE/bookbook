@@ -2,7 +2,6 @@
 import Foundation
 import CoreData
 
-// 좋아요/북마크 동기화용 알림
 extension Notification.Name {
     static let bookLikeDidChange = Notification.Name("bookLikeDidChange")
     static let bookBookmarkDidChange = Notification.Name("bookBookmarkDidChange")
@@ -88,7 +87,6 @@ final class CoreDataManager {
         saveContext()
     }
 
-    // 내 정보 저장 (닉네임 + 다짐 한마디)
     @discardableResult
     func updateProfile(nickname: String, promise: String) -> Bool {
         guard let account = fetchCurrentAccount() else { return false }
@@ -97,7 +95,6 @@ final class CoreDataManager {
         return saveContext()
     }
 
-    // 회원탈퇴: 모든 CoreData 데이터 삭제 (앱 최초 진입 상태로)
     func deleteAllData() {
         let names = ["Account", "Bookmark", "Liked", "Comment", "Book"]
         for name in names {
@@ -124,7 +121,6 @@ final class CoreDataManager {
         saveContext()
     }
 
-    // 기기에 남아있는 계정 수
     func accountCount() -> Int {
         let request: NSFetchRequest<Account> = Account.fetchRequest()
         return (try? context.count(for: request)) ?? 0
@@ -199,7 +195,6 @@ extension CoreDataManager {
 
         let request: NSFetchRequest<Liked> = Liked.fetchRequest()
         request.predicate = NSPredicate(format: "account == %@", account)
-        // createdAt 최신순
         request.sortDescriptors = [
             NSSortDescriptor(keyPath: \Liked.createdAt, ascending: false)
         ]
@@ -284,7 +279,7 @@ extension CoreDataManager {
                 liked.createdAt = Date()
             }
             liked.likedCount += 1
-            liked.account = account   // 내가 좋아요 함
+            liked.account = account
             saveContext()
             postBookStateChange(name: .bookLikeDidChange, isbn13: isbn13)
         } catch {
@@ -292,7 +287,6 @@ extension CoreDataManager {
         }
     }
 
-    // 좋아요/북마크 변경 알림
     func postBookStateChange(name: Notification.Name, isbn13: Int) {
         NotificationCenter.default.post(name: name, object: nil, userInfo: [BookSyncKey.isbn13: isbn13])
     }
@@ -305,7 +299,7 @@ extension CoreDataManager {
         do {
             if let liked = try context.fetch(request).first {
                 liked.likedCount = max(Int64(0), liked.likedCount - 1)
-                liked.account = nil   // 내 좋아요 해제
+                liked.account = nil
                 // 좋아요 0 + book 없는 빈 레코드 정리
                 if liked.likedCount == 0 && liked.book == nil {
                     context.delete(liked)
@@ -364,7 +358,6 @@ extension CoreDataManager {
         }
     }
 
-    // BookData → Book(로컬 캐시) 엔티티 생성
     private func makeCachedBook(from book: BookData) -> Book {
         let cached = Book(context: context)
         cached.isbn13 = book.isbn13
@@ -378,7 +371,6 @@ extension CoreDataManager {
         return cached
     }
 
-    // Book(로컬 캐시) → BookData 복원 (내책장 표시용)
     private func bookData(from cached: Book) -> BookData {
         var data = BookData(
             title: cached.title ?? "",
@@ -395,7 +387,6 @@ extension CoreDataManager {
         return data
     }
 
-    // 검색 결과용: ISBN 리스트로 북마크 여부 일괄 확인
     func applyBookmarkStatus(to books: inout [BookData]) {
         guard let account = fetchCurrentAccount() else { return }
 
@@ -423,7 +414,6 @@ extension CoreDataManager {
             return
         }
 
-        // 최근 북마크 순으로 가져온다.
         let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
         request.predicate = NSPredicate(format: "account == %@", account)
         request.sortDescriptors = [

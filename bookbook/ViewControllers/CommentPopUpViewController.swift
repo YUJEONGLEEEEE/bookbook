@@ -155,7 +155,7 @@ class CommentPopUpViewController: UIViewController {
         button.contentVerticalAlignment = .fill
         button.imageView?.contentMode = .scaleAspectFit
         button.snp.makeConstraints { make in
-            make.size.equalTo(40)   // Figma: 별 40×40
+            make.size.equalTo(40)
         }
         return button
     }
@@ -245,7 +245,6 @@ class CommentPopUpViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // 팝업 뒤 배경을 살짝 어둡게(뒤 화면과 구분되는 정도)
         view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
         setupKeyboardDismissMode()
         bookTitle.text = bookTitleText
@@ -527,7 +526,7 @@ class CommentPopUpViewController: UIViewController {
         textfieldView.snp.makeConstraints { make in
             make.top.equalTo(writeLabel.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview().inset(24)   // 폭 290 (338 - 24×2)
-            make.height.equalTo(80)                              // Figma: 텍스트창 H80
+            make.height.equalTo(80)
         }
         commentField.snp.makeConstraints { make in
             // 80 높이 박스 안에서 세로 중앙이 아닌 상단에 텍스트 정렬 (넘치면 줄바꿈)
@@ -555,7 +554,6 @@ class CommentPopUpViewController: UIViewController {
 }
 
 extension CommentPopUpViewController: UITextViewDelegate {
-    // 20자 제한
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         let current = textView.text ?? ""
         guard let r = Range(range, in: current) else { return false }

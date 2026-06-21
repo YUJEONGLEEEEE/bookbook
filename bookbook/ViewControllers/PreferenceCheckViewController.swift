@@ -2,7 +2,6 @@
 import UIKit
 import SnapKit
 
-// 편집 진입 시점의 원본 취향(장르/연령/성별)
 struct PreferenceEditContext {
     let genres: Set<String>
     let age: AgeRange?
@@ -14,7 +13,6 @@ final class PreferenceCheckViewController: UIViewController {
     private var selectedGenres: Set<String> = []
     private let maxSelectCount: Int = 5
 
-    // 편집 모드 여부
     var isEditMode = false
 
     // 취소 시 되돌릴 원본 스냅샷
@@ -22,7 +20,6 @@ final class PreferenceCheckViewController: UIViewController {
     private var snapshotAge: AgeRange?
     private var snapshotGender: Gender?
 
-    // 장르 버튼 목록
     private lazy var genreButtons: [UIButton] = [
         childButton, youthButton, lifeButton,
         hobbyButton, improveButton, historyButton,
@@ -265,19 +262,16 @@ final class PreferenceCheckViewController: UIViewController {
         navigationItem.rightBarButtonItem = button
     }
     @objc private func cancelButtonTapped() {
-        // 스냅샷으로 원본 복원
         CoreDataManager.shared.selectGenres(snapshotGenres)
         if let age = snapshotAge { CoreDataManager.shared.updateAgeRange(age) }
         if let gender = snapshotGender { CoreDataManager.shared.updateGender(gender) }
         navigationController?.popViewController(animated: true)
     }
 
-    // 저장된 장르 불러오기
     private func loadSavedGenres() {
         selectedGenres = Set(CoreDataManager.shared.fetchGenres())
     }
 
-    // 장르 선택 오버레이 적용
     private func applyGenreSelectionOverlays() {
         genreButtons.forEach { button in
             let key = button.title(for: .normal)?.replacingOccurrences(of: "\n", with: "") ?? ""
@@ -353,7 +347,6 @@ final class PreferenceCheckViewController: UIViewController {
         guard navigationController?.topViewController === self else { return }
         let ageVC = UserAgeViewController()
         ageVC.pendingGenres = genres   // 저장은 마지막 '완료'에서 일괄 처리
-        // 편집 모드면 원본 스냅샷 전달
         if isEditMode {
             ageVC.editContext = PreferenceEditContext(
                 genres: Set(snapshotGenres),

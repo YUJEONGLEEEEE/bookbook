@@ -32,14 +32,13 @@ class SearchViewController: UIViewController {
     private let initialSearchTopOffset: CGFloat = 8   // 네비바(타이틀) 바로 아래로 검색창 올림
     private let resultSearchTopOffset: CGFloat = 8
 
-    // 결과 스크롤 방향에 따른 탭바 hide/show
     private var lastScrollY: CGFloat = 0
     private var isTabBarHidden = false
 
     private lazy var searchContainer: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
-        view.spacing = 24   // Figma: 검색어/X/돋보기 간격 24
+        view.spacing = 24
         view.alignment = .center
         view.distribution = .fill
         view.backgroundColor = .bk6
@@ -92,7 +91,6 @@ class SearchViewController: UIViewController {
 
     private let startView = StartSearchView()
 
-    // 필터 줄 왼쪽 고정 라벨 (Figma)
     private let genreLabel: UILabel = {
         let label = UILabel()
         label.text = "장르"
@@ -154,7 +152,6 @@ class SearchViewController: UIViewController {
         }
     }
 
-    // 스와이프 → 북마크 등록/해제
     private func bookmarkSwipeConfig(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard indexPath.item < searchBooks.count else { return nil }
         let book = searchBooks[indexPath.item]
@@ -283,12 +280,11 @@ class SearchViewController: UIViewController {
     @objc private func searchButtonTapped() {
         guard let query = searchField.text, !query.isEmpty else { return }
         currentPage = 1
-        resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
+        resetFilterToAll()
         startSearch(query: query, filter: nil)
         view.endEditing(true)
     }
 
-    // 새 검색어 검색 시 장르 필터를 전체(미선택)로 리셋
     private func resetFilterToAll() {
         selectedFilter = nil
         filterView.clearSelection()
@@ -358,7 +354,6 @@ class SearchViewController: UIViewController {
             LoadingManager.shared.hideLoading()
             guard let self else { return }
 
-//            ISBN 기준 중복 제거
             var seen = Set<String>()
             self.searchBooks = allResults.filter { book in
                 if seen.contains(book.isbn13) { return false }
@@ -387,7 +382,6 @@ class SearchViewController: UIViewController {
 
             self.resultCollectionView.reloadData()
             self.updateResultCollectionViewHeight()
-            // 새 결과/페이지 진입 시 항상 최상단으로
             self.resultCollectionView.setContentOffset(.zero, animated: false)
             self.lastScrollY = 0
             self.sortView.updateTotalCount(self.totalResults)
@@ -443,7 +437,6 @@ class SearchViewController: UIViewController {
         UIView.animate(withDuration: 0.25) { self.view.layoutIfNeeded() }
     }
 
-    // 스크롤 방향에 따라 탭바를 내렸다(숨김)/올렸다(노출)
     private func setTabBar(hidden: Bool, animated: Bool = true) {
         guard let tabBar = tabBarController?.tabBar else { return }
         let baseY = tabBar.superview?.bounds.height ?? UIScreen.main.bounds.height
@@ -612,7 +605,6 @@ class SearchViewController: UIViewController {
         startView.reloadData(recent: recentSearches, popular: popularSearches)
     }
 
-    // 기본 인기 키워드
     private let defaultPopularKeywords = ["수능특강", "노벨문학상", "자기계발", "한강", "주식"]
 
     private func updatePopularSearches() {
@@ -627,13 +619,11 @@ class SearchViewController: UIViewController {
     private func addSearchQuery(_ query: String) {
         searchHistory[query, default: 0] += 1
 
-        // 최근검색어 중복 제거 후 앞으로 이동
         if let index = recentSearches.firstIndex(of: query) {
             recentSearches.remove(at: index)
         }
         recentSearches.insert(query, at: 0)
 
-        // 최근검색어 5개 제한
         if recentSearches.count > 5 {
             recentSearches.removeLast()
         }
@@ -706,7 +696,6 @@ class SearchViewController: UIViewController {
 // MARK: - TabReselectable
 
 extension SearchViewController: TabReselectable {
-    // 찾기 탭 재탭 → 검색 초기 화면으로
     func handleTabReselect() {
         resetToInitialScreen()
     }
@@ -719,7 +708,7 @@ extension SearchViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let query = textField.text, !query.isEmpty else { return false }
         currentPage = 1
-        resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
+        resetFilterToAll()
         startSearch(query: query, filter: nil)
         textField.resignFirstResponder()
         return true
@@ -759,7 +748,6 @@ extension SearchViewController: BookFilterProtocol, BookSortProtocol {
         }
     }
 
-    // 선택칩 해제 → 전체(장르 필터 없음)로 재검색
     func bookFilterViewDidClearSelection(_ view: BookFilterView) {
         selectedFilter = nil
         guard !currentQuery.isEmpty else { return }
@@ -781,7 +769,7 @@ extension SearchViewController: StartSearchProtocol {
         searchField.text = query
         clearButton.isHidden = false
         currentPage = 1
-        resetFilterToAll()                       // 새 검색어 → 전체 카테고리로
+        resetFilterToAll()
         startSearch(query: query, filter: nil)
     }
 
@@ -821,7 +809,6 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         return CGSize(width: collectionView.bounds.width, height: 123)
     }
 
-    // 페이지네이션을 섹션 푸터에 담아 결과 목록과 함께 스크롤되도록 함
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
@@ -844,7 +831,6 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         navigationController?.pushViewController(detailVC, animated: true)
     }
 
-    // 결과 리스트 스크롤: 아래로 내리면 탭바 숨김, 위로 올리면 노출
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard scrollView === resultCollectionView, !searchBooks.isEmpty else { return }
         let y = scrollView.contentOffset.y

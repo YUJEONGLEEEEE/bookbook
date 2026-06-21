@@ -1,6 +1,5 @@
 import Foundation
 
-// 책탑쌓기 보상 한 권의 정의 (필요 작성 횟수 / 책 이름 / 표지 에셋)
 struct BookReward {
 
     let count: Int        // 이 보상을 받기 위한 책한줄 작성 횟수
@@ -26,7 +25,6 @@ struct BookReward {
         return all.map { sum += $0.count; return sum }
     }
 
-    // 현재 작성 횟수로 이미 획득한 보상 목록
     static func earned(for writtenCount: Int) -> [BookReward] {
         zip(all, cumulativeThresholds()).filter { $0.1 <= writtenCount }.map { $0.0 }
     }
@@ -40,7 +38,6 @@ struct BookReward {
     }
 }
 
-// 보상 팝업 노출 여부 기록
 enum LevelRewardStore {
     // 계정별로 분리 (다른 계정의 보상 연출 상태를 이어받지 않도록)
     private static var key: String { UserSession.scopedKey("acknowledgedRewardCounts") }

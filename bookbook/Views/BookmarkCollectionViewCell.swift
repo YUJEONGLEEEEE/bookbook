@@ -13,7 +13,6 @@ class BookmarkCollectionViewCell: UICollectionViewCell {
         return image
     }()
 
-    // 북마크된 책임을 나타내는 읽담 배지 (커버 우상단)
     // 커버 모서리에 붙으므로 안쪽(왼쪽 아래) 꼭지점만 둥글게 처리한다.
     private let bookmarkBadge: UIView = {
         let view = UIView()

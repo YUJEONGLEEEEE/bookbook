@@ -1,7 +1,6 @@
 import UIKit
 import SnapKit
 
-// 커스텀 얼럿의 버튼 한 개 (제목 / 색 / 동작)
 struct CustomAlertAction {
     let title: String
     let titleColor: UIColor
@@ -20,7 +19,6 @@ struct CustomAlertTextInput {
     let validate: (String) -> Bool
 }
 
-// iOS 기본 얼럿을 대체하는 커스텀 얼럿 (둥근 카드 + 가운데 메시지 + 하단 버튼 1~2개)
 final class CustomAlertViewController: UIViewController {
 
     private let alertTitle: String?
@@ -189,7 +187,6 @@ final class CustomAlertViewController: UIViewController {
             button.snp.makeConstraints { make in make.edges.equalToSuperview() }
             confirm = button
         } else {
-            // 버튼 두 개: 좌/우 절반 + 세로 구분선
             let left = makeButton(actions[0])
             let right = makeButton(actions[1])
             let vDivider = UIView()

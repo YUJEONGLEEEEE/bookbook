@@ -94,7 +94,6 @@ class QnAFormViewController: UIViewController {
         let today = DateFormatter.yyyyMMdd.string(from: Date())
         let item = QnaItem(date: today, question: title, questionBody: content, answer: nil)
         onSubmit?(item)
-        // 등록 완료 안내 → 확인 누르면 1:1 문의 목록으로 돌아간다.
         showAlert(message: "작성하신 문의가 등록되었어요.") { [weak self] in
             self?.navigationController?.popViewController(animated: true)
         }

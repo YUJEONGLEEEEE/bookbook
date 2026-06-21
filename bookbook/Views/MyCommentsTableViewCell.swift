@@ -165,7 +165,6 @@ class MyCommentsTableViewCell: UITableViewCell {
         rightDoubleQuotes.snp.makeConstraints { make in
             make.top.trailing.equalToSuperview().inset(16)
         }
-        // 셀 하단 여백(= 셀 간 간격)
         let bottomSpacing: CGFloat = 32
 
         bookButton.snp.makeConstraints { make in

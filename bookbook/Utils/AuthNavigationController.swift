@@ -2,7 +2,6 @@
 import UIKit
 import SnapKit
 
-// 로그인/회원가입 공유 배경 고정용 네비게이션
 // 배경을 네비게이션 뒤에 깔아두어, 화면전환 시 배경은 고정되고 콘텐츠만 슬라이드됨
 final class AuthNavigationController: BaseNavigationController {
 

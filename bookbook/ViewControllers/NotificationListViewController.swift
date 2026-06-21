@@ -87,7 +87,6 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
         let item = items[indexPath.row]
         switch item.kind {
         case .bookReward:
-            // 책 획득 알림 → 책탑쌓기 페이지로 이동
             navigationController?.pushViewController(LevelEventViewController(), animated: true)
         default:
             break

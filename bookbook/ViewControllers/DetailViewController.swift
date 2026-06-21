@@ -256,7 +256,6 @@ final class DetailViewController: UIViewController {
     init(isbn13: Int) {
         self.bookISBN = isbn13
         super.init(nibName: nil, bundle: nil)
-        // 하단 탭바 숨김
         hidesBottomBarWhenPushed = true
     }
 
@@ -274,7 +273,6 @@ final class DetailViewController: UIViewController {
         callRequest(isbn: bookISBN)
         configureUI()
         buttonActions()
-        // 좋아요/북마크 변경 동기화 관찰
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleBookStateChanged), name: .bookLikeDidChange, object: nil
         )
@@ -337,7 +335,6 @@ final class DetailViewController: UIViewController {
     }
     @objc private func didTapBookmarkButton() {
         if isBookmarked {
-            // 이미 담긴 책 → 빼기 확인
             presentCustomAlert(
                 message: "이 책을 내 책장에서 빼시겠어요?",
                 actions: [
@@ -371,7 +368,6 @@ final class DetailViewController: UIViewController {
                 guard let self else { return }
 
                 if let existing = self.fetchComment(for: Int64(self.bookISBN)) {
-                    // 이미 작성된 책한줄 → 확인 누르면 해당 책한줄 편집 팝업
                     self.showAlert(message: "이미 작성된 책한줄이 있어요.") { [weak self] in
                         self?.presentCommentPopup(editing: existing)
                     }
@@ -381,7 +377,6 @@ final class DetailViewController: UIViewController {
             }
     }
 
-    // 책한줄 작성/편집 팝업 표시 (editing이 있으면 편집 모드)
     private func presentCommentPopup(editing comment: Comment?) {
         let popupVC = CommentPopUpViewController(
             isbn13: Int64(bookISBN),

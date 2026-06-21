@@ -17,7 +17,6 @@ class MainViewController: UIViewController {
     private var account: Account?
     private var usersChoices: [String] = []
 
-    //    동기화를 위한 lockqueue 추가
     private let bookLockQueue = DispatchQueue(label: "com.readdam.bookdata.lock")
 
     private let refreshControl = UIRefreshControl()
@@ -130,7 +129,6 @@ class MainViewController: UIViewController {
     }
 
     @objc private func didTapHomeLogo() {
-        //        홈화면 새로고침: 최상단 이동 + 갱신
         scrollView.setContentOffset(CGPoint(x: 0, y: -scrollView.adjustedContentInset.top), animated: true)
         refreshControl.beginRefreshing()
         quoteCard.showRandomImage()
@@ -197,7 +195,6 @@ class MainViewController: UIViewController {
         preferredTitleLabel.text = "\(nickname)님, 이런 책은 어떠세요?"
     }
 
-    //    사용자 선호도 기반 홈 구성
     private func configureHome(with account: Account) {
         guard let ageRange = AgeRange(rawValue: account.age),
               let genderRaw = account.gender,
@@ -219,12 +216,10 @@ class MainViewController: UIViewController {
         fetchPrefferedBooks(for: usersChoices, excludeLightNovel: ageRange == .child)
     }
 
-    //    장르 이름으로 bookfilter 찾기
     private func filter(for genre: String) -> BookFilter? {
         return bookCategory.first { $0.name == genre }
     }
 
-    //    사용자 맞춤 추천 책 가져오기
     private func fetchPrefferedBooks(for genres: [String], excludeLightNovel: Bool = false) {
         let randomGenres = Array(genres.shuffled().prefix(3))
 
@@ -355,7 +350,7 @@ class MainViewController: UIViewController {
         guard !trimmed.isEmpty,
               !trimmed.lowercased().contains("noimg"),
               let coverUrl = URL(string: trimmed) else {
-            bestsellerCard.bookCover.setBookCover(nil)   // 회색 배경 + 72x72 중앙 placeholder
+            bestsellerCard.bookCover.setBookCover(nil)
             bestsellerCard.blurBackgroundView.image = nil
             return
         }
@@ -513,7 +508,6 @@ class MainViewController: UIViewController {
         return label
     }
 
-    //    가로 스크롤 책 컬렉션뷰
     private func makeBookCollectionView(tag: Int) -> UICollectionView {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal

@@ -8,11 +8,11 @@ import SnapKit
 class BookmarkViewController: UIViewController {
 
     // MARK: - Properties
-    private var allBookmarkedBooks: [BookData] = []  // 전체 북마크
-    private var filteredBooks: [BookData] = []       // 필터링된 결과
+    private var allBookmarkedBooks: [BookData] = []
+    private var filteredBooks: [BookData] = []
 
     private var selectedFilter: BookFilter? = nil
-    private var allFilters: [BookFilter] { filters } // 전역 filters 사용
+    private var allFilters: [BookFilter] { filters }
     private var currentPage = 1
     private var totalResults = 0
     private var pageButtons: [UIButton] = []
@@ -95,7 +95,7 @@ class BookmarkViewController: UIViewController {
 
         filterView.delegate = self
         filterView.filters = allFilters
-        selectedFilter = allFilters.first  // 기본 "전체" 선택
+        selectedFilter = allFilters.first
 
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -103,7 +103,6 @@ class BookmarkViewController: UIViewController {
         configureUI()
         setupButtonActions()
 
-        // 북마크 변경 시 내책장 동기화
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleBookmarkChanged), name: .bookBookmarkDidChange, object: nil
         )
@@ -275,7 +274,6 @@ extension BookmarkViewController: BookFilterProtocol {
 
 // MARK: - TabReselectable
 extension BookmarkViewController: TabReselectable {
-    // 내책장 탭 재탭 → 1페이지로 + 리로드 + 최상단
     func handleTabReselect() {
         currentPage = 1
         applyFilter()

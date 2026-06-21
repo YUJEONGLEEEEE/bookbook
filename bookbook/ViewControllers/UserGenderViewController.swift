@@ -134,7 +134,6 @@ final class UserGenderViewController: UIViewController {
 
     private func configureUI() {
         view.addSubviews([titleLabel, genderStackView, finishButton])
-        // Figma 순서: 여자(좌) · 남자(우)
         genderStackView.addArrangedSubviews([femaleButton, maleButton])
 
         titleLabel.snp.makeConstraints { make in
