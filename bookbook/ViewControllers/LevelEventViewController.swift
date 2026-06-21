@@ -9,6 +9,7 @@ final class LevelEventViewController: UIViewController {
     private var currentEarnedCount = 0
     private var playingLevel = 0             // 현재 재생 중인 gif의 권수
     private var gifCompletion: (() -> Void)?
+    private var gifTimeoutWorkItem: DispatchWorkItem?   // gif 완료 타임아웃(보류 시 취소)
     private var lastFrameCache: [Int: UIImage] = [:]   // gif 마지막 프레임 캐시
 
     private let backgroundImage: UIImageView = {
@@ -298,13 +299,17 @@ final class LevelEventViewController: UIViewController {
         towerView.repeatCount = .once
         towerView.kf.setImage(with: LocalFileImageDataProvider(fileURL: url))
         // gif 디코드 실패 등으로 완료 델리게이트가 안 불릴 경우를 대비한 타임아웃 폴백
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
-            self?.finishTowerGif()
-        }
+        // (이전 보상의 타임아웃이 다음 gif를 조기 종료하지 않도록 WorkItem으로 취소 가능하게 함)
+        gifTimeoutWorkItem?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.finishTowerGif() }
+        gifTimeoutWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: work)
     }
 
     // gif 완료 처리(델리게이트 또는 타임아웃 중 먼저 도달한 쪽 1회만 실행)
     private func finishTowerGif() {
+        gifTimeoutWorkItem?.cancel()
+        gifTimeoutWorkItem = nil
         guard let completion = gifCompletion else { return }
         gifCompletion = nil
         showStaticTower(level: playingLevel)

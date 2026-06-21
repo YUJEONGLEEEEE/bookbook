@@ -437,7 +437,7 @@ extension CoreDataManager {
         guard let account = fetchCurrentAccount() else { return 0 }
 
         let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
-        request.predicate = NSPredicate(format: "isbn13 == %ld AND account == %@", Int64(isbn13), account)
+        request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", Int64(isbn13), account)
 
         do {
             let bookmark = try context.fetch(request).first
