@@ -296,7 +296,8 @@ class SearchViewController: UIViewController {
     }
 
     private func startSearch(query: String, filter: BookFilter? = nil) {
-        print("검색 시작: \(query), 필터: \(filter?.name ?? "전체"), 페이지: \(currentPage), 정렬: \(currentSort)")
+        // 진행 중인 요청이 있으면 중복 실행 방지(빠른 연타 시 결과 엉킴 방지)
+        guard !isLoading else { return }
         LoadingManager.shared.showLoading(on: view)
 
         currentQuery = query
@@ -578,10 +579,9 @@ class SearchViewController: UIViewController {
     }
 
     private func jumpToPage(_ page: Int) {
-        guard !currentQuery.isEmpty else { return }
+        guard !currentQuery.isEmpty, !isLoading else { return }
         // selectedFilter가 nil이면 '전체'(장르 미선택) — 그대로 전달(startSearch가 nil=전체 처리)
         currentPage = page
-        isLoading = true
         startSearch(query: currentQuery, filter: selectedFilter)
         // 최상단 스크롤은 startSearch 완료 블록에서 처리(reloadData 직후)
     }

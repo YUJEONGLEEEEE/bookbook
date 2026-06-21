@@ -196,6 +196,9 @@ final class LevelEventViewController: UIViewController {
                     // ③ 팝업
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
                         guard let self else { return }
+                        // 연출 도중 뒤로가기 등으로 화면을 벗어났으면 present 시도하지 않음
+                        // (acknowledge하지 않으므로 다음 진입 시 연출이 다시 재생됨)
+                        guard self.viewIfLoaded?.window != nil else { return }
                         let popup = BookRewardPopUpViewController(reward: reward)
                         popup.onConfirm = {
                             LevelRewardStore.markAcknowledged([reward.count])
@@ -294,6 +297,18 @@ final class LevelEventViewController: UIViewController {
         towerView.delegate = self
         towerView.repeatCount = .once
         towerView.kf.setImage(with: LocalFileImageDataProvider(fileURL: url))
+        // gif 디코드 실패 등으로 완료 델리게이트가 안 불릴 경우를 대비한 타임아웃 폴백
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+            self?.finishTowerGif()
+        }
+    }
+
+    // gif 완료 처리(델리게이트 또는 타임아웃 중 먼저 도달한 쪽 1회만 실행)
+    private func finishTowerGif() {
+        guard let completion = gifCompletion else { return }
+        gifCompletion = nil
+        showStaticTower(level: playingLevel)
+        completion()
     }
 
     private func configureUI() {
@@ -343,9 +358,6 @@ final class LevelEventViewController: UIViewController {
 // MARK: - gif 재생 완료 감지
 extension LevelEventViewController: AnimatedImageViewDelegate {
     func animatedImageView(_ imageView: AnimatedImageView, didPlayAnimationLoops count: UInt) {
-        showStaticTower(level: playingLevel)
-        let completion = gifCompletion
-        gifCompletion = nil
-        completion?()
+        finishTowerGif()
     }
 }
