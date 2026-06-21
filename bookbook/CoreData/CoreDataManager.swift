@@ -97,6 +97,27 @@ final class CoreDataManager {
         context.reset()
     }
 
+    // 현재 로그인된 계정과 그 활동 데이터(북마크/좋아요/책한줄)만 삭제 — 다른 계정은 보존
+    // (관계 삭제규칙이 Nullify라 계정만 지우면 고아 데이터가 남으므로 직접 삭제)
+    func deleteCurrentAccount() {
+        guard let account = fetchCurrentAccount() else { return }
+        for name in ["Bookmark", "Liked", "Comment"] {
+            let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: name)
+            fetch.predicate = NSPredicate(format: "account == %@", account)
+            if let rows = (try? context.fetch(fetch)) as? [NSManagedObject] {
+                rows.forEach { context.delete($0) }
+            }
+        }
+        context.delete(account)
+        saveContext()
+    }
+
+    // 기기에 남아있는 계정 수
+    func accountCount() -> Int {
+        let request: NSFetchRequest<Account> = Account.fetchRequest()
+        return (try? context.count(for: request)) ?? 0
+    }
+
     func selectGenres(_ genres: [String]) {
         guard let account = fetchCurrentAccount() else { return }
         do {

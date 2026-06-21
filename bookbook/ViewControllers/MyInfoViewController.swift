@@ -189,19 +189,40 @@ class MyInfoViewController: UIViewController {
             actions: [
                 CustomAlertAction(title: "취소", titleColor: .bk1, handler: nil),
                 CustomAlertAction(title: "탈퇴", titleColor: .customAlert, handler: { [weak self] in
-                    guard let self else { return }
-                    // 계정 + 모든 활동 데이터 삭제
-                    CoreDataManager.shared.deleteAllData()
-                    NotificationManager.resetAll()
-                    // 전역 UserDefaults 상태도 초기화 (다음 계정에 누락 방지)
-                    LevelRewardStore.clear()
-                    RecentSearchStore.clear()
-                    LevelEventViewController.clearProgress()
-                    UserSession.clear()
-                    self.setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
+                    self?.presentWithdrawTextConfirm()
                 })
             ]
         )
+    }
+
+    // 2차 확인 — '탈퇴'를 직접 입력해야 최종 버튼이 활성화됨 (앱 커스텀 얼럿 사용)
+    private func presentWithdrawTextConfirm() {
+        presentCustomAlert(
+            title: "회원탈퇴 확인",
+            message: "탈퇴하려면 아래에 '탈퇴'를 입력해주세요.\n계정과 모든 데이터가 삭제되며\n복구할 수 없어요.",
+            actions: [
+                CustomAlertAction(title: "취소", titleColor: .bk1, handler: nil),
+                CustomAlertAction(title: "탈퇴", titleColor: .customAlert, handler: { [weak self] in
+                    self?.performWithdraw()
+                })
+            ],
+            input: CustomAlertTextInput(placeholder: "탈퇴", validate: { $0 == "탈퇴" })
+        )
+    }
+
+    private func performWithdraw() {
+        // 현재 계정과 그 활동 데이터만 삭제 (다른 계정은 보존)
+        CoreDataManager.shared.deleteCurrentAccount()
+        UserSession.clear()
+        // 기기에 계정이 하나도 안 남았을 때만 전역 UserDefaults 상태 초기화
+        // (다른 계정이 남아있으면 그 계정 데이터라 보존)
+        if CoreDataManager.shared.accountCount() == 0 {
+            NotificationManager.resetAll()
+            LevelRewardStore.clear()
+            RecentSearchStore.clear()
+            LevelEventViewController.clearProgress()
+        }
+        setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
     }
 
     private func setRoot(_ vc: UIViewController) {

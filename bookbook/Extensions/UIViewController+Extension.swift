@@ -102,8 +102,8 @@ extension UIViewController {
     }
 
     // 공통 커스텀 얼럿 present
-    func presentCustomAlert(title: String? = nil, message: String, actions: [CustomAlertAction]) {
-        let alert = CustomAlertViewController(title: title, message: message, actions: actions)
+    func presentCustomAlert(title: String? = nil, message: String, actions: [CustomAlertAction], input: CustomAlertTextInput? = nil) {
+        let alert = CustomAlertViewController(title: title, message: message, actions: actions, input: input)
         present(alert, animated: true)
     }
 

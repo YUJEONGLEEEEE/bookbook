@@ -14,23 +14,58 @@ struct CustomAlertAction {
     }
 }
 
+// 텍스트 입력 확인용 설정 (입력값이 validate를 통과해야 마지막 버튼이 활성화됨)
+struct CustomAlertTextInput {
+    let placeholder: String
+    let validate: (String) -> Bool
+}
+
 // iOS 기본 얼럿을 대체하는 커스텀 얼럿 (둥근 카드 + 가운데 메시지 + 하단 버튼 1~2개)
 final class CustomAlertViewController: UIViewController {
 
     private let alertTitle: String?
     private let message: String
     private let actions: [CustomAlertAction]
+    private let input: CustomAlertTextInput?
 
-    init(title: String? = nil, message: String, actions: [CustomAlertAction]) {
+    // 입력 게이트 대상(마지막 버튼)
+    private weak var confirmButton: UIButton?
+
+    init(title: String? = nil, message: String, actions: [CustomAlertAction], input: CustomAlertTextInput? = nil) {
         self.alertTitle = title
         self.message = message
         self.actions = actions.isEmpty ? [CustomAlertAction(title: "확인")] : actions
+        self.input = input
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .crossDissolve
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    deinit { NotificationCenter.default.removeObserver(self) }
+
+    private lazy var inputField: UITextField = {
+        let field = UITextField()
+        field.font = .customFont(ofSize: 16, weight: .medium)
+        field.textColor = .bk1
+        field.textAlignment = .center
+        field.borderStyle = .none
+        field.layer.cornerRadius = 8
+        field.layer.borderWidth = 1
+        field.layer.borderColor = UIColor.bk5.cgColor
+        field.autocorrectionType = .no
+        field.spellCheckingType = .no
+        field.attributedPlaceholder = NSAttributedString(
+            string: input?.placeholder ?? "",
+            attributes: [.foregroundColor: UIColor.bk3]
+        )
+        field.addAction(UIAction { [weak self] _ in
+            guard let self, let input = self.input else { return }
+            self.confirmButton?.isEnabled = input.validate(field.text ?? "")
+        }, for: .editingChanged)
+        return field
+    }()
 
     private let dimView: UIView = {
         let view = UIView()
@@ -66,6 +101,28 @@ final class CustomAlertViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .clear
         configureUI()
+        if input != nil {
+            NotificationCenter.default.addObserver(self, selector: #selector(alertKeyboardWillShow(_:)),
+                                                   name: UIResponder.keyboardWillShowNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(alertKeyboardWillHide(_:)),
+                                                   name: UIResponder.keyboardWillHideNotification, object: nil)
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if input != nil { inputField.becomeFirstResponder() }
+    }
+
+    @objc private func alertKeyboardWillShow(_ note: Notification) {
+        guard let frame = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        UIView.animate(withDuration: 0.25) {
+            self.card.transform = CGAffineTransform(translationX: 0, y: -frame.height * 0.45)
+        }
+    }
+
+    @objc private func alertKeyboardWillHide(_ note: Notification) {
+        UIView.animate(withDuration: 0.25) { self.card.transform = .identity }
     }
 
     private func configureUI() {
@@ -89,6 +146,15 @@ final class CustomAlertViewController: UIViewController {
         messageLabel.textAlignment = .center
         messageLabel.numberOfLines = 0
         textStack.addArrangedSubview(messageLabel)
+
+        if input != nil {
+            textStack.setCustomSpacing(20, after: messageLabel)
+            textStack.addArrangedSubview(inputField)
+            inputField.snp.makeConstraints { make in
+                make.width.equalTo(242)
+                make.height.equalTo(44)
+            }
+        }
 
         dimView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -116,10 +182,12 @@ final class CustomAlertViewController: UIViewController {
     }
 
     private func layoutButtons() {
+        let confirm: UIButton
         if actions.count == 1 {
             let button = makeButton(actions[0])
             buttonContainer.addSubview(button)
             button.snp.makeConstraints { make in make.edges.equalToSuperview() }
+            confirm = button
         } else {
             // 버튼 두 개: 좌/우 절반 + 세로 구분선
             let left = makeButton(actions[0])
@@ -139,6 +207,12 @@ final class CustomAlertViewController: UIViewController {
                 make.trailing.verticalEdges.equalToSuperview()
                 make.leading.equalTo(vDivider.snp.trailing)
             }
+            confirm = right
+        }
+        // 텍스트 입력 모드면 마지막(확인) 버튼은 입력이 유효할 때만 활성화
+        if input != nil {
+            confirm.isEnabled = false
+            confirmButton = confirm
         }
     }
 
@@ -146,6 +220,7 @@ final class CustomAlertViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(action.title, for: .normal)
         button.setTitleColor(action.titleColor, for: .normal)
+        button.setTitleColor(.bk4, for: .disabled)
         button.titleLabel?.font = .customFont(ofSize: 17, weight: .medium)
         button.addAction(UIAction { [weak self] _ in
             self?.dismiss(animated: true) { action.handler?() }
