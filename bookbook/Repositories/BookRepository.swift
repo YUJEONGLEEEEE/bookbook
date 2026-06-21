@@ -60,9 +60,9 @@ class BookRepository {
 
         do {
             try context.save()
-            print("데모 랭킹 시드 완료")
+            debugLog("데모 랭킹 시드 완료")
         } catch {
-            print("데모 랭킹 시드 실패: \(error)")
+            debugLog("데모 랭킹 시드 실패: \(error)")
         }
     }
 }

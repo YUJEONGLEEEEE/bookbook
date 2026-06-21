@@ -101,7 +101,7 @@ class MyChoiceViewController: UIViewController {
     }
 
     @objc private func editButtonTapped() {
-        print(#function, "취향_재설정")
+        debugLog(#function, "취향_재설정")
         let vc = PreferenceCheckViewController()
         vc.isEditMode = true
         navigationController?.pushViewController(vc, animated: true)

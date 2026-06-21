@@ -345,12 +345,12 @@ final class PreferenceCheckViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     @objc private func skipButtonTapped() {
-        print(#function)
+        debugLog(#function)
         CoreDataManager.shared.selectGenres([])
         pushAgeViewController()
     }
     @objc private func nextButtonTapped() {
-        print(#function)
+        debugLog(#function)
         let genresArray = Array(selectedGenres)
         CoreDataManager.shared.selectGenres(genresArray)
         pushAgeViewController()

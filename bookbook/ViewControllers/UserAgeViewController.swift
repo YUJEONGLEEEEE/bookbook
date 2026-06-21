@@ -102,23 +102,23 @@ final class UserAgeViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
     }
     @objc private func childrenButtonClicked() {
-        print(#function)
+        debugLog(#function)
         handleAgeSelection(range: .child, button: childButton)
     }
     @objc private func adolescenceButtonClicked() {
-        print(#function)
+        debugLog(#function)
         handleAgeSelection(range: .teen, button: teenButton)
     }
     @objc private func adultButtonClicked() {
-        print(#function)
+        debugLog(#function)
         handleAgeSelection(range: .adult, button: adultButton)
     }
     @objc private func seniorButtonClicked() {
-        print(#function)
+        debugLog(#function)
         handleAgeSelection(range: .senior, button: seniorButton)
     }
     @objc private func nextButtonClicked() {
-        print(#function)
+        debugLog(#function)
         let vc = UserGenderViewController()
         vc.editContext = editContext
         navigationController?.pushViewController(vc, animated: true)

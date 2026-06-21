@@ -93,7 +93,7 @@ extension BookFilterView: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(#function)
+        debugLog(#function)
         let selectedFilter = filters[indexPath.item]
         delegate?.bookFilterView(self, didSelectFilter: selectedFilter)
     }

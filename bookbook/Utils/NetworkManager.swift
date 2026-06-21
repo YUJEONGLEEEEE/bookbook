@@ -25,7 +25,7 @@ final class NetworkManager {
         page: Int = 1,
         completion: @escaping (Result<BookInfo, AFError>) -> Void
     ) {
-        print("검색: \(query), 페이지: \(page), 정렬: \(sort)")
+        debugLog("검색: \(query), 페이지: \(page), 정렬: \(sort)")
 
         let url = APIKey.aladinSearchURL
         var parameters: [String: Any] = [
@@ -53,18 +53,18 @@ final class NetworkManager {
         .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
-                print(value)
+                debugLog(value)
                 // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
                 completion(.success(value.filteringExcluded()))
             case .failure(let error):
-                print(error)
+                debugLog(error)
                 completion(.failure(error))
             }
         }
     }
 
     func bookLists(queryType: String, category: Int, completion: @escaping (Result<BookInfo, AFError>) -> Void) {
-        print("listRequest: \(queryType)")
+        debugLog("listRequest: \(queryType)")
 
         let url = APIKey.aladinListURL
         let parameters: [String: Any] = [
@@ -86,18 +86,18 @@ final class NetworkManager {
         .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
-                print(value)
+                debugLog(value)
                 // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
                 completion(.success(value.filteringExcluded()))
             case .failure(let error):
-                print(error)
+                debugLog(error)
                 completion(.failure(error))
             }
         }
     }
 
     func bookDetail(isbn: Int, completion: @escaping (Result<naverBookInfo, AFError>) -> Void) {
-        print(#function)
+        debugLog(#function)
 
         let url = APIKey.naverDetailURL
         let headers: HTTPHeaders = [
@@ -117,10 +117,10 @@ final class NetworkManager {
         .responseDecodable(of: naverBookInfo.self) { response in
             switch response.result {
             case .success(let value):
-                print("네이버 검색 성공: \(isbn)")
+                debugLog("네이버 검색 성공: \(isbn)")
                 completion(.success(value))
             case .failure(let error):
-                print("네이버 검색 실패: \(isbn)")
+                debugLog("네이버 검색 실패: \(isbn)")
                 completion(.failure(error))
             }
         }
@@ -133,7 +133,7 @@ final class NetworkManager {
             return
         }
 
-        print("📚 북마크 조회 시작: 요청 \(isbns.count)개")
+        debugLog("📚 북마크 조회 시작: 요청 \(isbns.count)개")
         var booksByIsbn: [String: BookData] = [:]
         var failedISBNs: [String] = []
         let group = DispatchGroup()
@@ -154,8 +154,8 @@ final class NetworkManager {
         group.notify(queue: .main) {
             // 사용자가 직접 담은 책이므로 제외(세트/전집 등) 없이 모두 표시. 입력 순서(최근 북마크 순) 유지.
             let ordered = isbns.compactMap { booksByIsbn[$0] }
-            print("📚 북마크 결과: 요청 \(isbns.count) / 조회성공 \(booksByIsbn.count) / 실패 \(failedISBNs.count) / 최종 \(ordered.count)")
-            if !failedISBNs.isEmpty { print("⚠️ 알라딘 조회 실패 ISBN: \(failedISBNs)") }
+            debugLog("📚 북마크 결과: 요청 \(isbns.count) / 조회성공 \(booksByIsbn.count) / 실패 \(failedISBNs.count) / 최종 \(ordered.count)")
+            if !failedISBNs.isEmpty { debugLog("⚠️ 알라딘 조회 실패 ISBN: \(failedISBNs)") }
             completion(ordered)
         }
     }
@@ -181,7 +181,7 @@ final class NetworkManager {
             case .success(let value):
                 completion(value.item.first)
             case .failure(let error):
-                print("알라딘 ItemLookUp 실패(\(isbn13)): \(error)")
+                debugLog("알라딘 ItemLookUp 실패(\(isbn13)): \(error)")
                 completion(nil)
             }
         }

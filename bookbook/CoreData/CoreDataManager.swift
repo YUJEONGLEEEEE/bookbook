@@ -56,9 +56,9 @@ final class CoreDataManager {
         guard context.hasChanges else { return }
         do {
             try context.save()
-            print("coredata 저장 성공")
+            debugLog("coredata 저장 성공")
         } catch {
-            print("CoreData save error: \(error)")
+            debugLog("CoreData save error: \(error)")
         }
     }
 
@@ -92,7 +92,7 @@ final class CoreDataManager {
             let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: name)
             let delete = NSBatchDeleteRequest(fetchRequest: fetch)
             do { try context.execute(delete) }
-            catch { print("deleteAllData(\(name)) error: \(error)") }
+            catch { debugLog("deleteAllData(\(name)) error: \(error)") }
         }
         context.reset()
     }
@@ -102,9 +102,9 @@ final class CoreDataManager {
         do {
             account.genres = try JSONEncoder().encode(genres) as NSObject
             saveContext()
-            print("genres 저장 성공: \(genres)")
+            debugLog("genres 저장 성공: \(genres)")
         } catch {
-            print("genres 저장 실패: \(error)")
+            debugLog("genres 저장 실패: \(error)")
         }
     }
 
@@ -138,10 +138,10 @@ final class CoreDataManager {
         }
         do {
             let genres = try JSONDecoder().decode([String].self, from: genreData)
-            print("genres 로드 성공: \(genres)")
+            debugLog("genres 로드 성공: \(genres)")
             return genres
         } catch {
-            print("genres 로드 실패: \(error)")
+            debugLog("genres 로드 실패: \(error)")
             return []
         }
     }
@@ -194,7 +194,7 @@ extension CoreDataManager {
                 completion(mappedBooks)
             }
         } catch {
-            print("fetchLikedBooks error: \(error)")
+            debugLog("fetchLikedBooks error: \(error)")
             completion([])
         }
     }
@@ -230,7 +230,7 @@ extension CoreDataManager {
         do {
             return try context.count(for: request) > 0
         } catch {
-            print("isLikedByUser fetch error: \(error)")
+            debugLog("isLikedByUser fetch error: \(error)")
             return false
         }
     }
@@ -257,7 +257,7 @@ extension CoreDataManager {
             saveContext()
             postBookStateChange(name: .bookLikeDidChange, isbn13: isbn13)
         } catch {
-            print("incrementLikeCount error: \(error)")
+            debugLog("incrementLikeCount error: \(error)")
         }
     }
 
@@ -283,7 +283,7 @@ extension CoreDataManager {
                 postBookStateChange(name: .bookLikeDidChange, isbn13: isbn13)
             }
         } catch {
-            print("decrementLikeCount error: \(error)")
+            debugLog("decrementLikeCount error: \(error)")
         }
     }
 }
@@ -300,7 +300,7 @@ extension CoreDataManager {
         do {
             return try context.count(for: request) > 0
         } catch {
-            print("isBookmarked error: \(error)")
+            debugLog("isBookmarked error: \(error)")
             return false
         }
     }
@@ -314,19 +314,19 @@ extension CoreDataManager {
         do {
             if let existing = try context.fetch(request).first {
                 context.delete(existing)
-                print("북마크 취소: \(isbn13)")
+                debugLog("북마크 취소: \(isbn13)")
             } else {
                 let newBookmark = Bookmark(context: context)
                 newBookmark.isbn13 = Int64(isbn13)
                 newBookmark.categoryId = categoryId
                 newBookmark.account = account
                 newBookmark.createdAt = Date()
-                print("북마크 추가: \(isbn13), 카테고리: \(categoryId)")
+                debugLog("북마크 추가: \(isbn13), 카테고리: \(categoryId)")
             }
             saveContext()
             postBookStateChange(name: .bookBookmarkDidChange, isbn13: isbn13)
         } catch {
-            print("toggleBookmark error: \(error)")
+            debugLog("toggleBookmark error: \(error)")
         }
     }
 
@@ -348,7 +348,7 @@ extension CoreDataManager {
                 }
             }
         } catch {
-            print("applyBookmarkStatus error: \(error)")
+            debugLog("applyBookmarkStatus error: \(error)")
         }
     }
 
@@ -369,7 +369,7 @@ extension CoreDataManager {
         do {
             bookmarkedISBNs = try context.fetch(request).map { String($0.isbn13) }
         } catch {
-            print("fetchBookmarkedBooks error: \(error)")
+            debugLog("fetchBookmarkedBooks error: \(error)")
             completion([])
             return
         }
@@ -400,7 +400,7 @@ extension CoreDataManager {
                 dict[String(bookmark.isbn13)] = bookmark.categoryId
             }
         } catch {
-            print("fetchBookmarkedBooksWithCategory error: \(error)")
+            debugLog("fetchBookmarkedBooksWithCategory error: \(error)")
             return [:]
         }
     }
@@ -415,7 +415,7 @@ extension CoreDataManager {
             let bookmark = try context.fetch(request).first
             return bookmark?.categoryId ?? 0
         } catch {
-            print("getBookmarkCategoryId error: \(error)")
+            debugLog("getBookmarkCategoryId error: \(error)")
             return 0
         }
     }
@@ -430,7 +430,7 @@ extension CoreDataManager {
             let bookmarks = try context.fetch(request)
             return bookmarks.compactMap { String($0.isbn13) }
         } catch {
-            print("fetchBookmarkedISBNs error: \(error)")
+            debugLog("fetchBookmarkedISBNs error: \(error)")
             return []
         }
     }
@@ -447,7 +447,7 @@ extension CoreDataManager {
             saveContext()
             postBookStateChange(name: .bookBookmarkDidChange, isbn13: isbn13)
         } catch {
-            print("deleteBookmark error: \(error)")
+            debugLog("deleteBookmark error: \(error)")
         }
     }
 }
@@ -492,7 +492,7 @@ extension CoreDataManager {
                     completion(comments)
                 }
             } catch {
-                print("fetchComments error: \(error)")
+                debugLog("fetchComments error: \(error)")
                 DispatchQueue.main.async {
                     completion([])
                 }
@@ -515,7 +515,7 @@ extension CoreDataManager {
         do {
             return try context.count(for: request) > 0
         } catch {
-            print("hasComment error: \(error)")
+            debugLog("hasComment error: \(error)")
             return false
         }
     }

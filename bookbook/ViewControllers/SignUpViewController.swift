@@ -183,19 +183,19 @@ final class SignUpViewController: UIViewController {
         updateToolbarButtons()
     }
     @objc private func upButtonTapped() {
-        print(#function)
+        debugLog(#function)
         if phoneNumberField.isFirstResponder {
             nicknameField.becomeFirstResponder()
         }
     }
     @objc private func downButtonTapped() {
-        print(#function)
+        debugLog(#function)
         if nicknameField.isFirstResponder {
             phoneNumberField.becomeFirstResponder()
         }
     }
     @objc private func doneButtonTapped() {
-        print("이름, 전화번호 입력 완료")
+        debugLog("이름, 전화번호 입력 완료")
         phoneNumberField.resignFirstResponder()
         guard isNicknameValid, isPhoneNumberValid else { return }
         signUp()
@@ -225,7 +225,7 @@ final class SignUpViewController: UIViewController {
         signupButton.addTarget(self, action: #selector(signUp), for: .touchUpInside)
     }
     @objc private func beginEditingNickname() {
-        print(#function)
+        debugLog(#function)
         guard !isNicknameFloating else { return }
         isNicknameFloating = true
         nicknameField.attributedPlaceholder = nil
@@ -235,7 +235,7 @@ final class SignUpViewController: UIViewController {
         }
     }
     @objc private func endEditingNickname() {
-        print(#function)
+        debugLog(#function)
         if nicknameField.text?.isEmpty ?? true {
             isNicknameFloating = false
             UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut]) {
@@ -249,7 +249,7 @@ final class SignUpViewController: UIViewController {
         }
     }
     @objc private func beginEditingPhoneNumber() {
-        print(#function)
+        debugLog(#function)
         guard !isPhoneNumberFloating else { return }
         isPhoneNumberFloating = true
         phoneNumberField.attributedPlaceholder = nil
@@ -259,7 +259,7 @@ final class SignUpViewController: UIViewController {
         }
     }
     @objc private func endEditingPhoneNumber() {
-        print(#function)
+        debugLog(#function)
         if phoneNumberField.text?.isEmpty ?? true {
             isPhoneNumberFloating = false
             UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut]) {
@@ -273,7 +273,7 @@ final class SignUpViewController: UIViewController {
         }
     }
     @objc private func goToSignInPage() {
-        print(#function)
+        debugLog(#function)
         let signInVC = SignInViewController()
         navigationController?.pushViewController(signInVC, animated: true)
     }
@@ -305,7 +305,7 @@ final class SignUpViewController: UIViewController {
     }
 
     private func resetNicknamePlaceholder() {
-        print(#function)
+        debugLog(#function)
         nicknameField.attributedPlaceholder = NSAttributedString(
             string: "사용할 이름을 만들어주세요",
             attributes: [
@@ -316,7 +316,7 @@ final class SignUpViewController: UIViewController {
     }
 
     private func resetPhoneNumberPlaceholder() {
-        print(#function)
+        debugLog(#function)
         phoneNumberField.attributedPlaceholder = NSAttributedString(
             string: "휴대폰 번호를 입력해주세요",
             attributes: [
@@ -327,7 +327,7 @@ final class SignUpViewController: UIViewController {
     }
 
     private func activateSignUpButton() {
-        print(#function)
+        debugLog(#function)
 
         if isNicknameValid && isPhoneNumberValid {
             signupButton.backgroundColor = .customMain

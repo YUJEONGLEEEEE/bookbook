@@ -248,7 +248,7 @@ class MainViewController: UIViewController {
                 guard let categoryId = Int(categoryIdString) else { continue }
 
                 group.enter()
-                print("무작위 선택: \(genre) (ID: \(categoryId)) 검색 중...")
+                debugLog("무작위 선택: \(genre) (ID: \(categoryId)) 검색 중...")
                 NetworkManager.shared.bookLists(
                     queryType: "Bestseller",
                     category: categoryId
@@ -261,7 +261,7 @@ class MainViewController: UIViewController {
                     case .success(let bookInfo):
                         books = Array(bookInfo.item.prefix(10))
                     case .failure(let error):
-                        print("\(genre)(ID: \(categoryId)) 검색 실패: \(error)")
+                        debugLog("\(genre)(ID: \(categoryId)) 검색 실패: \(error)")
                         books = []
                     }
 
@@ -286,7 +286,7 @@ class MainViewController: UIViewController {
     }
 
     private func fetchRecentBooks() {
-        print("최근 신간 불러오기 - ItemNewAll")
+        debugLog("최근 신간 불러오기 - ItemNewAll")
         LoadingManager.shared.showLoading(on: view)
 
         NetworkManager.shared.bookLists(
@@ -300,9 +300,9 @@ class MainViewController: UIViewController {
                     case .success(let newBook):
                         self.recentBooks = Array(newBook.item.prefix(10))
                         self.recentCollectionView.reloadData()
-                        print("신간 \(self.recentBooks.count)개 로드 완료")
+                        debugLog("신간 \(self.recentBooks.count)개 로드 완료")
                     case .failure(let error):
-                        print("신간 로드 실패: \(error)")
+                        debugLog("신간 로드 실패: \(error)")
                         self.recentBooks = []
                         self.recentCollectionView.reloadData()
                         self.showErrorAlert()
@@ -331,7 +331,7 @@ class MainViewController: UIViewController {
             configureBestseller(with: randomBestseller)
 
         case .failure(let error):
-            print("베스트셀러 실패: \(error)")
+            debugLog("베스트셀러 실패: \(error)")
             // 캐시가 있으면 그걸로 대체, 없으면 오류 안내
             guard let cachedRandom = bestsellerCache.randomElement() else {
                 showErrorAlert()

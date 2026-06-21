@@ -70,15 +70,15 @@ final class UserGenderViewController: UIViewController {
         finishButton.addTarget(self, action: #selector(finishButtonClicked), for: .touchUpInside)
     }
     @objc private func maleButtonClicked() {
-        print(#function)
+        debugLog(#function)
         handleGenderSelection(gender: .male, button: maleButton)
     }
     @objc private func femaleButtonClicked() {
-        print(#function)
+        debugLog(#function)
         handleGenderSelection(gender: .female, button: femaleButton)
     }
     @objc private func finishButtonClicked() {
-        print(#function)
+        debugLog(#function)
         if UserSession.hasSeenTutorial {
             // 편집(내취향 > 편집)으로 진입한 경우엔 메인에서 '취향 변경' 토스트
             if editContext != nil {

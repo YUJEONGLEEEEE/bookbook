@@ -408,11 +408,11 @@ class CommentPopUpViewController: UIViewController {
         updateSaveButtonState()
     }
     @objc func cancelButtonTapped() {
-        print(#function)
+        debugLog(#function)
         dismiss(animated: true)
     }
     @objc func saveButtonTapped() {
-        print(#function)
+        debugLog(#function)
 
         let text = commentField.text ?? ""
 

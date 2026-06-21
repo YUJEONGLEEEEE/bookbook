@@ -55,7 +55,7 @@ extension  NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(#function)
+        debugLog(#function)
         noticeExpandedStates[indexPath.row].toggle()
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }

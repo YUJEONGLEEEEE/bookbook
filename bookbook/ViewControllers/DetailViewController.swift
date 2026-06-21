@@ -308,7 +308,7 @@ final class DetailViewController: UIViewController {
     }
     @objc private func didTapLikeButton() {
         let isAddingLike = !isLikedByUser
-        print("좋아요 토글: \(isAddingLike ? "추가" : "취소")")
+        debugLog("좋아요 토글: \(isAddingLike ? "추가" : "취소")")
 
         if isLikedByUser {
             CoreDataManager.shared.decrementLikeCount(for: bookISBN)
@@ -413,7 +413,7 @@ final class DetailViewController: UIViewController {
         do {
             return try CoreDataManager.shared.context.fetch(request).first
         } catch {
-            print("comment fetch error: \(error)")
+            debugLog("comment fetch error: \(error)")
             return nil
         }
     }
@@ -485,7 +485,7 @@ final class DetailViewController: UIViewController {
     }
 
     private func callRequest(isbn: Int) {
-        print("네이버 ISBN 상세 정보 요청: \(isbn)")
+        debugLog("네이버 ISBN 상세 정보 요청: \(isbn)")
         LoadingManager.shared.showLoading(on: view)
         NetworkManager.shared.bookDetail(isbn: isbn) { [weak self] result in
             LoadingManager.shared.hideLoading()
@@ -493,7 +493,7 @@ final class DetailViewController: UIViewController {
             switch result {
             case .success(let bookInfo):
                 guard let book = bookInfo.item.first else {
-                    print("네이버 검색 결과 없음")
+                    debugLog("네이버 검색 결과 없음")
                     DispatchQueue.main.async { self?.showErrorAlert() }
                     return
                 }
@@ -501,7 +501,7 @@ final class DetailViewController: UIViewController {
                     self?.updateUI(with: book)
                 }
             case .failure(let error):
-                print("네이버 API 에러: \(error)")
+                debugLog("네이버 API 에러: \(error)")
                 DispatchQueue.main.async { self?.showErrorAlert() }
             }
         }

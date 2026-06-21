@@ -267,7 +267,7 @@ class BookmarkViewController: UIViewController {
 // MARK: - BookFilterProtocol
 extension BookmarkViewController: BookFilterProtocol {
     func bookFilterView(_ view: BookFilterView, didSelectFilter filter: BookFilter) {
-        print("북마크 필터 선택: \(filter.name)")
+        debugLog("북마크 필터 선택: \(filter.name)")
         selectedFilter = filter
         currentPage = 1
         applyFilter()
