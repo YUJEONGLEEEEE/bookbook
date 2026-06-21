@@ -52,6 +52,8 @@ class MainViewController: UIViewController {
         let view = UIScrollView()
         view.showsVerticalScrollIndicator = false
         view.alwaysBounceVertical = true
+        // 탭바 아래까지 콘텐츠가 차도록 자동 inset 끔(하단 inset 수동 제어)
+        view.contentInsetAdjustmentBehavior = .never
         return view
     }()
 
@@ -157,6 +159,17 @@ class MainViewController: UIViewController {
         super.viewDidAppear(animated)
         // 로그인 직후 메인 진입 시 인사 토스트 (대기 메시지 있을 때만)
         showPendingToast()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // 스크롤뷰가 탭바 아래까지 차므로, 끝까지 내렸을 때 마지막 콘텐츠와 탭바 사이 간격 52 확보
+        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        let bottomInset = tabBarHeight + 52
+        if scrollView.contentInset.bottom != bottomInset {
+            scrollView.contentInset.bottom = bottomInset
+            scrollView.verticalScrollIndicatorInsets.bottom = tabBarHeight
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -449,7 +462,8 @@ class MainViewController: UIViewController {
         }
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(topBar.snp.bottom)
-            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()   // 탭바 아래까지 콘텐츠가 참
         }
         contentStack.snp.makeConstraints { make in
             make.verticalEdges.equalTo(scrollView.contentLayoutGuide)
