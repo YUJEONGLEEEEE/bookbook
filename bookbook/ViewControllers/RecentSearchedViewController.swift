@@ -152,7 +152,7 @@ class RecentSearchedViewController: UIViewController {
         let book = books[indexPath.item]
         let isbn = book.isbn13Int
         let action = UIContextualAction(style: .normal, title: book.isBookmarked ? "빼기" : "담기") { _, _, done in
-            CoreDataManager.shared.toggleBookmark(isbn13: isbn, categoryId: 0)
+            CoreDataManager.shared.toggleBookmark(isbn13: isbn, categoryId: 0, book: book)
             done(true)
         }
         action.image = UIImage(named: "blackshelf")?.withRenderingMode(.alwaysTemplate)

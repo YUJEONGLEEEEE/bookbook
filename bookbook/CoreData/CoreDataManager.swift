@@ -17,6 +17,11 @@ final class CoreDataManager {
 
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Data")
+        // 모델 변경(속성 추가 등) 시 자동 경량 마이그레이션 — 기존 데이터 보존
+        if let description = container.persistentStoreDescriptions.first {
+            description.shouldMigrateStoreAutomatically = true
+            description.shouldInferMappingModelAutomatically = true
+        }
         container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Core Data stack load error: \(error)")
@@ -333,7 +338,9 @@ extension CoreDataManager {
         }
     }
 
-    func toggleBookmark(isbn13: Int, categoryId: Int64) {
+    // book을 함께 넘기면 북마크 추가 시 표시용 정보를 로컬에 캐시한다(내책장 빠른 로딩).
+    // 북마크 해제 시에는 Bookmark→Book Cascade 규칙으로 캐시도 함께 삭제된다.
+    func toggleBookmark(isbn13: Int, categoryId: Int64, book: BookData? = nil) {
         guard let account = fetchCurrentAccount() else { return }
 
         let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
@@ -341,7 +348,7 @@ extension CoreDataManager {
 
         do {
             if let existing = try context.fetch(request).first {
-                context.delete(existing)
+                context.delete(existing)   // 연결된 Book 캐시도 Cascade로 삭제
                 debugLog("북마크 취소: \(isbn13)")
             } else {
                 let newBookmark = Bookmark(context: context)
@@ -349,6 +356,9 @@ extension CoreDataManager {
                 newBookmark.categoryId = categoryId
                 newBookmark.account = account
                 newBookmark.createdAt = Date()
+                if let book = book {
+                    newBookmark.book = makeCachedBook(from: book)
+                }
                 debugLog("북마크 추가: \(isbn13), 카테고리: \(categoryId)")
             }
             saveContext()
@@ -356,6 +366,37 @@ extension CoreDataManager {
         } catch {
             debugLog("toggleBookmark error: \(error)")
         }
+    }
+
+    // BookData → Book(로컬 캐시) 엔티티 생성
+    private func makeCachedBook(from book: BookData) -> Book {
+        let cached = Book(context: context)
+        cached.isbn13 = book.isbn13
+        cached.title = book.title
+        cached.author = book.author
+        cached.image = book.cover
+        cached.publisher = book.publisher
+        cached.story = book.description
+        cached.categoryName = book.categoryName
+        cached.searchCategoryId = book.categoryId
+        return cached
+    }
+
+    // Book(로컬 캐시) → BookData 복원 (내책장 표시용)
+    private func bookData(from cached: Book) -> BookData {
+        var data = BookData(
+            title: cached.title ?? "",
+            author: cached.author ?? "",
+            pubDate: "",
+            description: cached.story ?? "",
+            isbn13: cached.isbn13 ?? "",
+            cover: cached.image ?? "",
+            publisher: cached.publisher ?? ""
+        )
+        data.categoryName = cached.categoryName ?? ""
+        data.categoryId = cached.searchCategoryId
+        data.isBookmarked = true
+        return data
     }
 
     // 검색 결과용: ISBN 리스트로 북마크 여부 일괄 확인
@@ -386,31 +427,63 @@ extension CoreDataManager {
             return
         }
 
-        // 최근 북마크 순으로 ISBN 목록을 가져온다.
+        // 최근 북마크 순으로 가져온다.
         let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
         request.predicate = NSPredicate(format: "account == %@", account)
         request.sortDescriptors = [
             NSSortDescriptor(keyPath: \Bookmark.createdAt, ascending: false)
         ]
 
-        let bookmarkedISBNs: [String]
+        let bookmarks: [Bookmark]
         do {
-            bookmarkedISBNs = try context.fetch(request).map { String($0.isbn13) }
+            bookmarks = try context.fetch(request)
         } catch {
             debugLog("fetchBookmarkedBooks error: \(error)")
             completion([])
             return
         }
 
-        // 알라딘 ItemLookUp으로 카테고리 포함 상세를 가져온다.
-        NetworkManager.shared.fetchBookmarkedBooks(isbns: bookmarkedISBNs) { books in
-            let mappedBooks = books.map { book -> BookData in
-                var updated = book
-                updated.isBookmarked = true
-                return updated
+        // 표시 순서(최신순) 보존
+        let order = bookmarks.map { String($0.isbn13) }
+
+        // 캐시(Book) 적중분은 즉시, 누락분만 모아 네트워크로 보충
+        var cached: [String: BookData] = [:]
+        var missing: [String] = []
+        for bookmark in bookmarks {
+            let isbn = String(bookmark.isbn13)
+            if let book = bookmark.book {
+                cached[isbn] = bookData(from: book)
+            } else {
+                missing.append(isbn)
             }
-            completion(mappedBooks)
         }
+
+        // 모두 캐시 적중 → API 호출 없이 즉시 반환
+        if missing.isEmpty {
+            completion(order.compactMap { cached[$0] })
+            return
+        }
+
+        // 캐시 없는(과거 북마크) 책만 알라딘에서 보충하고, 받은 김에 캐시도 채운다.
+        NetworkManager.shared.fetchBookmarkedBooks(isbns: missing) { [weak self] fetched in
+            guard let self = self else { completion([]); return }
+            for var book in fetched {
+                book.isBookmarked = true
+                cached[book.isbn13] = book
+                self.backfillCache(isbn13: book.isbn13, with: book, account: account)
+            }
+            self.saveContext()
+            completion(order.compactMap { cached[$0] })
+        }
+    }
+
+    // 과거(캐시 없이 생성된) 북마크에 표시 정보를 뒤늦게 채워 넣는다 → 다음 로딩부터 API 불필요.
+    private func backfillCache(isbn13: String, with book: BookData, account: Account) {
+        guard let isbnInt = Int64(isbn13) else { return }
+        let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
+        request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", isbnInt, account)
+        guard let bookmark = (try? context.fetch(request))?.first, bookmark.book == nil else { return }
+        bookmark.book = makeCachedBook(from: book)
     }
 
     func fetchBookmarkedBooksWithCategory() -> [String: Int64] {

@@ -163,7 +163,7 @@ class SearchViewController: UIViewController {
             style: .normal,
             title: book.isBookmarked ? "빼기" : "담기"
         ) { _, _, completion in
-            CoreDataManager.shared.toggleBookmark(isbn13: isbn, categoryId: 0)
+            CoreDataManager.shared.toggleBookmark(isbn13: isbn, categoryId: 0, book: book)
             completion(true)
         }
         action.image = UIImage(named: "blackshelf")?.withRenderingMode(.alwaysTemplate)
@@ -585,6 +585,12 @@ class SearchViewController: UIViewController {
     // 검색 기록도 계정별로 분리
     private var searchHistoryKey: String { UserSession.scopedKey("searchHistory") }
     private var recentSearchesKey: String { UserSession.scopedKey("recentSearches") }
+
+    // 탈퇴 시 현재 계정의 검색 기록 키 정리 (고아 키 방지)
+    static func clearSearchHistory() {
+        UserDefaults.standard.removeObject(forKey: UserSession.scopedKey("searchHistory"))
+        UserDefaults.standard.removeObject(forKey: UserSession.scopedKey("recentSearches"))
+    }
 
     private func saveSearchHistory() {
         UserDefaults.standard.set(searchHistory, forKey: searchHistoryKey)

@@ -219,6 +219,7 @@ class MyInfoViewController: UIViewController {
         RecentSearchStore.clear()
         LevelEventViewController.clearProgress()
         NotificationManager.clearAccountState()
+        SearchViewController.clearSearchHistory()
 
         // 현재 계정과 그 활동 데이터만 삭제 (다른 계정은 보존)
         CoreDataManager.shared.deleteCurrentAccount()

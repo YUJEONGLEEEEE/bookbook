@@ -34,6 +34,10 @@ enum UserSession {
     }
 
     static func clear() {
+        // uuid 제거 전에 현재 계정의 튜토리얼 플래그(계정별 키)도 정리 — 고아 키 방지
+        if let uuid = currentAccountUUID {
+            UserDefaults.standard.removeObject(forKey: tutorialSeenKeyPrefix + uuid.uuidString)
+        }
         UserDefaults.standard.removeObject(forKey: uuidKey)
         UserDefaults.standard.removeObject(forKey: phoneKey)
     }
