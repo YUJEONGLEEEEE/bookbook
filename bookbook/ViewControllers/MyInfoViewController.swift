@@ -151,7 +151,9 @@ class MyInfoViewController: UIViewController {
         let name = nameField.text ?? ""
         let promise = promiseField.text ?? ""
         let changed = (name != initialName) || (promise != initialPromise)
-        let valid = (2...8).contains(name.count) && promise.count <= 20
+        // 이름은 바꾸지 않았으면(기존값 유지) 유효로 처리, 새로 바꿀 때만 2~8자 규칙 적용
+        let nameValid = (name == initialName) || (2...8).contains(name.count)
+        let valid = nameValid && promise.count <= 20
         saveButton.isEnabled = changed && valid
         saveButton.alpha = saveButton.isEnabled ? 1.0 : 0.4
     }
@@ -159,6 +161,7 @@ class MyInfoViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func saveTapped() {
+        view.endEditing(true)   // 저장 누르는 순간 커서/키보드 내림
         alertWithCancel(message: "저장하시겠습니까?") { [weak self] in
             guard let self else { return }
             let name = self.nameField.text ?? ""
