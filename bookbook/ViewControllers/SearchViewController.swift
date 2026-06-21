@@ -560,22 +560,16 @@ class SearchViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextPageTapped), for: .touchUpInside)
         paginationStackView.addArrangedSubview(nextButton)
     }
+    // currentPage는 jumpToPage가 (로딩 가드 통과 후) 변경 — 핸들러에서 미리 바꾸면 desync
     @objc private func pageButtonTapped(_ sender: UIButton) {
-        currentPage = sender.tag
-        jumpToPage(currentPage)
+        jumpToPage(sender.tag)
     }
     @objc private func previousPageTapped() {
-        if currentPage > 1 {
-            currentPage -= 1
-            jumpToPage(currentPage)
-        }
+        if currentPage > 1 { jumpToPage(currentPage - 1) }
     }
     @objc private func nextPageTapped() {
         let totalPages = (totalResults + 19) / 20  // 올림 (검색결과 수 기준)
-        if currentPage < totalPages {
-            currentPage += 1
-            jumpToPage(currentPage)
-        }
+        if currentPage < totalPages { jumpToPage(currentPage + 1) }
     }
 
     private func jumpToPage(_ page: Int) {

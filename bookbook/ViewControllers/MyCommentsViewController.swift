@@ -121,9 +121,13 @@ class MyCommentsViewController: UIViewController {
     }
     
     private func applyPagination() {
+        // 삭제 등으로 페이지 수가 줄면 현재 페이지를 유효 범위로 보정 (빈 페이지 갇힘 방지)
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        currentPage = min(max(1, currentPage), totalPages)
+
         let startIndex = (currentPage - 1) * itemsPerPage
         let endIndex = min(startIndex + itemsPerPage, allComments.count)
-        
+
         if startIndex < endIndex {
             pagedComments = Array(allComments[startIndex..<endIndex])
         } else {
@@ -131,9 +135,8 @@ class MyCommentsViewController: UIViewController {
         }
         commentsTableView.reloadData()
 
-        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
         setupPaginationButtons(totalPages: totalPages)
-        updatePaginationFooter(visible: totalResults > 0)
+        updatePaginationFooter(visible: totalPages > 1)
     }
     
     // 한 권당 하나의 코멘트만 유지

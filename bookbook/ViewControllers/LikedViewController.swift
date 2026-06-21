@@ -114,6 +114,9 @@ class LikedViewController: UIViewController {
     }
 
     private func applyPagination() {
+        // 삭제 등으로 페이지 수가 줄면 현재 페이지를 유효 범위로 보정 (빈 페이지 갇힘 방지)
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        currentPage = min(max(1, currentPage), totalPages)
         let startIndex = (currentPage - 1) * itemsPerPage
         let endIndex = min(startIndex + itemsPerPage, allLikedBooks.count)
 
@@ -125,7 +128,6 @@ class LikedViewController: UIViewController {
 
         collectionView.reloadData()
 
-        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
         paginationStackView.isHidden = (totalPages == 1 || totalResults == 0)
         setupPaginationButtons(totalPages: totalPages)
     }
