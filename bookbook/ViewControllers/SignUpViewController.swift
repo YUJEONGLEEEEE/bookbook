@@ -165,8 +165,10 @@ final class SignUpViewController: UIViewController {
     }
 
     private func setupPhonePadAccessoryToolbar() {
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
+        // 명시적 높이(44pt) 지정 + flexibleWidth: sizeToFit()의 오토리사이징 높이가
+        // 키보드 placeholder 제약과 충돌(_UIKBCompatInputView 경고)하는 것을 방지. 외형/동작은 동일.
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 44))
+        toolbar.autoresizingMask = .flexibleWidth
         toolbar.barStyle = .default
 
         let upButton = UIBarButtonItem(image: UIImage(systemName: "chevron.up"), style: .plain, target: self, action: #selector(upButtonTapped))
