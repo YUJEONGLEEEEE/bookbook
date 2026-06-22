@@ -1,13 +1,11 @@
 import UIKit
 import SnapKit
-import SwiftUI
 
 final class LoadingManager {
     static let shared = LoadingManager()
 
     private var dimView: UIView?
-    // UIHostingController는 반드시 retain (안 하면 SwiftUI 렌더링 끊김)
-    private var hostingController: UIHostingController<AnimatedSymbolView>?
+    private var loadingView: DrawingLoadingView?
     private var loadingCount = 0
 
     // 응답이 이 시간보다 오래 걸릴 때만 스피너를 띄운다.
@@ -66,61 +64,56 @@ final class LoadingManager {
 
     private func presentOverlay(on view: UIView) {
         let dimView = UIView()
-        dimView.backgroundColor = .clear
+        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.7) // Figma: #000000 70%
         dimView.alpha = 0
         view.addSubview(dimView)
         dimView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        let hosting = UIHostingController(rootView: AnimatedSymbolView())
-        hosting.view.backgroundColor = .clear
-        let parentVC = owningViewController(of: view)
-        parentVC?.addChild(hosting)
-        dimView.addSubview(hosting.view)
-        hosting.view.snp.makeConstraints { make in
+        let loading = DrawingLoadingView()
+        loading.backgroundColor = .clear
+        dimView.addSubview(loading)
+        loading.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.size.equalTo(80)
         }
-        if let parentVC { hosting.didMove(toParent: parentVC) }
+        loading.startAnimating()
 
         UIView.animate(withDuration: 0.25) { dimView.alpha = 1 }
         self.dimView = dimView
-        self.hostingController = hosting
+        self.loadingView = loading
     }
 
     private func dismissOverlay() {
         guard let dimView = self.dimView else { return }
-        let hosting = self.hostingController
+        let loading = self.loadingView
         self.dimView = nil
-        self.hostingController = nil
-        UIView.animate(withDuration: 0.25, animations: {
-            dimView.alpha = 0
-        }) { _ in
-            hosting?.willMove(toParent: nil)
-            hosting?.view.removeFromSuperview()
-            hosting?.removeFromParent()
-            dimView.removeFromSuperview()
+        self.loadingView = nil
+
+        let fadeOut = {
+            UIView.animate(withDuration: 0.25, animations: {
+                dimView.alpha = 0
+            }) { _ in
+                loading?.stopAnimating()
+                loading?.removeFromSuperview()
+                dimView.removeFromSuperview()
+            }
+        }
+        // 그리는 도중이면 한 획을 완성한 뒤 페이드아웃(중간에 끊겨 사라지는 어색함 방지)
+        if let loading {
+            loading.finishGracefully { fadeOut() }
+        } else {
+            fadeOut()
         }
     }
 
     // 즉시(애니메이션 없이) 정리 — stuck 오버레이 제거용
     private func cleanupOverlay() {
-        hostingController?.willMove(toParent: nil)
-        hostingController?.view.removeFromSuperview()
-        hostingController?.removeFromParent()
+        loadingView?.stopAnimating()
+        loadingView?.removeFromSuperview()
         dimView?.removeFromSuperview()
         dimView = nil
-        hostingController = nil
-    }
-
-    // 뷰가 속한 뷰컨트롤러를 responder chain으로 탐색
-    private func owningViewController(of view: UIView) -> UIViewController? {
-        var responder: UIResponder? = view
-        while let current = responder {
-            if let vc = current as? UIViewController { return vc }
-            responder = current.next
-        }
-        return nil
+        loadingView = nil
     }
 }
