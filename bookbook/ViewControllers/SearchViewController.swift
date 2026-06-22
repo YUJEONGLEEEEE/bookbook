@@ -605,15 +605,21 @@ class SearchViewController: UIViewController {
         startView.reloadData(recent: recentSearches, popular: popularSearches)
     }
 
-    private let defaultPopularKeywords = ["수능특강", "노벨문학상", "자기계발", "한강", "주식"]
+    private let defaultPopularKeywords = ["에세이", "노벨문학상", "자기계발", "한강", "주식"]
 
     private func updatePopularSearches() {
+        // 2회 이상 검색한 내 검색어를 횟수 많은 순으로 우선 채우고,
+        // 부족한 칸은 기본 키워드로 보충해 항상 5개를 유지(중복 제외).
         let computed = searchHistory
             .filter { $0.value > 1 }
             .sorted { $0.value > $1.value }
             .prefix(5)
             .map { $0.key }
-        popularSearches = computed.isEmpty ? defaultPopularKeywords : Array(computed)
+        var result = Array(computed)
+        for keyword in defaultPopularKeywords where result.count < 5 && !result.contains(keyword) {
+            result.append(keyword)
+        }
+        popularSearches = result
     }
 
     private func addSearchQuery(_ query: String) {
