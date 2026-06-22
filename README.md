@@ -61,7 +61,6 @@
 | 이미지 | Kingfisher (GIF: AnimatedImageView) |
 | 로컬 저장 | CoreData |
 | 알림 | UserNotifications (로컬 푸시) |
-| 기타 | SwiftUI (로딩 인디케이터) |
 | 오픈 API | 알라딘 도서 API · 네이버 책 API |
 
 ## 아키텍처 · 특징
@@ -157,7 +156,6 @@ bookbook is an iOS reading-record app: search for books, save them to your shelf
 | Images | Kingfisher (GIF: AnimatedImageView) |
 | Local storage | CoreData |
 | Notifications | UserNotifications (local push) |
-| Misc | SwiftUI (loading indicator) |
 | Open APIs | Aladin Book API · Naver Book API |
 
 ## Architecture & Highlights
