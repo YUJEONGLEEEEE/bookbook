@@ -1,48 +1,23 @@
 import SwiftUI
 
+// 로딩 스피너 심볼. .pulse(반복)는 심볼을 항상 표시한 채 투명도만 변화시켜 안정적으로 보인다.
+// (이전 iOS 26 전용 .drawOn/.drawOff 조합은 심볼이 "안 그려진" 투명 상태로 머무는 문제가 있었음)
 struct AnimatedSymbolView: View {
-    var body: some View {
-        if #available(iOS 26.0, *) {
-            DrawingSymbolView()
-        } else {
-            PulseSymbolView()
-        }
-    }
-}
-
-// iOS 26+: draw-on / draw-off 효과
-@available(iOS 26.0, *)
-private struct DrawingSymbolView: View {
-    @State private var isDrawn = true
-
-    var body: some View {
-        Image(systemName: "scribble.variable")
-            .font(.system(size: 44))
-            .foregroundStyle(Color(.customMain))
-            .symbolEffect(.drawOn, options: .speed(0.5), isActive: isDrawn)
-            .symbolEffect(.drawOff, options: .speed(0.5), isActive: !isDrawn)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .task {
-                while !Task.isCancelled {
-                    isDrawn = true
-                    try? await Task.sleep(nanoseconds: 2_500_000_000)
-                    isDrawn = false
-                    try? await Task.sleep(nanoseconds: 900_000_000)
-                }
-            }
-    }
-}
-
-// iOS 26 미만 폴백: pulse 효과
-private struct PulseSymbolView: View {
     @State private var isAnimating = false
 
     var body: some View {
-        Image(systemName: "scribble.variable")
-            .font(.system(size: 44))
-            .foregroundColor(Color(.customMain))
-            .symbolEffect(.pulse, options: .repeating, isActive: isAnimating)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onAppear { isAnimating = true }
+        // resizable + scaledToFit: 폰트 baseline이 아닌 심볼 아트워크 바운딩 박스 기준으로
+        // 렌더링되어 ZStack 중앙에 시각적으로 정확히 정렬된다.
+        ZStack {
+            Image(systemName: "scribble.variable")
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(Color(.customMain))
+                .symbolEffect(.pulse, options: .repeating, isActive: isAnimating)
+                .frame(width: 48, height: 48)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+        .onAppear { isAnimating = true }
     }
 }

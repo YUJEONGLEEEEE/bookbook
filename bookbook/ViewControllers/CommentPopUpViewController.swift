@@ -265,8 +265,10 @@ class CommentPopUpViewController: UIViewController {
         guard bookTitleText.isEmpty || bookImageURL == nil else { return }
         guard bookISBN != 0 else { return }
 
+        LoadingManager.shared.showLoading(on: view)
         NetworkManager.shared.fetchBookmarkedBooks(isbns: [String(bookISBN)]) { [weak self] books in
             DispatchQueue.main.async {
+                LoadingManager.shared.hideLoading()   // 책 없음(guard 실패)에도 항상 숨기도록 먼저 호출
                 guard let self, let book = books.first else { return }
                 self.bookTitle.text = book.title
                 self.bookAuthor.text = book.author.cleanAuthor()
