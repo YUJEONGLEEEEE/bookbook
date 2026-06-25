@@ -186,7 +186,7 @@ extension UIViewController {
         view.addSubview(toastCard)
         toastCard.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(84)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(74) // Figma(1007:3831): 화면 바닥에서 108pt
             make.leading.greaterThanOrEqualToSuperview().offset(24)
             make.trailing.lessThanOrEqualToSuperview().inset(24)
         }
