@@ -140,8 +140,9 @@ class MyCommentsViewController: UIViewController {
     }
     
     private func uniqueByBook(_ comments: [Comment]) -> [Comment] {
+        // 셀에 표시되는 날짜(읽은 날짜) 기준 최신순 정렬. 같은 책은 읽은 날짜가 최신인 것만 남김.
         let sorted = comments.sorted {
-            ($0.createdAt ?? .distantPast) > ($1.createdAt ?? .distantPast)
+            ($0.readDate ?? .distantPast) > ($1.readDate ?? .distantPast)
         }
         var seenISBNs = Set<Int64>()
         var result: [Comment] = []
