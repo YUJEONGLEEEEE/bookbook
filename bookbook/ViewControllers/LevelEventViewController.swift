@@ -7,6 +7,7 @@ final class LevelEventViewController: UIViewController {
 
     private var didProcess = false
     private var currentEarnedCount = 0
+    private var introView: EmptyTowerIntroView?   // 책 0개 인트로 오버레이
     private var playingLevel = 0
     private var gifCompletion: (() -> Void)?
     private var gifTimeoutWorkItem: DispatchWorkItem?   // gif 완료 타임아웃(보류 시 취소)
@@ -112,6 +113,11 @@ final class LevelEventViewController: UIViewController {
         updateGoalLabel(latest: earned.last)
         updateGaugeLabels(writtenCount: writtenCount)
 
+        // 책을 하나도 못 얻은 상태면 인트로 오버레이 표시(탭하면 사라짐)
+        if earned.count == 0 {
+            showEmptyTowerIntro()
+        }
+
         let ack = LevelRewardStore.acknowledged()
         let newlyEarned = earned.filter { !ack.contains($0.count) }
 
@@ -137,6 +143,27 @@ final class LevelEventViewController: UIViewController {
             showStaticTower(level: startEarned)
             runRewardSequence(newlyEarned, finalWrittenCount: writtenCount)
         }
+    }
+
+    // 책 0개 인트로 오버레이 표시(중복 방지) → 탭하면 페이드아웃
+    private func showEmptyTowerIntro() {
+        guard introView == nil else { return }
+        goalLabel.isHidden = true   // 오버레이 동안 뒤쪽 안내 라벨 숨김(원래 화면 복귀 시 다시 표시)
+        let intro = EmptyTowerIntroView()
+        intro.onTap = { [weak self] in
+            guard let self, let intro = self.introView else { return }
+            UIView.animate(withDuration: 0.25, animations: { intro.alpha = 0 }) { _ in
+                intro.removeFromSuperview()
+                self.introView = nil
+                self.goalLabel.isHidden = false
+            }
+        }
+        view.addSubview(intro)
+        intro.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        intro.play()
+        introView = intro
     }
 
     // 직전에 게이지로 보여준 작성 수 (방문 간 증가분만 차오르게 하기 위함)

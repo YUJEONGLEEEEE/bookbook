@@ -12,6 +12,7 @@
 		78078DA22E7928CA0017E5D3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 78078DA12E7928CA0017E5D3 /* SnapKit */; };
 		78078DA52E7928DC0017E5D3 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 78078DA42E7928DC0017E5D3 /* Alamofire */; };
 		78593C682E7D16180068E24F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 78593C672E7D16180068E24F /* Kingfisher */; };
+		78ED67562FED359500DAA01B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 78ED67552FED359500DAA01B /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 				78593C682E7D16180068E24F /* Kingfisher in Frameworks */,
 				78078DA22E7928CA0017E5D3 /* SnapKit in Frameworks */,
 				78078DA52E7928DC0017E5D3 /* Alamofire in Frameworks */,
+				78ED67562FED359500DAA01B /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +98,7 @@
 				78078DA12E7928CA0017E5D3 /* SnapKit */,
 				78078DA42E7928DC0017E5D3 /* Alamofire */,
 				78593C672E7D16180068E24F /* Kingfisher */,
+				78ED67552FED359500DAA01B /* Lottie */,
 			);
 			productName = bookbook;
 			productReference = 78078C742E78FA200017E5D3 /* bookbook.app */;
@@ -129,6 +132,7 @@
 				78078DA02E7928CA0017E5D3 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				78078DA32E7928DC0017E5D3 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				78593C662E7D16180068E24F /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				78ED67542FED359500DAA01B /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78078C752E78FA200017E5D3 /* Products */;
@@ -402,6 +406,14 @@
 				minimumVersion = 8.5.0;
 			};
 		};
+		78ED67542FED359500DAA01B /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -419,6 +431,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 78593C662E7D16180068E24F /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		78ED67552FED359500DAA01B /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78ED67542FED359500DAA01B /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
