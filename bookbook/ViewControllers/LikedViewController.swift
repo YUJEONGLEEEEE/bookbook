@@ -302,10 +302,10 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
             }
 
             self.alertWithCancel(
-                message: "이 책을 마음서랍에서 꺼내시겠어요?",
-                cancelTitle: "놔두기",
-                confirmTitle: "꺼내기",
-                successMessage: "마음서랍에서 삭제했어요.",
+                message: "마음 표현하기를 취소하시겠어요?",
+                cancelTitle: "유지하기",
+                confirmTitle: "취소하기",
+                successMessage: "마음 표현하기를 취소했어요.",
                 okHandler: { [weak self] in
                     guard let self else { return }
 
@@ -334,7 +334,7 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
 
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             let cancelLike = UIAction(
-                title: "마음표현취소",
+                title: "마음 표현 취소",
                 image: UIImage(named: "heart")?
                     .withRenderingMode(.alwaysTemplate)
                     .withTintColor(.customAlert, renderingMode: .alwaysOriginal),
@@ -351,10 +351,10 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
         let book = allLikedBooks[index]
 
         alertWithCancel(
-            message: "이 책을 마음서랍에서 꺼내시겠어요?",
-            cancelTitle: "놔두기",
-            confirmTitle: "꺼내기",
-            successMessage: "마음서랍에서 삭제했어요.",
+            message: "마음 표현하기를 취소하시겠어요?",
+            cancelTitle: "유지하기",
+            confirmTitle: "취소하기",
+            successMessage: "마음 표현하기를 취소했어요.",
             okHandler: { [weak self] in
                 guard let self else { return }
                 CoreDataManager.shared.decrementLikeCount(for: book.isbn13Int)
