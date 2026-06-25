@@ -91,7 +91,7 @@ class LevelEventCardView: UIView {
     func configure(nickname: String, phrase: String, bookImageName: String) {
         nicknameLabel.text = nickname
         phraseLabel.text = phrase
-        // 획득한 책이 없으면(빈 이름) 빈 에셋 조회로 인한 CUICatalog 경고가 나므로 nil 처리
-        bookImage.image = bookImageName.isEmpty ? nil : UIImage(named: bookImageName)
+        // 첫 책을 얻기 전(빈 이름)엔 물음표 책(book_non) 표시, 이후엔 획득한 책 이미지
+        bookImage.image = UIImage(named: bookImageName.isEmpty ? "book_non" : bookImageName)
     }
 }
