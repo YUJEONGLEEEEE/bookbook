@@ -59,6 +59,7 @@
 | 레이아웃 | SnapKit (코드 기반 오토레이아웃) |
 | 네트워크 | Alamofire |
 | 이미지 | Kingfisher (GIF: AnimatedImageView) |
+| 애니메이션 | Lottie (책탑 빈 상태 인트로) |
 | 로컬 저장 | CoreData |
 | 알림 | UserNotifications (로컬 푸시) |
 | 오픈 API | 알라딘 도서 API · 네이버 책 API |
@@ -155,6 +156,7 @@ bookbook is an iOS reading-record app: search for books, save them to your shelf
 | Layout | SnapKit (programmatic Auto Layout) |
 | Networking | Alamofire |
 | Images | Kingfisher (GIF: AnimatedImageView) |
+| Animation | Lottie (empty book-tower intro) |
 | Local storage | CoreData |
 | Notifications | UserNotifications (local push) |
 | Open APIs | Aladin Book API · Naver Book API |
