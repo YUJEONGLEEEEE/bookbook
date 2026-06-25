@@ -87,8 +87,9 @@
 ## 실행 방법
 
 1. 저장소 클론 후 Xcode에서 `bookbook.xcodeproj` 열기 (iOS 17+)
-2. `bookbook/Secret.swift`에 API 키 설정 (알라딘 TTB Key, 네이버 Client ID/Secret)
-   - `Secret.swift`는 `.gitignore`로 제외돼 있음.
+2. `bookbook/Secret.swift.example`을 같은 폴더에 복사 → `Secret.swift`로 이름 변경 후 API 키 입력 (알라딘 TTB Key, 네이버 Client ID/Secret)
+   - `Secret.swift`는 `.gitignore`로 제외돼 GitHub에 올라가지 않음(받은 프로젝트엔 없으니 직접 생성 필요).
+   - 실제 키 값은 프로젝트 관리자에게 요청.
 3. 빌드 & 실행
 
 ---
@@ -182,8 +183,9 @@ This is an intentional design choice to keep the demo scope clear.
 ## Getting Started
 
 1. Clone the repo and open `bookbook.xcodeproj` in Xcode (iOS 17+)
-2. Set API keys in `bookbook/Secret.swift` (Aladin TTB Key, Naver Client ID/Secret)
-   - `Secret.swift` is excluded via `.gitignore`.
+2. Copy `bookbook/Secret.swift.example` to `Secret.swift` in the same folder, then fill in the API keys (Aladin TTB Key, Naver Client ID/Secret)
+   - `Secret.swift` is excluded via `.gitignore`, so it is not on GitHub — you must create it yourself.
+   - Ask the project owner for the actual key values.
 3. Build & run
 
 ---
