@@ -39,10 +39,11 @@ enum NotificationManager {
     // MARK: - 책 획득 알림 (알림함 기록 + 시스템 푸시)
 
     static func sendBookReward(name: String) {
-        let body = "‘\(name)’\(name.objectParticle) 획득했어요! 책탑이 한 칸 올라갔어요."
-        NotificationStore.add(AppNotification(kind: .bookReward, title: "새 책 획득 🎉", body: body))
+        let title = "책한줄 목표 달성! 🥳"
+        let body = "‘\(name)’\(name.objectParticle) 획득했어요. 지금 책탑을 확인해보세요."
+        NotificationStore.add(AppNotification(kind: .bookReward, title: title, body: body))
         // userInfo로 종류를 실어 탭 시 라우팅(책탑쌓기)에 사용
-        fireLocalPush(title: "새 책 획득 🎉", body: body,
+        fireLocalPush(title: title, body: body,
                       userInfo: ["kind": AppNotificationKind.bookReward.rawValue])
     }
 

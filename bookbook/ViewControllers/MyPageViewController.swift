@@ -42,19 +42,10 @@ class MyPageViewController: UIViewController {
 
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "bell"), for: .normal)
-        button.tintColor = .bk1
+        // 안읽음 여부에 따라 icon_notice / icon_notice_active(빨간점 내장)로 교체(updateNotificationBadge)
+        button.setImage(UIImage(named: "icon_notice")?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.addTarget(self, action: #selector(notificationButtonTapped), for: .touchUpInside)
         return button
-    }()
-
-    private let notificationBadge: UIView = {
-        let view = UIView()
-        view.backgroundColor = .sub01
-        view.layer.cornerRadius = 4
-        view.isHidden = true
-        view.isUserInteractionEnabled = false
-        return view
     }()
 
     deinit {
@@ -96,13 +87,7 @@ class MyPageViewController: UIViewController {
         navigationItem.leftBarButtonItem = item
 
         // 바 버튼 커스텀뷰는 frame으로 크기 지정 (SnapKit width/height는 네비바 래퍼와 충돌)
-        notificationButton.addSubview(notificationBadge)
         notificationButton.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
-        notificationBadge.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(2)
-            make.trailing.equalToSuperview().inset(2)
-            make.size.equalTo(8)
-        }
         let bellItem = UIBarButtonItem(customView: notificationButton)
         if #available(iOS 26.0, *) {
             bellItem.hidesSharedBackground = true
@@ -111,7 +96,8 @@ class MyPageViewController: UIViewController {
     }
 
     @objc private func updateNotificationBadge() {
-        notificationBadge.isHidden = NotificationStore.unreadCount == 0
+        let name = NotificationStore.unreadCount > 0 ? "icon_notice_active" : "icon_notice"
+        notificationButton.setImage(UIImage(named: name)?.withRenderingMode(.alwaysOriginal), for: .normal)
     }
 
     @objc private func notificationButtonTapped() {

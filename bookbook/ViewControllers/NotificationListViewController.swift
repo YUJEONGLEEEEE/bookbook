@@ -53,8 +53,9 @@ final class NotificationListViewController: UIViewController {
 
     private func configureSettingsButton() {
         let gear = UIButton(type: .system)
-        gear.setImage(UIImage(systemName: "gearshape"), for: .normal)
-        gear.tintColor = .bk1
+        gear.setImage(UIImage(named: "icon_setting")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        gear.frame = CGRect(x: 0, y: 0, width: 32, height: 32)   // 24 아이콘 + 탭영역(종 버튼과 통일)
+        gear.imageView?.contentMode = .scaleAspectFit
         gear.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
         let item = UIBarButtonItem(customView: gear)
         if #available(iOS 26.0, *) { item.hidesSharedBackground = true }
@@ -81,7 +82,7 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NotificationCell", for: indexPath) as! NotificationCell
-        cell.configure(with: items[indexPath.row])
+        cell.configure(with: items[indexPath.row], isLast: indexPath.row == items.count - 1)
         return cell
     }
 
@@ -165,7 +166,8 @@ private final class NotificationCell: UITableViewCell {
         }
     }
 
-    func configure(with n: AppNotification) {
+    func configure(with n: AppNotification, isLast: Bool) {
+        divider.isHidden = isLast   // 마지막 셀은 하단 구분선 없음(Figma)
         titleLabel.text = n.title
         // 본문 행간 23(Figma) 적용
         let paragraph = NSMutableParagraphStyle()
