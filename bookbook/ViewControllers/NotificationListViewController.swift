@@ -12,6 +12,9 @@ final class NotificationListViewController: UIViewController {
         view.rowHeight = UITableView.automaticDimension
         view.estimatedRowHeight = 88
         view.backgroundColor = .customWh
+        // Figma: 상단메뉴 아래 48pt 간격(첫 셀 내부 top 12 + inset 36)
+        view.contentInset.top = 36
+        view.verticalScrollIndicatorInsets.top = 36
         return view
     }()
 
@@ -107,10 +110,12 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
 // MARK: - Cell
 
 private final class NotificationCell: UITableViewCell {
-    private let unreadDot = UIView()
+    // Figma(2479:5411) 스펙에 맞춘 알림 셀: 제목17 Bold · 본문17 Medium(행간23) · 날짜14 Medium,
+    // 좌우 여백 24, 제목↔본문 4 / 본문↔날짜 8, 셀 하단 풀폭 구분선(bk5)
     private let titleLabel = UILabel()
     private let bodyLabel = UILabel()
     private let dateLabel = UILabel()
+    private let divider = UIView()
 
     private static let formatter: DateFormatter = {
         let f = DateFormatter()
@@ -130,44 +135,51 @@ private final class NotificationCell: UITableViewCell {
     }
 
     private func configureUI() {
-        unreadDot.backgroundColor = .sub01
-        unreadDot.layer.cornerRadius = 3
-        titleLabel.font = .customFont(ofSize: 16, weight: .bold)
+        titleLabel.font = .customFont(ofSize: 17, weight: .bold)
         titleLabel.textColor = .bk1
-        bodyLabel.font = .customFont(ofSize: 14, weight: .regular)
+        titleLabel.numberOfLines = 0
+        bodyLabel.font = .customFont(ofSize: 17, weight: .medium)
         bodyLabel.textColor = .bk2
         bodyLabel.numberOfLines = 0
-        dateLabel.font = .customFont(ofSize: 12, weight: .regular)
+        dateLabel.font = .customFont(ofSize: 14, weight: .medium)
         dateLabel.textColor = .bk3
+        divider.backgroundColor = .bk5
 
-        contentView.addSubviews([unreadDot, titleLabel, bodyLabel, dateLabel])
+        contentView.addSubviews([titleLabel, bodyLabel, dateLabel, divider])
         titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.leading.equalToSuperview().offset(40)
-            make.trailing.equalToSuperview().inset(24)
-        }
-        unreadDot.snp.makeConstraints { make in
-            make.centerY.equalTo(titleLabel)
-            make.trailing.equalTo(titleLabel.snp.leading).offset(-10)
-            make.size.equalTo(6)
+            make.top.equalToSuperview().offset(12)
+            make.leading.trailing.equalToSuperview().inset(24)
         }
         bodyLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
-            make.leading.equalTo(titleLabel)
-            make.trailing.equalToSuperview().inset(24)
+            make.leading.trailing.equalToSuperview().inset(24)
         }
         dateLabel.snp.makeConstraints { make in
-            make.top.equalTo(bodyLabel.snp.bottom).offset(6)
-            make.leading.equalTo(titleLabel)
-            make.bottom.equalToSuperview().inset(16)
+            make.top.equalTo(bodyLabel.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(24)
+            make.bottom.equalToSuperview().inset(12)
+        }
+        divider.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(1)
         }
     }
 
     func configure(with n: AppNotification) {
         titleLabel.text = n.title
-        bodyLabel.text = n.body
+        // 본문 행간 23(Figma) 적용
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = 23
+        paragraph.maximumLineHeight = 23
+        bodyLabel.attributedText = NSAttributedString(
+            string: n.body,
+            attributes: [
+                .font: UIFont.customFont(ofSize: 17, weight: .medium),
+                .foregroundColor: UIColor.bk2,
+                .paragraphStyle: paragraph
+            ]
+        )
         dateLabel.text = Self.formatter.string(from: n.date)
-        unreadDot.isHidden = n.isRead
-        contentView.backgroundColor = n.isRead ? .customWh : .sub02
+        contentView.backgroundColor = .customWh
     }
 }
