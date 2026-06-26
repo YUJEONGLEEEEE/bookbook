@@ -4,7 +4,6 @@ import SnapKit
 
 class QnAFormViewController: UIViewController {
 
-    // 등록 완료 시 작성된 문의를 1:1 문의 목록으로 전달
     var onSubmit: ((QnaItem) -> Void)?
 
     private let titleHeaderLabel: UILabel = {
@@ -121,7 +120,6 @@ class QnAFormViewController: UIViewController {
             make.horizontalEdges.equalToSuperview().inset(24)
             make.height.equalTo(180)
         }
-        // 플레이스홀더는 textContainerInset과 같은 위치에 둔다.
         contentPlaceholder.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.equalToSuperview().offset(16)

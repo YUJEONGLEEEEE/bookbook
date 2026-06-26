@@ -6,7 +6,6 @@ class LevelEventCardView: UIView {
 
     weak var delegate: ProfileViewProtocol?
 
-    // 카드 배경 그라데이션: 흰 배경 위 customMain→sub01 세로 그라데이션을 30% 불투명도로 (파스텔)
     private let gradientLayer: CAGradientLayer = {
         let layer = CAGradientLayer()
         layer.colors = [UIColor.customMain.withAlphaComponent(0.3).cgColor,
@@ -91,7 +90,6 @@ class LevelEventCardView: UIView {
     func configure(nickname: String, phrase: String, bookImageName: String) {
         nicknameLabel.text = nickname
         phraseLabel.text = phrase
-        // 첫 책을 얻기 전(빈 이름)엔 물음표 책(book_non) 표시, 이후엔 획득한 책 이미지
         bookImage.image = UIImage(named: bookImageName.isEmpty ? "book_non" : bookImageName)
     }
 }

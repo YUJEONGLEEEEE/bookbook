@@ -1,15 +1,13 @@
 import Foundation
 import UserNotifications
 
-// 시스템 로컬 푸시(UNUserNotificationCenter) + 앱 내 알림함 기록을 함께 처리
 enum NotificationManager {
-    // 알림 dedup은 계정별로 분리 (다른 계정이 같은 책 알림을 또 받거나 막지 않도록)
     private static var notifiedKey: String { UserSession.scopedKey("notifiedRewardCounts") }
     private static let reminderEnabledKey = "readingReminderEnabled"
     private static let reminderHourKey = "readingReminderHour"
     private static let reminderMinuteKey = "readingReminderMinute"
     private static let reminderWeekdaysKey = "readingReminderWeekdays"
-    private static let reminderTimesKey = "readingReminderTimes"   // 하루 여러 번: [분(0~1439)]
+    private static let reminderTimesKey = "readingReminderTimes"
 
     // MARK: - 권한
 
@@ -17,7 +15,6 @@ enum NotificationManager {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in }
     }
 
-    // 권한 확인/요청 후 최종 허용 여부를 메인 스레드로 콜백 (리마인더 켤 때 사용)
     static func ensureAuthorization(completion: @escaping (Bool) -> Void) {
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
@@ -42,16 +39,13 @@ enum NotificationManager {
         let title = "책한줄 목표 달성! 🥳"
         let body = "‘\(name)’\(name.objectParticle) 획득했어요. 지금 책탑을 확인해보세요."
         NotificationStore.add(AppNotification(kind: .bookReward, title: title, body: body))
-        // userInfo로 종류를 실어 탭 시 라우팅(책탑쌓기)에 사용
         fireLocalPush(title: title, body: body,
                       userInfo: ["kind": AppNotificationKind.bookReward.rawValue])
     }
 
-    // 책한줄 작성 후 새로 획득한 책이 있으면 알림 (책탑쌓기 방문 없이도 즉시, 책당 1회)
     static func checkBookRewardAfterComment() {
         CoreDataManager.shared.fetchComments { comments in
             let earned = BookReward.earned(for: comments.count)
-            // 책별 고유 식별자(imageName)로 dedup → 동일 count가 생겨도 안전
             var notified = Set(UserDefaults.standard.array(forKey: notifiedKey) as? [String] ?? [])
             let fresh = earned.filter { !notified.contains($0.imageName) }
             guard !fresh.isEmpty else { return }
@@ -63,16 +57,12 @@ enum NotificationManager {
         }
     }
 
-    // 책한줄 삭제 등으로 작성 수가 줄면, 더 이상 획득 상태가 아닌 책의 알림/연출 기록을 해제한다.
-    // → 다시 임계치를 넘기면 재획득 알림·애니메이션·팝업이 정상적으로 다시 나옴.
     static func syncRewardState() {
         CoreDataManager.shared.fetchComments { comments in
             let earned = BookReward.earned(for: comments.count)
             let earnedImageNames = Set(earned.map { $0.imageName })
-            // 알림 dedup 기록 정리 (현재 획득분만 유지)
             let notified = Set(UserDefaults.standard.array(forKey: notifiedKey) as? [String] ?? [])
             UserDefaults.standard.set(Array(notified.intersection(earnedImageNames)), forKey: notifiedKey)
-            // 팝업/연출 확인 기록 정리
             LevelRewardStore.retain(Set(earned.map { $0.count }))
         }
     }
@@ -88,14 +78,11 @@ enum NotificationManager {
         UNUserNotificationCenter.current().add(request)
     }
 
-    // 회원탈퇴 시 알림 데이터 전체 초기화
-    // 현재 계정의 알림 데이터(알림함 + 보상 dedup) 정리 — UserSession.clear() 전에 호출해야 함
     static func clearAccountState() {
         NotificationStore.clear()
         UserDefaults.standard.removeObject(forKey: notifiedKey)
     }
 
-    // 기기 전역 리마인더 설정/예약 정리 — 마지막 계정 탈퇴 시
     static func clearReminders() {
         [reminderTimesKey, reminderWeekdaysKey, reminderHourKey, reminderMinuteKey]
             .forEach { UserDefaults.standard.removeObject(forKey: $0) }
@@ -109,13 +96,11 @@ enum NotificationManager {
     static var reminderHour: Int { UserDefaults.standard.object(forKey: reminderHourKey) as? Int ?? 20 }
     static var reminderMinute: Int { UserDefaults.standard.object(forKey: reminderMinuteKey) as? Int ?? 0 }
 
-    // 반복 요일 (Calendar 기준 1=일 ~ 7=토). 기본: 매일
     static var reminderWeekdays: Set<Int> {
         if let arr = UserDefaults.standard.array(forKey: reminderWeekdaysKey) as? [Int] { return Set(arr) }
         return Set(1...7)
     }
 
-    // 하루 알림 시간들 (자정 기준 분). 기본: 기존 단일 시간 → 없으면 20:00
     static var reminderTimes: [Int] {
         if let arr = UserDefaults.standard.array(forKey: reminderTimesKey) as? [Int], !arr.isEmpty { return arr }
         return [reminderHour * 60 + reminderMinute]
@@ -134,7 +119,6 @@ enum NotificationManager {
             content.sound = .default
 
             let center = UNUserNotificationCenter.current()
-            // (선택 요일 × 하루 시간들) 조합마다 개별 반복 알림 등록
             for weekday in weekdays {
                 for (index, minutes) in times.enumerated() {
                     var comps = DateComponents()
@@ -150,7 +134,6 @@ enum NotificationManager {
         }
     }
 
-    // 예약된 리마인더(reading.reminder*) 전부 제거 (구버전 식별자 포함)
     private static func clearScheduledReminders(then completion: (() -> Void)? = nil) {
         let center = UNUserNotificationCenter.current()
         center.getPendingNotificationRequests { requests in

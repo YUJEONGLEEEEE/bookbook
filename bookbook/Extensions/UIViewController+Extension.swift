@@ -20,7 +20,6 @@ extension UIViewController {
             target: self,
             action: #selector(handleBackButton)
         )
-        // iOS 26: 바 버튼 Liquid Glass 배경 제거
         if #available(iOS 26.0, *) {
             backItem.hidesSharedBackground = true
         }
@@ -185,7 +184,7 @@ extension UIViewController {
         view.addSubview(toastCard)
         toastCard.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(74) // Figma(1007:3831): 화면 바닥에서 108pt
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(74)
             make.leading.greaterThanOrEqualToSuperview().offset(24)
             make.trailing.lessThanOrEqualToSuperview().inset(24)
         }

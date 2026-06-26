@@ -13,12 +13,11 @@ class BookmarkCollectionViewCell: UICollectionViewCell {
         return image
     }()
 
-    // 커버 모서리에 붙으므로 안쪽(왼쪽 아래) 꼭지점만 둥글게 처리한다.
     private let bookmarkBadge: UIView = {
         let view = UIView()
         view.backgroundColor = .customMain
         view.layer.cornerRadius = 8
-        view.layer.maskedCorners = [.layerMinXMaxYCorner]   // 왼쪽 아래만
+        view.layer.maskedCorners = [.layerMinXMaxYCorner]
         view.clipsToBounds = true
         return view
     }()

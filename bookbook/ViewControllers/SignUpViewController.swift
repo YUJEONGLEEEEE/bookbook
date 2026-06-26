@@ -10,11 +10,11 @@ final class SignUpViewController: UIViewController {
     private var isPhoneNumberValid = false
     private var isNicknameFloating = false
     private var isPhoneNumberFloating = false
-    private var isSubmitting = false   // 제출 중복(더블탭) 방지
+    private var isSubmitting = false
 
 
     private let titleLabel: UILabel = {
-        let label = UILabel() 
+        let label = UILabel()
         label.font = .customFont(ofSize: 36, weight: .bold)
         label.text = "책과 대화하는 앱\n읽담을 시작하세요"
         label.textColor = .white
@@ -123,14 +123,13 @@ final class SignUpViewController: UIViewController {
     private let signupButton: UIButton = {
         let button = UIButton()
         button.confirmButton(title: "시작하기", titleColor: .customWh, backColor: .bk4)
-        // confirmButton 기본 17 → 18로 보정
         button.titleLabel?.font = .customFont(ofSize: 18, weight: .medium)
         return button
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear   // 공유 배경(AuthNavigationController) 비치도록
+        view.backgroundColor = .clear
         configureUI()
         setupKeyboardDismissMode()
         addTargets()
@@ -141,7 +140,7 @@ final class SignUpViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        isSubmitting = false   // 되돌아오면 다시 제출 가능
+        isSubmitting = false
     }
 
     deinit {
@@ -165,8 +164,6 @@ final class SignUpViewController: UIViewController {
     }
 
     private func setupPhonePadAccessoryToolbar() {
-        // 명시적 높이(44pt) 지정 + flexibleWidth: sizeToFit()의 오토리사이징 높이가
-        // 키보드 placeholder 제약과 충돌(_UIKBCompatInputView 경고)하는 것을 방지. 외형/동작은 동일.
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 44))
         toolbar.autoresizingMask = .flexibleWidth
         toolbar.barStyle = .default
@@ -290,7 +287,6 @@ final class SignUpViewController: UIViewController {
         UserSession.currentAccountUUID = uuid
         UserSession.currentPhoneNumber = phoneNumber
 
-        // 최초 가입 → 다음 화면(취향 선택)에서 환영 토스트
         ToastManager.shared.pendingMessage = "\(nickname)님 환영해요!"
 
         isSubmitting = true

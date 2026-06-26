@@ -7,7 +7,7 @@ struct QnaItem {
     let date: String
     let question: String
     let questionBody: String
-    let answer: String?          // nil = 답변대기
+    let answer: String?
     var isAnswered: Bool { answer != nil }
 }
 

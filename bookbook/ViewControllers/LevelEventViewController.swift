@@ -7,10 +7,10 @@ final class LevelEventViewController: UIViewController {
 
     private var didProcess = false
     private var currentEarnedCount = 0
-    private var introView: EmptyTowerIntroView?   // 책 0개 인트로 오버레이
+    private var introView: EmptyTowerIntroView?
     private var playingLevel = 0
     private var gifCompletion: (() -> Void)?
-    private var gifTimeoutWorkItem: DispatchWorkItem?   // gif 완료 타임아웃(보류 시 취소)
+    private var gifTimeoutWorkItem: DispatchWorkItem?
     private var lastFrameCache: [Int: UIImage] = [:]
 
     private let backgroundImage: UIImageView = {
@@ -113,7 +113,6 @@ final class LevelEventViewController: UIViewController {
         updateGoalLabel(latest: earned.last)
         updateGaugeLabels(writtenCount: writtenCount)
 
-        // 책을 하나도 못 얻은 상태면 인트로 오버레이 표시(탭하면 사라짐)
         if earned.count == 0 {
             showEmptyTowerIntro()
         }
@@ -121,7 +120,6 @@ final class LevelEventViewController: UIViewController {
         let ack = LevelRewardStore.acknowledged()
         let newlyEarned = earned.filter { !ack.contains($0.count) }
 
-        // 한 방문에서 연출은 한 번만
         guard !didProcess else {
             setGauge(ratio: levelRatio(writtenCount: writtenCount), animated: false)
             showStaticTower(level: earned.count)
@@ -131,8 +129,6 @@ final class LevelEventViewController: UIViewController {
         didProcess = true
 
         if newlyEarned.isEmpty {
-            // 새 책 없는 평소 방문: 직전에 보여준 위치에서 새로 추가된 책한줄 만큼만 차오름
-            // (첫 방문은 0부터, 이후 방문은 증가분만큼)
             showStaticTower(level: earned.count)
             setGauge(ratio: previousLevelRatio(earnedCount: earned.count, writtenCount: writtenCount), animated: false)
             setGauge(ratio: levelRatio(writtenCount: writtenCount), animated: true)
@@ -145,10 +141,9 @@ final class LevelEventViewController: UIViewController {
         }
     }
 
-    // 책 0개 인트로 오버레이 표시(중복 방지) → 탭하면 페이드아웃
     private func showEmptyTowerIntro() {
         guard introView == nil else { return }
-        goalLabel.isHidden = true   // 오버레이 동안 뒤쪽 안내 라벨 숨김(원래 화면 복귀 시 다시 표시)
+        goalLabel.isHidden = true
         let intro = EmptyTowerIntroView()
         intro.onTap = { [weak self] in
             guard let self, let intro = self.introView else { return }
@@ -166,8 +161,6 @@ final class LevelEventViewController: UIViewController {
         introView = intro
     }
 
-    // 직전에 게이지로 보여준 작성 수 (방문 간 증가분만 차오르게 하기 위함)
-    // 계정별로 분리
     private static var lastGaugeCountKey: String { UserSession.scopedKey("levelEventLastShownCount") }
     private static func saveLastShownCount(_ count: Int) {
         UserDefaults.standard.set(count, forKey: lastGaugeCountKey)
@@ -175,25 +168,21 @@ final class LevelEventViewController: UIViewController {
     private static func lastShownCount() -> Int {
         UserDefaults.standard.integer(forKey: lastGaugeCountKey)
     }
-    // 회원탈퇴 시 게이지 진행 기록 초기화
     static func clearProgress() {
         UserDefaults.standard.removeObject(forKey: lastGaugeCountKey)
     }
 
-    // 직전에 보여준 작성 수를 현재 레벨 기준 비율로 환산 → 애니메이션 시작점
     private func previousLevelRatio(earnedCount: Int, writtenCount: Int) -> CGFloat {
         let last = Self.lastShownCount()
-        // 기록이 없거나(첫 방문) 현재보다 큰 경우(삭제 등) 0부터
         guard last > 0, last <= writtenCount else { return 0 }
         let thresholds = BookReward.cumulativeThresholds()
         let prevCumulative = earnedCount > 0 ? thresholds[earnedCount - 1] : 0
-        guard last >= prevCumulative else { return 0 }   // 직전 기록이 현재 레벨 시작 이전이면 0부터
+        guard last >= prevCumulative else { return 0 }
         let required = earnedCount < BookReward.all.count ? BookReward.all[earnedCount].count : 1
         let inLevel = last - prevCumulative
         return required > 0 ? min(1.0, max(0.0, CGFloat(inLevel) / CGFloat(required))) : 0
     }
 
-    // 보상 연출 시퀀스 (게이지 → gif → 팝업)
     private func runRewardSequence(_ rewards: [BookReward], finalWrittenCount: Int) {
         var queue = rewards
         func step() {
@@ -212,18 +201,13 @@ final class LevelEventViewController: UIViewController {
             goalLabel.text = "목표 달성! \(reward.name)\(reward.name.objectParticle) 획득했어요."
             setGaugeLabels(done: 0, requirement: required)
             setGauge(ratio: 0, animated: false)
-            // ① 게이지 0 → 가득
             setGauge(ratio: 1.0, animated: true) { [weak self] in
                 guard let self else { return }
                 self.setGaugeLabels(done: required, requirement: required)
-                // ② gif 재생
                 self.playTowerGif(level: level) { [weak self] in
                     guard let self else { return }
-                    // ③ 팝업
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
                         guard let self else { return }
-                        // 연출 도중 뒤로가기 등으로 화면을 벗어났으면 present 시도하지 않음
-                        // (acknowledge하지 않으므로 다음 진입 시 연출이 다시 재생됨)
                         guard self.viewIfLoaded?.window != nil else { return }
                         let popup = BookRewardPopUpViewController(reward: reward)
                         popup.onConfirm = {
@@ -292,7 +276,6 @@ final class LevelEventViewController: UIViewController {
     }
 
     // MARK: 책탑 표시
-    // gif 마지막 프레임을 정적으로 표시 (gif 끝과 위치 동일)
     private func showStaticTower(level: Int) {
         towerView.stopAnimating()
         towerView.kf.cancelDownloadTask()
@@ -323,15 +306,12 @@ final class LevelEventViewController: UIViewController {
         towerView.delegate = self
         towerView.repeatCount = .once
         towerView.kf.setImage(with: LocalFileImageDataProvider(fileURL: url))
-        // gif 디코드 실패 등으로 완료 델리게이트가 안 불릴 경우를 대비한 타임아웃 폴백
-        // (이전 보상의 타임아웃이 다음 gif를 조기 종료하지 않도록 WorkItem으로 취소 가능하게 함)
         gifTimeoutWorkItem?.cancel()
         let work = DispatchWorkItem { [weak self] in self?.finishTowerGif() }
         gifTimeoutWorkItem = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: work)
     }
 
-    // gif 완료 처리(델리게이트 또는 타임아웃 중 먼저 도달한 쪽 1회만 실행)
     private func finishTowerGif() {
         gifTimeoutWorkItem?.cancel()
         gifTimeoutWorkItem = nil

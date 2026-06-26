@@ -9,7 +9,7 @@ enum BookSortOption: String, CaseIterable {
     var apiValue: String? {
         switch self {
         case .accuracy: return "Accuracy"
-        case .recommend: return "SalesPoint"   // 좋아요 누적 데이터가 없으므로 알라딘 판매량순으로 대체
+        case .recommend: return "SalesPoint"
         case .latest: return "PublishTime"
         }
     }

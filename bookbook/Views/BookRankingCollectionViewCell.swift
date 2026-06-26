@@ -15,7 +15,6 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
 
     let bookImage: UIImageView = {
         let image = UIImageView()
-        // 모든 랭킹 셀의 표지가 동일한 크기(78x112)로 꽉 차 보이도록 aspectFill
         image.contentMode = .scaleAspectFill
         image.backgroundColor = .bk5
         return image
@@ -61,7 +60,7 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func configureUI() {
         bookImage.layer.cornerRadius = 4
         bookImage.clipsToBounds = true
@@ -87,7 +86,6 @@ class BookRankingCollectionViewCell: UICollectionViewCell {
             make.top.equalTo(bookTitle.snp.bottom).offset(4)
             make.trailing.lessThanOrEqualToSuperview().inset(16)
         }
-        // UIButton.Configuration 배경이 frame보다 ~5pt 안쪽에서 시작해 제목보다 밀려 보이므로 보정한다.
         showLiked.snp.makeConstraints { make in
             make.leading.equalTo(bookTitle.snp.leading).offset(-5)
             make.top.equalToSuperview().offset(80)

@@ -14,9 +14,7 @@ struct RecentBook: Codable {
 }
 
 enum RecentSearchStore {
-    // 계정별로 분리 (다른 계정 데이터를 이어받지 않도록)
     private static var key: String { UserSession.scopedKey("recentSearchedBooks") }
-    // 최근 본 책 최대 10개 보관
     private static let limit = 10
 
     static func all() -> [RecentBook] {
@@ -45,7 +43,6 @@ enum RecentSearchStore {
         }
     }
 
-    // 회원탈퇴 시 전체 초기화
     static func clear() {
         UserDefaults.standard.removeObject(forKey: key)
     }
@@ -131,7 +128,6 @@ class RecentSearchedViewController: UIViewController {
         }
     }
 
-    // 검색 결과와 동일하게 list 레이아웃 + 좌우 스와이프
     private func makeLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { [weak self] _, env in
             var config = UICollectionLayoutListConfiguration(appearance: .plain)
@@ -146,7 +142,6 @@ class RecentSearchedViewController: UIViewController {
         }
     }
 
-    // 왼쪽 스와이프 → 북마크 등록/해제
     private func bookmarkSwipe(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard indexPath.item < books.count else { return nil }
         let book = books[indexPath.item]
@@ -162,7 +157,6 @@ class RecentSearchedViewController: UIViewController {
         return config
     }
 
-    // 오른쪽 스와이프 → 최근 본 책 리스트에서 삭제
     private func removeSwipe(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard indexPath.item < books.count else { return nil }
         let isbn = books[indexPath.item].isbn13

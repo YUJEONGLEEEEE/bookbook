@@ -18,7 +18,6 @@ final class AppVersionViewController: UIViewController {
         label.font = UIFont.customFont(ofSize: 15, weight: .medium)
         label.textColor = .bk3
         label.textAlignment = .center
-        // 내공간 목록과 동일하게 번들의 실제 버전 사용(하드코딩 금지 → 두 화면 항상 일치)
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         label.text = "현재 버전 \(version)"
         return label

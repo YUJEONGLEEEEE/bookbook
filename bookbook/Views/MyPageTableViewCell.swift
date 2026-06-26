@@ -30,7 +30,6 @@ class MyPageTableViewCell: UITableViewCell {
         return view
     }()
 
-    // 프로그래밍 방식 셀: awakeFromNib는 호출되지 않으므로 init에서 UI를 구성한다.
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none

@@ -28,8 +28,6 @@ class BookRepository {
 
     // MARK: - Demo Seed
 
-    /// 데모용: 좋아요 랭킹을 채우기 위해 몇 권의 책에 랜덤 좋아요 수를 부여한다.
-    /// (백엔드가 없어 전체 사용자 좋아요 집계가 없으므로, 처음 한 번만 시드해 랭킹 섹션이 보이게 한다.)
     func seedDemoRankedBooksIfNeeded() {
         let context = persistentContainer.viewContext
 

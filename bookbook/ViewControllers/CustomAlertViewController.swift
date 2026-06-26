@@ -13,7 +13,6 @@ struct CustomAlertAction {
     }
 }
 
-// 텍스트 입력 확인용 설정 (입력값이 validate를 통과해야 마지막 버튼이 활성화됨)
 struct CustomAlertTextInput {
     let placeholder: String
     let validate: (String) -> Bool
@@ -26,7 +25,6 @@ final class CustomAlertViewController: UIViewController {
     private let actions: [CustomAlertAction]
     private let input: CustomAlertTextInput?
 
-    // 입력 게이트 대상(마지막 버튼)
     private weak var confirmButton: UIButton?
 
     init(title: String? = nil, message: String, actions: [CustomAlertAction], input: CustomAlertTextInput? = nil) {
@@ -206,7 +204,6 @@ final class CustomAlertViewController: UIViewController {
             }
             confirm = right
         }
-        // 텍스트 입력 모드면 마지막(확인) 버튼은 입력이 유효할 때만 활성화
         if input != nil {
             confirm.isEnabled = false
             confirmButton = confirm

@@ -20,7 +20,6 @@ class BestsellerCardView: UIView {
         label.textColor = .customWh
         label.font = UIFont.customFont(ofSize: 13, weight: .medium)
         label.textAlignment = .center
-        //  높이(32)의 1/2 → 완전한 캡슐 형태
         label.layer.cornerRadius = 16
         label.clipsToBounds = true
         return label
@@ -79,7 +78,7 @@ class BestsellerCardView: UIView {
         bookTitle.text = "베스트셀러"
         descriptionLabel.text = "추천 도서를 불러오는 중입니다..."
     }
-    
+
     private func configureUI() {
         backgroundColor = .sub02
         layer.cornerRadius = 8
@@ -104,7 +103,6 @@ class BestsellerCardView: UIView {
             make.width.equalTo(150)
             make.center.equalToSuperview()
         }
-        //  제목도 설명과 동일한 좌우 여백(inset 24)을 줘서 카드 밖으로 넘쳐 잘리지 않게 한다.
         bookTitle.snp.makeConstraints { make in
             make.top.equalTo(blurBackgroundView.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview().inset(24)

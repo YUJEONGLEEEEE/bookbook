@@ -27,7 +27,6 @@ class NoticeViewController: UIViewController {
 
     private func configureUI() {
         view.backgroundColor = .customWh
-        // 첫 셀 위(최상단)에 그려지는 구분선 제거
         tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNonzeroMagnitude))
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
@@ -38,11 +37,11 @@ class NoticeViewController: UIViewController {
 }
 
 extension  NoticeViewController: UITableViewDelegate, UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return noticeData.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeBTableViewCell", for: indexPath) as! NoticeBTableViewCell
         let isExpanded = noticeExpandedStates[indexPath.row]
@@ -60,7 +59,6 @@ extension  NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        // 셀이 스택 기반으로 접힘/펼침에 따라 자동 높이
         return UITableView.automaticDimension
     }
 

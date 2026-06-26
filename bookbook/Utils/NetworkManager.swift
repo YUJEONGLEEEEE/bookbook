@@ -2,11 +2,10 @@
 import Foundation
 import Alamofire
 
-// 알라딘 Output=JS 응답은 끝에 ';'(+공백)가 붙어 유효 JSON이 아니므로 잘라낸다.
 struct AladinJSPreprocessor: DataPreprocessor {
     func preprocess(_ data: Data) throws -> Data {
         var d = data
-        let trim: Set<UInt8> = [0x3B, 0x20, 0x09, 0x0A, 0x0D] // ;  space  tab  \n  \r
+        let trim: Set<UInt8> = [0x3B, 0x20, 0x09, 0x0A, 0x0D]
         while let last = d.last, trim.contains(last) {
             d.removeLast()
         }
@@ -36,7 +35,6 @@ final class NetworkManager {
             "MaxResults": 20,
             "Start": (page - 1) * 20 + 1,
             "Sort": "Accuracy"
-            // outofStockfilter 제거: 켜면 재고 도서만 반환돼 totalResults(전체 매칭)와 어긋나 뒤 페이지가 빔
         ]
         if let category {
             parameters["CategoryId"] = category
@@ -52,7 +50,6 @@ final class NetworkManager {
         .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
-                // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
                 completion(.success(value.filteringExcluded()))
             case .failure(let error):
                 debugLog(error)
@@ -83,7 +80,6 @@ final class NetworkManager {
         .responseDecodable(of: BookInfo.self, dataPreprocessor: AladinJSPreprocessor()) { response in
             switch response.result {
             case .success(let value):
-                // 제외 대상(참고서/교과서 수록도서 분야 + 세트 도서)을 걸러서 반환
                 completion(.success(value.filteringExcluded()))
             case .failure(let error):
                 debugLog(error)
@@ -120,7 +116,6 @@ final class NetworkManager {
         }
     }
 
-    // 내책장: 북마크된 ISBN 목록을 알라딘 ItemLookUp으로 조회 (네이버 API엔 카테고리 정보 없음)
     func fetchBookmarkedBooks(isbns: [String], completion: @escaping ([BookData]) -> Void) {
         guard !isbns.isEmpty else {
             completion([])
@@ -131,7 +126,6 @@ final class NetworkManager {
         var failedISBNs: [String] = []
         let group = DispatchGroup()
 
-        // 전체 북마크/마음 ISBN을 모두 조회 (페이지네이션이 전권을 페이징하도록)
         for isbnString in isbns {
             group.enter()
             fetchAladinBook(isbn13: isbnString) { book in
@@ -145,7 +139,6 @@ final class NetworkManager {
         }
 
         group.notify(queue: .main) {
-            // 사용자가 직접 담은 책이므로 제외(세트/전집 등) 없이 모두 표시. 입력 순서(최근 북마크 순) 유지.
             let ordered = isbns.compactMap { booksByIsbn[$0] }
             debugLog("📚 북마크 결과: 요청 \(isbns.count) / 조회성공 \(booksByIsbn.count) / 실패 \(failedISBNs.count) / 최종 \(ordered.count)")
             if !failedISBNs.isEmpty { debugLog("⚠️ 알라딘 조회 실패 ISBN: \(failedISBNs)") }
@@ -153,7 +146,6 @@ final class NetworkManager {
         }
     }
 
-    // 알라딘 ItemLookUp: ISBN13 한 권의 상세(카테고리 포함)를 조회한다.
     func fetchAladinBook(isbn13: String, completion: @escaping (BookData?) -> Void) {
         let url = "https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx"
         let parameters: [String: Any] = [

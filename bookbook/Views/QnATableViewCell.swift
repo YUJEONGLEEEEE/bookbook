@@ -17,7 +17,7 @@ class QnATableViewCell: UITableViewCell {
         let button = UIButton()
         button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
         button.tintColor = .bk2
-        button.isUserInteractionEnabled = false   // 행 탭으로 토글
+        button.isUserInteractionEnabled = false
         return button
     }()
 
@@ -58,7 +58,6 @@ class QnATableViewCell: UITableViewCell {
     }
 
     private func configureUI() {
-        // 헤더(질문 + 화살표) — 접힌 상태에서도 항상 보인다.
         headerView.addSubviews([titleLabel, toggleButton])
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(24)
@@ -77,7 +76,6 @@ class QnATableViewCell: UITableViewCell {
             make.edges.equalToSuperview().inset(24)
         }
 
-        // 스택으로 묶어 접힘/펼침에 따라 셀 높이가 자동 변한다.
         contentView.addSubview(mainStack)
         mainStack.snp.makeConstraints { make in
             make.edges.equalToSuperview()

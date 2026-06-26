@@ -1,10 +1,8 @@
 struct BookFilter {
     let name: String
-    let categoryIds: [String]      // 알라딘 카테고리 검색용 (찾기/홈 화면)
-    let keywords: [String]         // 내책장 장르 필터용 (알라딘 categoryName 경로 매칭)
+    let categoryIds: [String]
+    let keywords: [String]
 
-    /// 알라딘 카테고리 경로(categoryName)가 이 필터에 해당하는지 판단한다.
-    /// keywords 가 비어 있으면(전체) 항상 true.
     func matches(categoryName: String) -> Bool {
         guard !keywords.isEmpty else { return true }
         return keywords.contains { categoryName.contains($0) }

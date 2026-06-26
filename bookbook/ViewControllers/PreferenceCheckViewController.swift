@@ -15,7 +15,6 @@ final class PreferenceCheckViewController: UIViewController {
 
     var isEditMode = false
 
-    // 취소 시 되돌릴 원본 스냅샷
     private var snapshotGenres: [String] = []
     private var snapshotAge: AgeRange?
     private var snapshotGender: Gender?
@@ -140,7 +139,6 @@ final class PreferenceCheckViewController: UIViewController {
 
     private let comicsButton: UIButton = {
         let button = UIButton()
-        // 길어서 2줄 표시
         button.imageButton(title: "만화/\n라이트노벨", image: UIImage(named: "comic_lightnovel"), size: 108)
         button.titleLabel?.numberOfLines = 2
         button.titleLabel?.textAlignment = .center
@@ -249,7 +247,6 @@ final class PreferenceCheckViewController: UIViewController {
         if isEditMode { applyGenreSelectionOverlays() }
     }
 
-    // 환영 토스트는 취향선택이 아니라 튜토리얼 이후 메인 진입 시 표시 (MainViewController.viewDidAppear)
 
     // MARK: - 편집(취소) 처리
 
@@ -288,7 +285,6 @@ final class PreferenceCheckViewController: UIViewController {
     private func setupLogoutButton() {
         let button = UIBarButtonItem(title: "로그아웃", style: .plain, target: self, action: #selector(logoutButtonTapped))
         button.tintColor = .bk3
-        // iOS 26: 바 버튼 글래스 배경 제거
         if #available(iOS 26.0, *) {
             button.hidesSharedBackground = true
         }
@@ -296,7 +292,6 @@ final class PreferenceCheckViewController: UIViewController {
     }
     @objc private func logoutButtonTapped() {
         alertWithCancel(message: "로그아웃하시겠습니까?") {
-            // 세션만 정리(계정 유지)
             UserSession.clear()
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let window = scene.windows.first else { return }
@@ -312,7 +307,6 @@ final class PreferenceCheckViewController: UIViewController {
         }
     }
     @objc private func genreButtonTapped(_ sender: UIButton) {
-        // 줄바꿈 제거해 저장/매칭용 표준 장르 키 생성
         guard let title = sender.title(for: .normal)?.replacingOccurrences(of: "\n", with: "") else { return }
 
         if selectedGenres.contains(title) {
@@ -335,7 +329,6 @@ final class PreferenceCheckViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     @objc private func skipButtonTapped() {
-        // "취향을 모르겠어요" → 빈 장르(연령/성별 추천 사용). 저장은 '완료'에서.
         pushAgeViewController(genres: [])
     }
     @objc private func nextButtonTapped() {
@@ -343,10 +336,9 @@ final class PreferenceCheckViewController: UIViewController {
     }
 
     private func pushAgeViewController(genres: [String]) {
-        // 더블탭으로 다음 화면이 중복 push되는 것 방지
         guard navigationController?.topViewController === self else { return }
         let ageVC = UserAgeViewController()
-        ageVC.pendingGenres = genres   // 저장은 마지막 '완료'에서 일괄 처리
+        ageVC.pendingGenres = genres
         if isEditMode {
             ageVC.editContext = PreferenceEditContext(
                 genres: Set(snapshotGenres),

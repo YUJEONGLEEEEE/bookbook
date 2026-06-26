@@ -7,7 +7,6 @@ final class ToastManager {
     private var queue: [ToastRequest] = []
     private var isShowing = false
 
-    // 화면 전환(가입/로그인) 직후, 도착 화면에서 한 번 띄울 대기 메시지
     var pendingMessage: String?
 
     private init() {}

@@ -34,7 +34,6 @@ class BookmarkViewController: UIViewController {
         layout.scrollDirection = .vertical
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.register(BookmarkCollectionViewCell.self, forCellWithReuseIdentifier: "BookmarkCollectionViewCell")
-        // 페이지네이션을 섹션 푸터로 → 결과와 함께 스크롤됨
         view.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
@@ -42,7 +41,6 @@ class BookmarkViewController: UIViewController {
         )
         view.backgroundColor = .clear
         view.showsVerticalScrollIndicator = true
-        // 검색결과 화면처럼 탭바 아래까지 콘텐츠가 차도록 자동 inset 끔(하단 inset 수동 제어)
         view.contentInsetAdjustmentBehavior = .never
         return view
     }()
@@ -121,7 +119,6 @@ class BookmarkViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // collectionView가 탭바 아래까지 차므로, 푸터(페이지네이션)/마지막 줄이 탭바에 가리지 않게 탭바 높이만큼 하단 여백
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         if collectionView.contentInset.bottom != tabBarHeight {
             collectionView.contentInset.bottom = tabBarHeight
@@ -143,7 +140,6 @@ class BookmarkViewController: UIViewController {
 
     private func applyFilter() {
         if let filter = selectedFilter {
-            // 알라딘 categoryName에 장르 키워드 포함 여부로 필터링
             filteredBooks = allBookmarkedBooks.filter { filter.matches(categoryName: $0.categoryName) }
         } else {
             filteredBooks = allBookmarkedBooks
@@ -228,14 +224,12 @@ class BookmarkViewController: UIViewController {
         }
     }
 
-    // 페이지 변경 후 최상단으로 (reloadData 직후 레이아웃 강제 → 타이밍 핵 없이 즉시)
     private func scrollToTopOfList() {
         collectionView.layoutIfNeeded()
         collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top), animated: false)
     }
 
     private func configureUI() {
-        // paginationStackView는 collectionView 섹션 푸터에 동적으로 담는다(콘텐츠와 함께 스크롤)
         view.addSubviews([filterView, separator, collectionView, emptyLabel])
 
         filterView.snp.makeConstraints { make in
@@ -252,7 +246,7 @@ class BookmarkViewController: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(separator.snp.bottom).offset(32)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
-            make.bottom.equalToSuperview()   // 검색결과처럼 탭바 아래까지 콘텐츠가 참
+            make.bottom.equalToSuperview()
         }
 
         emptyLabel.snp.makeConstraints { make in
@@ -320,22 +314,20 @@ extension BookmarkViewController: UICollectionViewDelegate, UICollectionViewData
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let columnSpacing: CGFloat = 20
         let width = (collectionView.frame.width - columnSpacing) / 2
-        let height: CGFloat = 318  // 고정 높이 (이미지 239 + 텍스트)
+        let height: CGFloat = 318
         return CGSize(width: width, height: height)
     }
 
-    // 페이지네이션 푸터: 2페이지 이상일 때만 높이 확보(콘텐츠와 함께 스크롤)
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
         let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
         guard totalPages > 1 else { return .zero }
-        return CGSize(width: collectionView.frame.width, height: 88)   // 상단 여백 24 + 페이지네이션 48 + 하단 16
+        return CGSize(width: collectionView.frame.width, height: 88)
     }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
         )
-        // 단일 paginationStackView 인스턴스를 푸터로 이동
         if paginationStackView.superview !== footer {
             paginationStackView.removeFromSuperview()
             footer.addSubview(paginationStackView)

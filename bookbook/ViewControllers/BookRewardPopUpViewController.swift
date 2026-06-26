@@ -1,7 +1,6 @@
 import UIKit
 import SnapKit
 
-// 여러 개를 순차로 띄울 수 있도록 onConfirm 콜백으로 다음 팝업을 연결한다.
 final class BookRewardPopUpViewController: UIViewController {
 
     private let reward: BookReward
@@ -83,7 +82,6 @@ final class BookRewardPopUpViewController: UIViewController {
     }
 
     @objc private func confirmTapped() {
-        // 닫힘이 끝난 뒤 onConfirm 호출 → 다음 팝업을 깔끔하게 present
         dismiss(animated: true) { [weak self] in
             self?.onConfirm?()
         }

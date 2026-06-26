@@ -9,7 +9,6 @@ class AnnouncementViewController: UIViewController {
     private lazy var qnaExpandedStates = Array(repeating: false, count: faqData.count)
 
     private let tableView: UITableView = {
-        // grouped 스타일: 섹션 헤더가 고정(floating)되지 않고 콘텐츠와 함께 스크롤됨
         let view = UITableView(frame: .zero, style: .grouped)
         view.register(NoticeHeaderView.self, forHeaderFooterViewReuseIdentifier: "NoticeHeaderView")
         view.register(NoticeATableViewCell.self, forCellReuseIdentifier: "NoticeATableViewCell")
@@ -19,9 +18,7 @@ class AnnouncementViewController: UIViewController {
         view.separatorColor = .bk5
         view.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         view.backgroundColor = .customWh
-        // iOS 15+ 가 섹션 헤더 위에 자동으로 넣는 여백 제거 → 상단 간격 줄어듦
         view.sectionHeaderTopPadding = 0
-        // grouped 기본 상단 여백 제거
         view.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNormalMagnitude))
         return view
     }()
@@ -60,7 +57,6 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
         return 56
     }
 
-    // grouped 스타일이 섹션마다 넣는 기본 푸터 여백 제거 (plain 때처럼 붙임)
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return .leastNormalMagnitude
     }
@@ -123,7 +119,6 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
         if indexPath.section == 0 {
             return 52
         }
-        // FAQ: 셀이 스택 기반으로 접힘/펼침에 따라 자동 높이
         return UITableView.automaticDimension
     }
 

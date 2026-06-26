@@ -64,7 +64,6 @@ class SearchCollectionViewCell: UICollectionViewCell {
         return button
     }()
 
-    // 사용자가 이미 북마크한 책일 때만 보이는 "담았어요" 표시(버튼 아님, 비탭).
     let bookmarked: UIButton = {
         let button = UIButton()
         button.showBookmarked()
@@ -96,8 +95,6 @@ class SearchCollectionViewCell: UICollectionViewCell {
         contentView.addSubviews([bookImage, mainStack])
         mainStack.addArrangedSubviews([bookTitle, subLabel, descriptionLabel, buttonStack])
 
-        // ♥/담았어요 버튼은 콘텐츠에 딱 맞게 고정하고, 끝의 스페이서가 남는 가로 공간을 흡수한다.
-        // (이렇게 안 하면 .fill 분배가 ♥ 박스를 옆으로 늘려 셀마다 크기가 달라짐)
         let buttonSpacer = UIView()
         buttonSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         buttonStack.addArrangedSubviews([showLiked, bookmarked, buttonSpacer])
@@ -106,7 +103,6 @@ class SearchCollectionViewCell: UICollectionViewCell {
         bookmarked.setContentHuggingPriority(.required, for: .horizontal)
         bookmarked.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        // self-sizing 리스트 셀: 추정 높이와 충돌하지 않도록 하단 제약은 priority 999
         bookImage.snp.makeConstraints { make in
             make.width.equalTo(87)
             make.height.equalTo(123)

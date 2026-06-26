@@ -51,7 +51,6 @@ class MainViewController: UIViewController {
         let view = UIScrollView()
         view.showsVerticalScrollIndicator = false
         view.alwaysBounceVertical = true
-        // 탭바 아래까지 콘텐츠가 차도록 자동 inset 끔(하단 inset 수동 제어)
         view.contentInsetAdjustmentBehavior = .never
         return view
     }()
@@ -155,13 +154,11 @@ class MainViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        // 로그인 직후 메인 진입 시 인사 토스트 (대기 메시지 있을 때만)
         showPendingToast()
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // 스크롤뷰가 탭바 아래까지 차므로, 끝까지 내렸을 때 마지막 콘텐츠와 탭바 사이 간격 52 확보
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
         let bottomInset = tabBarHeight + 52
         if scrollView.contentInset.bottom != bottomInset {
@@ -212,7 +209,6 @@ class MainViewController: UIViewController {
         let selectedGenres = CoreDataManager.shared.fetchGenres()
         usersChoices = selectedGenres.isEmpty ? baseGenres : selectedGenres
 
-        // 어린이(child)면 라이트 노벨(CID 50927)을 추천에서 제외 (성별 무관)
         fetchPrefferedBooks(for: usersChoices, excludeLightNovel: ageRange == .child)
     }
 
@@ -259,7 +255,6 @@ class MainViewController: UIViewController {
                         books = []
                     }
 
-                    // sync: append를 group.leave() 전에 끝내 책 누락(레이스) 방지
                     self.bookLockQueue.sync {
                         collectedBooks.append(books)
                     }
@@ -324,7 +319,6 @@ class MainViewController: UIViewController {
 
         case .failure(let error):
             debugLog("베스트셀러 실패: \(error)")
-            // 캐시가 있으면 그걸로 대체, 없으면 오류 안내
             guard let cachedRandom = bestsellerCache.randomElement() else {
                 showErrorAlert()
                 return
@@ -346,7 +340,6 @@ class MainViewController: UIViewController {
 
     private func loadBestsellerImages(book: BookData) {
         let trimmed = book.cover.trimmingCharacters(in: .whitespaces)
-        // 표지 없음(빈값/알라딘 noimg) → placeholder, 블러 배경은 생략
         guard !trimmed.isEmpty,
               !trimmed.lowercased().contains("noimg"),
               let coverUrl = URL(string: trimmed) else {
@@ -455,7 +448,7 @@ class MainViewController: UIViewController {
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(topBar.snp.bottom)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            make.bottom.equalToSuperview()   // 탭바 아래까지 콘텐츠가 참
+            make.bottom.equalToSuperview()
         }
         contentStack.snp.makeConstraints { make in
             make.verticalEdges.equalTo(scrollView.contentLayoutGuide)
@@ -526,9 +519,6 @@ class MainViewController: UIViewController {
 
 // MARK: - TabReselectable
 extension MainViewController: TabReselectable {
-    // 홈 탭 재탭 → 새로고침 + 최상단 이동
-    // handleRefresh가 콘텐츠 높이를 바꿔(레이아웃) 스크롤 애니메이션을 덮어쓰므로,
-    // 갱신·레이아웃을 먼저 끝낸 뒤 다음 런루프에 최상단으로 이동한다.
     func handleTabReselect() {
         handleRefresh()
         view.layoutIfNeeded()

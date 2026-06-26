@@ -53,7 +53,7 @@ final class AccountValidationDelegate: NSObject, UITextFieldDelegate {
                 validationResultHandler?(false)
                 return false
             }
-            
+
             if editedText.count > 11 {
                 validationResultHandler?(false)
                 return false

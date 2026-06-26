@@ -9,14 +9,13 @@ class PopularSearchedCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         configureUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        // 높이의 1/2 → 캡슐형
         contentView.layer.cornerRadius = contentView.bounds.height / 2
     }
 

@@ -23,7 +23,6 @@ class LikedViewController: UIViewController {
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
         view.register(LikedCollectionViewCell.self, forCellWithReuseIdentifier: "LikedCollectionViewCell")
-        // 페이지네이션을 섹션 푸터로 → 결과와 함께 스크롤됨
         view.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
@@ -114,7 +113,6 @@ class LikedViewController: UIViewController {
     }
 
     private func applyPagination() {
-        // 삭제 등으로 페이지 수가 줄면 현재 페이지를 유효 범위로 보정 (빈 페이지 갇힘 방지)
         let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
         currentPage = min(max(1, currentPage), totalPages)
         let startIndex = (currentPage - 1) * itemsPerPage
@@ -206,13 +204,11 @@ class LikedViewController: UIViewController {
     }
 
     private func scrollToTop() {
-        // reloadData 직후 레이아웃 강제 → 타이밍 핵 없이 즉시 최상단으로
         collectionView.layoutIfNeeded()
         collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top), animated: false)
     }
 
     private func configureUI() {
-        // paginationStackView는 collectionView 섹션 푸터에 동적으로 담는다(콘텐츠와 함께 스크롤)
         view.addSubviews([collectionView, emptyLabel])
         collectionView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
@@ -259,11 +255,10 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
         return CGSize(width: width, height: height)
     }
 
-    // 페이지네이션 푸터: 2페이지 이상일 때만 높이 확보(콘텐츠와 함께 스크롤)
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
         let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
         guard totalPages > 1 else { return .zero }
-        return CGSize(width: collectionView.frame.width, height: 64)   // 상단 24 + 페이지네이션 24 + 하단 16
+        return CGSize(width: collectionView.frame.width, height: 64)
     }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -325,7 +320,6 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
-    // 꾹누르기(롱프레스 컨텍스트 메뉴) → 마음표현취소
     func collectionView(_ collectionView: UICollectionView,
                         contextMenuConfigurationForItemAt indexPath: IndexPath,
                         point: CGPoint) -> UIContextMenuConfiguration? {

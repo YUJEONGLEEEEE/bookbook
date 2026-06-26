@@ -17,7 +17,7 @@ class CommentPopUpViewController: UIViewController {
     private var initialComment: String?
     private var isEditMode: Bool = false
     private var editingComment: Comment?
-    private var isSaving = false   // 저장 중복(더블탭) 방지
+    private var isSaving = false
     private var hasSelectedDate = false
 
     var onCommentUpdated: (() -> Void)?
@@ -34,7 +34,7 @@ class CommentPopUpViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    private let starWidth: CGFloat = 40   // Figma: 별 1개 40 (행 232 = 40×5 + 8×4)
+    private let starWidth: CGFloat = 40
     private let totalStars: CGFloat = 5
 
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
@@ -179,7 +179,6 @@ class CommentPopUpViewController: UIViewController {
         return view
     }()
 
-    // 폭을 넘으면 가로로 이어지지 않고 줄바꿈되도록 UITextView 사용
     private let commentField: UITextView = {
         let view = UITextView()
         view.font = UIFont.customFont(ofSize: 16, weight: .regular)
@@ -192,7 +191,6 @@ class CommentPopUpViewController: UIViewController {
         return view
     }()
 
-    // UITextView는 placeholder가 없어 라벨로 대체 (입력 시작 시 숨김)
     private let placeholderLabel: UILabel = {
         let label = UILabel()
         label.text = "한 줄로 표현해 보세요. (20자 이내)"
@@ -229,7 +227,7 @@ class CommentPopUpViewController: UIViewController {
     private let verticalSeparateLine: UIView = {
         let view = UIView()
         view.addVerticalLine()
-        view.backgroundColor = .bk5   // Figma: 버튼 구분선 bk5 (lightGray 덮어쓰기)
+        view.backgroundColor = .bk5
         return view
     }()
 
@@ -268,7 +266,7 @@ class CommentPopUpViewController: UIViewController {
         LoadingManager.shared.showLoading(on: view)
         NetworkManager.shared.fetchBookmarkedBooks(isbns: [String(bookISBN)]) { [weak self] books in
             DispatchQueue.main.async {
-                LoadingManager.shared.hideLoading()   // 책 없음(guard 실패)에도 항상 숨기도록 먼저 호출
+                LoadingManager.shared.hideLoading()
                 guard let self, let book = books.first else { return }
                 self.bookTitle.text = book.title
                 self.bookAuthor.text = book.author.cleanAuthor()
@@ -416,7 +414,6 @@ class CommentPopUpViewController: UIViewController {
         let text = commentField.text ?? ""
 
         guard isFormValid() else { return }
-        // 빠른 더블탭으로 중복 저장(+보상 중복 집계)되는 것 방지
         guard !isSaving else { return }
         isSaving = true
 
@@ -437,7 +434,7 @@ class CommentPopUpViewController: UIViewController {
                 comment: text
             )
             guard ok else { isSaving = false; showAlert(message: "저장에 실패했어요. 잠시 후 다시 시도해주세요."); return }
-            NotificationManager.checkBookRewardAfterComment()   // 새 책 획득 시 알림
+            NotificationManager.checkBookRewardAfterComment()
             showSavedAlertThenDismiss(message: "작성한 책한줄이 저장되었어요.")
         }
     }
@@ -527,21 +524,18 @@ class CommentPopUpViewController: UIViewController {
         }
         textfieldView.snp.makeConstraints { make in
             make.top.equalTo(writeLabel.snp.bottom).offset(16)
-            make.horizontalEdges.equalToSuperview().inset(24)   // 폭 290 (338 - 24×2)
+            make.horizontalEdges.equalToSuperview().inset(24)
             make.height.equalTo(80)
         }
         commentField.snp.makeConstraints { make in
-            // 80 높이 박스 안에서 세로 중앙이 아닌 상단에 텍스트 정렬 (넘치면 줄바꿈)
             make.top.horizontalEdges.equalToSuperview().inset(16)
             make.bottom.lessThanOrEqualToSuperview().inset(16)
         }
         placeholderLabel.snp.makeConstraints { make in
-            // 텍스트 시작 위치와 동일하게 (commentField textContainerInset=0 기준)
             make.top.leading.equalToSuperview().inset(16)
             make.trailing.equalToSuperview().inset(16)
         }
         buttonLine.snp.makeConstraints { make in
-            // 버튼 바로 위 1pt bk5 선 (top 제약 제거해 height 1과 충돌 방지)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(buttonStackView.snp.top)
         }

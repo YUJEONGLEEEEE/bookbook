@@ -34,7 +34,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
         if userInfo["kind"] as? String == AppNotificationKind.bookReward.rawValue {
-            // 콜드 스타트 시 씬/루트가 준비될 시간을 약간 주고 이동
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 AppDelegate.routeToBookTower()
             }
@@ -48,7 +47,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
               let window = scene.windows.first(where: { $0.isKeyWindow }) ?? scene.windows.first,
               let tab = window.rootViewController as? MainTabBarController,
               let nav = tab.selectedViewController as? UINavigationController else { return }
-        // 이미 책탑쌓기 화면이면 중복 push 방지
         guard !(nav.topViewController is LevelEventViewController) else { return }
         nav.pushViewController(LevelEventViewController(), animated: true)
     }

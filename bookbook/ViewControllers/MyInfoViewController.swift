@@ -150,7 +150,6 @@ class MyInfoViewController: UIViewController {
         let name = nameField.text ?? ""
         let promise = promiseField.text ?? ""
         let changed = (name != initialName) || (promise != initialPromise)
-        // 이름은 바꾸지 않았으면(기존값 유지) 유효로 처리, 새로 바꿀 땐 가입과 동일 규칙(2~8자·숫자/특수문자 불가)
         let nameValid = (name == initialName) || (NicknameValidator.validate(name) == .valid)
         let valid = nameValid && promise.count <= 20
         saveButton.isEnabled = changed && valid
@@ -178,7 +177,6 @@ class MyInfoViewController: UIViewController {
 
     @objc private func logoutTapped() {
         alertWithCancel(message: "로그아웃하시겠습니까?") { [weak self] in
-            // 세션만 정리 (계정 데이터 유지)
             UserSession.clear()
             self?.setRoot(AuthNavigationController(rootViewController: SignUpViewController()))
         }
@@ -197,7 +195,6 @@ class MyInfoViewController: UIViewController {
         )
     }
 
-    // 2차 확인 — '탈퇴'를 직접 입력해야 최종 버튼이 활성화됨 (앱 커스텀 얼럿 사용)
     private func presentWithdrawTextConfirm() {
         presentCustomAlert(
             title: "회원탈퇴 확인",
@@ -213,18 +210,15 @@ class MyInfoViewController: UIViewController {
     }
 
     private func performWithdraw() {
-        // 현재 계정의 계정별 로컬 데이터 정리 (UserSession.clear 전에 — 키가 현재 계정 UUID 기준)
         LevelRewardStore.clear()
         RecentSearchStore.clear()
         LevelEventViewController.clearProgress()
         NotificationManager.clearAccountState()
         SearchViewController.clearSearchHistory()
 
-        // 현재 계정과 그 활동 데이터만 삭제 (다른 계정은 보존)
         CoreDataManager.shared.deleteCurrentAccount()
         let isLastAccount = CoreDataManager.shared.accountCount() == 0
         UserSession.clear()
-        // 기기에 계정이 하나도 안 남았을 때만 기기 전역(리마인더) 정리
         if isLastAccount {
             NotificationManager.clearReminders()
         }

@@ -42,7 +42,6 @@ class MyPageViewController: UIViewController {
 
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
-        // 안읽음 여부에 따라 icon_notice / icon_notice_active(빨간점 내장)로 교체(updateNotificationBadge)
         button.setImage(UIImage(named: "icon_notice")?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.addTarget(self, action: #selector(notificationButtonTapped), for: .touchUpInside)
         return button
@@ -80,13 +79,11 @@ class MyPageViewController: UIViewController {
         title.font = UIFont.customFont(ofSize: 24, weight: .bold)
         title.textColor = .bk1
         let item = UIBarButtonItem(customView: title)
-        // iOS 26: 바 버튼 글래스(입체) 배경 제거
         if #available(iOS 26.0, *) {
             item.hidesSharedBackground = true
         }
         navigationItem.leftBarButtonItem = item
 
-        // 바 버튼 커스텀뷰는 frame으로 크기 지정 (SnapKit width/height는 네비바 래퍼와 충돌)
         notificationButton.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
         let bellItem = UIBarButtonItem(customView: notificationButton)
         if #available(iOS 26.0, *) {
@@ -131,19 +128,17 @@ class MyPageViewController: UIViewController {
                     pool.append("목표 달성! \(latest.name)\(latest.name.objectParticle) 획득했어요.")
                     pool.append("\(next.name)\(next.name.objectParticle) 받기 위해 노력 중이에요!")
                 } else {
-                    // 책 획득 X: 첫 책 안내 (카드 1줄 폭에 맞춰 20자 이내)
                     pool.append("책한줄을 작성하고 첫 책 받아보세요!")
                 }
             } else {
                 pool.append("백과사전 획득 성공!")
             }
-            // 내 정보에서 작성한 다짐 한마디도 같은 랜덤 풀에 포함
             if !promise.isEmpty {
                 pool.append(promise)
             }
             let phrase = pool.randomElement() ?? pool.first ?? ""
 
-            let bookImageName = earned.last?.imageName ?? ""   // 카드 책 이미지는 항상 최신 획득 책
+            let bookImageName = earned.last?.imageName ?? ""
             self.cardView.configure(nickname: nickname, phrase: phrase, bookImageName: bookImageName)
         }
     }
@@ -183,7 +178,6 @@ class MyPageViewController: UIViewController {
     }
 
     private func push(_ vc: UIViewController) {
-        // 내공간 하위 메뉴로 들어가면 탭바 숨김 (내공간 페이지에서만 탭바 노출)
         vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -223,7 +217,6 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyPageTableViewCell", for: indexPath) as! MyPageTableViewCell
         let title = menuTitles[indexPath.row]
-        // 앱 버전 행에만 버전 표시 (번들의 실제 버전 사용)
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let trailing = (title == "앱 버전") ? appVersion : nil
         cell.configure(title: title, trailing: trailing)

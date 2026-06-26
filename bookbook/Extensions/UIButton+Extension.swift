@@ -3,8 +3,6 @@ import UIKit
 import SnapKit
 
 private enum ButtonOverlayKey {
-    // associated object 키로 쓸 안정적인 고유 포인터 (앱 생애주기 동안 유지)
-    // String 주소를 키로 쓰면 "UnsafeRawPointer ... exposes internal representation" 경고가 나므로 raw 포인터를 사용한다.
     static let overlay = UnsafeMutableRawPointer.allocate(byteCount: 1, alignment: 1)
 }
 
@@ -94,7 +92,6 @@ extension UIButton {
     }
     func configureSelectableOverlay(with image: UIImage?) {
         if overlayView != nil { return }
-        // 단색 사각형 대신 이미지와 동일한 형태(둥근 모서리 포함)로 덮이도록 템플릿 이미지 사용
         let overlay = UIImageView(image: image?.withRenderingMode(.alwaysTemplate))
         overlay.contentMode = .scaleToFill
         overlay.tintColor = UIColor.customMain.withAlphaComponent(0.8)

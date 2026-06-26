@@ -80,7 +80,6 @@ class MyChoiceViewController: UIViewController {
         navigationItem.title = "내 취향"
         let editItem = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editButtonTapped))
         editItem.tintColor = .customBtn
-        // iOS 26: 바 버튼 글래스 배경 제거
         if #available(iOS 26.0, *) {
             editItem.hidesSharedBackground = true
         }

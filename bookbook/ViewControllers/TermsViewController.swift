@@ -146,7 +146,6 @@ final class TermsViewController: UIViewController {
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
-        // 콘텐츠 여백은 기존 코드대로 32/24 유지. 가로 폭을 화면에 고정해 줄바꿈 + 세로 스크롤되게 한다.
         letterLabel.snp.makeConstraints { make in
             make.verticalEdges.equalToSuperview().inset(32)
             make.horizontalEdges.equalToSuperview().inset(24)

@@ -34,7 +34,7 @@ class LikedCollectionViewCell: UICollectionViewCell {
         contentView.backgroundColor = .white
         configureUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -49,7 +49,6 @@ class LikedCollectionViewCell: UICollectionViewCell {
 
     private func configureUI() {
         contentView.addSubviews([bookImage, bookTitle, bookAuthor])
-        // 표지 폭은 셀 폭에 맞춘다(고정 102 제거) → 화면 폭이 달라도 옆 셀과 겹치지 않는다.
         bookImage.snp.makeConstraints { make in
             make.height.equalTo(146)
             make.top.horizontalEdges.equalToSuperview()

@@ -19,7 +19,6 @@ final class OnboardingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .customWh
-        // 모든 설정이 끝난 뒤 보는 화면이므로 뒤로가기를 막는다. (재설정은 설정 화면에서만)
         navigationItem.hidesBackButton = true
         configureUI()
         setupGesture()
@@ -58,10 +57,8 @@ final class OnboardingViewController: UIViewController {
     }
 
     private func finishTutorial() {
-        // 마지막 페이지 더블탭으로 setAsRoot가 중복 실행되는 것 방지
         guard !isFinishing else { return }
         isFinishing = true
-        // 현재 계정이 튜토리얼을 봤다고 기록 → 재가입(새 UUID) 전까지 다시 노출되지 않는다.
         UserSession.markTutorialSeen()
         MainTabBarController.setAsRoot()
     }

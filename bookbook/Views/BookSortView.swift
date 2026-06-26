@@ -35,7 +35,7 @@ class BookSortView: UIView {
         configureUI()
         buttonActions()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -69,7 +69,7 @@ class BookSortView: UIView {
     }
     func updateSelectedButton(_ sort: BookSortOption) {
         currentSort = sort
-        
+
         allButtons.forEach {
             $0.setTitleColor(.bk3, for: .normal)
             $0.titleLabel?.font = UIFont.customFont(ofSize: 14, weight: .medium)

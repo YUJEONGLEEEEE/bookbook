@@ -33,7 +33,7 @@ class NoticeHeaderView: UITableViewHeaderFooterView {
         configureUI()
         moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

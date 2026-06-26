@@ -8,11 +8,9 @@ final class UserGenderViewController: UIViewController {
     private weak var selectedButton: UIButton?
 
     var editContext: PreferenceEditContext?
-    // 이전 화면들에서 넘어온 선택 — 저장은 '완료'에서 한 번에
     var pendingGenres: [String] = []
     var pendingAge: AgeRange?
 
-    // '완료' 더블탭으로 저장·화면전환이 중복 실행되는 것 방지
     private var isFinishing = false
 
     private let titleLabel: UILabel = {
@@ -84,13 +82,11 @@ final class UserGenderViewController: UIViewController {
     @objc private func finishButtonClicked() {
         guard !isFinishing else { return }
         isFinishing = true
-        // '완료' 시점에 장르·연령·성별을 한 번에 저장 (탭마다 저장하지 않음 → 도중 이탈 시 변경 안 남김)
         CoreDataManager.shared.selectGenres(pendingGenres)
         if let age = pendingAge { CoreDataManager.shared.updateAgeRange(age) }
         if let gender = selectedGender { CoreDataManager.shared.updateGender(gender) }
 
         if UserSession.hasSeenTutorial {
-            // 편집(내취향 > 편집)으로 진입한 경우엔 메인에서 '취향 변경' 토스트
             if editContext != nil {
                 ToastManager.shared.pendingMessage = "취향이 변경되었어요"
             }
@@ -107,7 +103,6 @@ final class UserGenderViewController: UIViewController {
         selectedButton = button
         selectedGender = gender
         updateButton(button, isSelected: true)
-        // 탭 시 즉시 저장하지 않음 — '완료'에서 일괄 저장
         updateFinishButtonState()
     }
     private func updateFinishButtonState() {
@@ -115,10 +110,8 @@ final class UserGenderViewController: UIViewController {
         if selectedGender == nil {
             enabled = false
         } else if let ctx = editContext {
-            // 편집 모드: 장르·연령·성별 중 하나라도 원본과 달라야 활성화
             enabled = hasAnyChange(from: ctx)
         } else {
-            // 온보딩: 성별만 선택하면 활성화
             enabled = true
         }
         finishButton.isEnabled = enabled
@@ -126,7 +119,6 @@ final class UserGenderViewController: UIViewController {
     }
 
     private func hasAnyChange(from ctx: PreferenceEditContext) -> Bool {
-        // 저장 전이므로 DB가 아니라 '대기 중인 선택값'으로 변경 여부 판단
         return Set(pendingGenres) != ctx.genres
             || pendingAge != ctx.age
             || selectedGender != ctx.gender

@@ -7,7 +7,7 @@ class SignInViewController: UIViewController {
     private var phoneNumberDelegate: AccountValidationDelegate!
     private var isPhoneNumberValid = false
     private var isPhoneNumberFloating = false
-    private var isSubmitting = false   // 제출 중복(더블탭) 방지
+    private var isSubmitting = false
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -72,7 +72,7 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupWhiteBackButton()
-        view.backgroundColor = .clear   // 공유 배경(AuthNavigationController) 비치도록
+        view.backgroundColor = .clear
         setupKeyboardDismissMode()
         configureUI()
         addTargets()
@@ -84,7 +84,7 @@ class SignInViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupWhiteBackButton()
-        isSubmitting = false   // 되돌아오면 다시 제출 가능
+        isSubmitting = false
     }
 
     deinit {
@@ -101,8 +101,6 @@ class SignInViewController: UIViewController {
     }
 
     private func setupPhonePadAccessoryToolbar() {
-        // 명시적 높이(44pt) 지정 + flexibleWidth: sizeToFit()의 오토리사이징 높이가
-        // 키보드 placeholder 제약과 충돌(_UIKBCompatInputView 경고)하는 것을 방지. 외형/동작은 동일.
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 44))
         toolbar.autoresizingMask = .flexibleWidth
         toolbar.barStyle = .default
@@ -172,14 +170,12 @@ class SignInViewController: UIViewController {
 
         let nickname = account.nickname ?? "회원"
 
-        isSubmitting = true   // 이 지점부터 화면 전환 — 중복 진입 차단
+        isSubmitting = true
         if CoreDataManager.shared.isOnboardingCompleted {
-            // 온보딩을 마친 기존 회원 → 랜덤 인사 + 곧장 메인 탭바로 진입
             let greetings = ["\(nickname)님 안녕하세요!", "\(nickname)님 좋은 하루예요!"]
             ToastManager.shared.pendingMessage = greetings.randomElement()
             MainTabBarController.setAsRoot()
         } else {
-            // 온보딩 미완료 → 완료 전 저장된 선택값 초기화 후 취향 선택부터 다시
             CoreDataManager.shared.resetOnboardingSelections()
             ToastManager.shared.pendingMessage = "\(nickname)님 환영해요!"
             let preferenceVC = PreferenceCheckViewController()

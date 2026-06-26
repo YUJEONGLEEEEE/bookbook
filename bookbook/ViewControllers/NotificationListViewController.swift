@@ -12,7 +12,6 @@ final class NotificationListViewController: UIViewController {
         view.rowHeight = UITableView.automaticDimension
         view.estimatedRowHeight = 88
         view.backgroundColor = .customWh
-        // Figma: 상단메뉴 아래 48pt 간격(첫 셀 내부 top 12 + inset 36)
         view.contentInset.top = 36
         view.verticalScrollIndicatorInsets.top = 36
         return view
@@ -42,7 +41,7 @@ final class NotificationListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reload()
-        NotificationStore.markAllRead()   // 화면을 봤으니 모두 읽음 (배지 제거)
+        NotificationStore.markAllRead()
     }
 
     private func reload() {
@@ -54,7 +53,7 @@ final class NotificationListViewController: UIViewController {
     private func configureSettingsButton() {
         let gear = UIButton(type: .system)
         gear.setImage(UIImage(named: "icon_setting")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        gear.frame = CGRect(x: 0, y: 0, width: 32, height: 32)   // 24 아이콘 + 탭영역(종 버튼과 통일)
+        gear.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
         gear.imageView?.contentMode = .scaleAspectFit
         gear.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
         let item = UIBarButtonItem(customView: gear)
@@ -111,8 +110,6 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
 // MARK: - Cell
 
 private final class NotificationCell: UITableViewCell {
-    // Figma(2479:5411) 스펙에 맞춘 알림 셀: 제목17 Bold · 본문17 Medium(행간23) · 날짜14 Medium,
-    // 좌우 여백 24, 제목↔본문 4 / 본문↔날짜 8, 셀 하단 풀폭 구분선(bk5)
     private let titleLabel = UILabel()
     private let bodyLabel = UILabel()
     private let dateLabel = UILabel()
@@ -167,9 +164,8 @@ private final class NotificationCell: UITableViewCell {
     }
 
     func configure(with n: AppNotification, isLast: Bool) {
-        divider.isHidden = isLast   // 마지막 셀은 하단 구분선 없음(Figma)
+        divider.isHidden = isLast
         titleLabel.text = n.title
-        // 본문 행간 23(Figma) 적용
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = 23
         paragraph.maximumLineHeight = 23

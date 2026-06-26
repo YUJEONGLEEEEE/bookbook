@@ -15,7 +15,6 @@ class BaseNavigationController: UINavigationController, UINavigationControllerDe
         navigationBar.compactAppearance = appearance
         navigationBar.isTranslucent = true
 
-        // 커스텀 백버튼 사용 시 스와이프-백 제스처 복원
         interactivePopGestureRecognizer?.delegate = self
     }
 
@@ -28,7 +27,6 @@ class BaseNavigationController: UINavigationController, UINavigationControllerDe
         viewController.setupDefaultBackButton()
     }
 
-    // 스와이프-백: 뒤로 갈 화면이 있을 때만 허용
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return viewControllers.count > 1
     }

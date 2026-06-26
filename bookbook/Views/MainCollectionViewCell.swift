@@ -15,7 +15,6 @@ class MainCollectionViewCell: UICollectionViewCell {
 
     let bookImage: UIImageView = {
         let image = UIImageView()
-        // 표지를 셀에 꽉 채우고 모든 셀이 동일한 크기가 되도록 aspectFill + 클립 (직각, 라운드 없음)
         image.contentMode = .scaleAspectFill
         image.backgroundColor = .bk5
         image.clipsToBounds = true
@@ -68,7 +67,6 @@ class MainCollectionViewCell: UICollectionViewCell {
         bookImage.snp.makeConstraints { make in
             make.height.equalTo(186)
         }
-        // 셀 높이를 일정하게 유지하기 위해 제목/저자 모두 1줄로 고정
         bookTitle.numberOfLines = 1
         bookAuthor.numberOfLines = 1
     }

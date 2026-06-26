@@ -1,12 +1,10 @@
 import Foundation
 
 extension Notification.Name {
-    // 앱 내 알림함 변경 (배지/목록 갱신용)
     static let appNotificationsDidChange = Notification.Name("appNotificationsDidChange")
 }
 
 enum NotificationStore {
-    // 앱 알림함은 계정별로 분리
     private static var key: String { UserSession.scopedKey("appNotifications") }
     private static let maxCount = 50
 

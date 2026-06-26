@@ -67,7 +67,6 @@ final class DetailViewController: UIViewController {
         return view
     }()
 
-    // 출판사·연도 좌측 정렬용 트레일링 스페이서
     private let pubSpacer: UIView = {
         let view = UIView()
         view.setContentHuggingPriority(.init(1), for: .horizontal)
@@ -236,7 +235,6 @@ final class DetailViewController: UIViewController {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(named: "comments_white")?.withRenderingMode(.alwaysTemplate)
         config.background.cornerRadius = 24
-        // .plain()은 baseBackgroundColor가 안 먹어 background.backgroundColor로 직접 칠함
         config.background.backgroundColor = .customMain
         config.contentInsets = NSDirectionalEdgeInsets(
             top: 12, leading: 12, bottom: 12, trailing: 12
@@ -287,9 +285,7 @@ final class DetailViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // 찾기 화면이 네비바를 숨겼을 수 있으므로 상세 진입 시 복원(백버튼 노출)
         navigationController?.setNavigationBarHidden(false, animated: animated)
-        // 블러 배경 위라 기본 검정 백버튼이 안 보여 흰색(customWh)으로 표시
         setupWhiteBackButton()
         DispatchQueue.main.async {
             self.updateButtonUI()
@@ -399,7 +395,6 @@ final class DetailViewController: UIViewController {
     private func fetchComment(for isbn13: Int64) -> Comment? {
         let request: NSFetchRequest<Comment> = Comment.fetchRequest()
         request.fetchLimit = 1
-        // 현재 계정의 책한줄만 조회 (다른 계정 데이터가 잡히지 않도록)
         if let account = CoreDataManager.shared.fetchCurrentAccount() {
             request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", isbn13, account)
         } else {
@@ -449,7 +444,6 @@ final class DetailViewController: UIViewController {
 
     private func loadBookImages(bookCoverUrl: String?) {
         let trimmed = bookCoverUrl?.trimmingCharacters(in: .whitespaces) ?? ""
-        // 알라딘 "No Image"(noimg)거나 빈 URL이면 placeholder
         guard !trimmed.isEmpty,
               !trimmed.lowercased().contains("noimg"),
               let coverUrl = URL(string: trimmed) else {
@@ -503,19 +497,17 @@ final class DetailViewController: UIViewController {
     }
 
     private func updateUI(with book: NaverBook) {
-        bookData = book   // 커버 URL 재사용 위해 저장
+        bookData = book
         bookTitle.text = book.title
         authorLabel.text = book.author.cleanAuthor()
         publisherLabel.text = book.publisher
         pubDateLabel.text = DateFormatter.yearFormatter.string(from: book.pubdate.toDate())
-        // 네이버 isbn은 "isbn10 isbn13" 형태일 수 있어 마지막(=ISBN13) 토큰만 표시
         isbnLabel.text = book.isbn.split(separator: " ").last.map(String.init) ?? book.isbn
         descriptionLabel.text = book.description
         descriptionLabel.setLineAndParagraphSpacing(lineSpacing: 6, paragraphSpacing: 12)
         loadBookImages(bookCoverUrl: book.image)
         updateButtonUI()
 
-        // 상세페이지로 확인한 책은 진입 경로와 무관하게 '최근 본 책'에 저장 (최대 10개)
         RecentSearchStore.add(RecentBook(
             isbn13: String(bookISBN),
             title: book.title,
@@ -527,7 +519,6 @@ final class DetailViewController: UIViewController {
     }
 
     private func configureUI() {
-        // 자동 safe-area inset을 끄면 배경 이미지가 상태바·네비바 뒤(화면 최상단)까지 꽉 참 (Figma)
         scrollView.contentInsetAdjustmentBehavior = .never
         view.addSubviews([scrollView, fixedView, commentContainer])
         scrollView.addSubview(contentView)
@@ -552,7 +543,6 @@ final class DetailViewController: UIViewController {
         }
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            // 스크롤 콘텐츠 너비를 화면 너비에 고정 (없으면 가로로 무한정 늘어남)
             make.width.equalTo(scrollView.frameLayoutGuide)
         }
         commentContainer.snp.makeConstraints { make in
@@ -561,7 +551,7 @@ final class DetailViewController: UIViewController {
         }
         backgroundImage.snp.makeConstraints { make in
             make.top.horizontalEdges.equalToSuperview()
-            make.height.equalTo(430)   // Figma 376 + 상태바 54 (상태바 뒤까지 이미지 채움)
+            make.height.equalTo(430)
         }
         overlayView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -602,7 +592,6 @@ final class DetailViewController: UIViewController {
         likeStack.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(24)
             make.centerY.equalTo(bookmarkButton)
-            // likeStack 고정 너비 (북마크 버튼이 남은 폭을 채우도록)
             make.width.equalTo(48)
         }
         likedCountLabel.snp.makeConstraints { make in

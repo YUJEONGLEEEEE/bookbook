@@ -5,7 +5,6 @@ final class NotificationSettingsViewController: UIViewController {
 
     private let maxTimes = 5
 
-    // 표시 순서(월~일)와 Calendar weekday(1=일 ~ 7=토) 매핑
     private let weekdayOrder: [(title: String, weekday: Int)] = [
         ("월", 2), ("화", 3), ("수", 4), ("목", 5), ("금", 6), ("토", 7), ("일", 1)
     ]
@@ -198,7 +197,6 @@ final class NotificationSettingsViewController: UIViewController {
             NotificationManager.setReminder(enabled: false, times: times, weekdays: weekdays)
             return
         }
-        // 켤 때만 권한 확인 — 거부 상태면 스위치 되돌리고 설정 안내
         NotificationManager.ensureAuthorization { [weak self] granted in
             guard let self else { return }
             if granted {
@@ -283,7 +281,7 @@ final class NotificationSettingsViewController: UIViewController {
         timeRowsStack.snp.makeConstraints { make in
             make.top.equalTo(countTitleLabel.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview().inset(24)
-            make.bottom.equalToSuperview().inset(24)   // contentView 높이 정의
+            make.bottom.equalToSuperview().inset(24)
         }
     }
 }

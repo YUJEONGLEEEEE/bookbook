@@ -16,7 +16,6 @@ final class CoreDataManager {
 
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Data")
-        // 모델 변경(속성 추가 등) 시 자동 경량 마이그레이션 — 기존 데이터 보존
         if let description = container.persistentStoreDescriptions.first {
             description.shouldMigrateStoreAutomatically = true
             description.shouldInferMappingModelAutomatically = true
@@ -56,8 +55,6 @@ final class CoreDataManager {
 
     // MARK: - Save
 
-    // 저장 성공 여부를 반환. 실패 시 변경을 롤백해 메모리 컨텍스트 일관성 유지.
-    // viewContext는 메인 큐 컨텍스트이므로 반드시 메인 스레드에서 접근해야 한다(디버그에서 위반 시 즉시 감지).
     @discardableResult
     private func saveContext() -> Bool {
         assert(Thread.isMainThread, "CoreData(viewContext) 저장은 메인 스레드에서만 호출해야 함")
@@ -106,8 +103,6 @@ final class CoreDataManager {
         context.reset()
     }
 
-    // 현재 로그인된 계정과 그 활동 데이터(북마크/좋아요/책한줄)만 삭제 — 다른 계정은 보존
-    // (관계 삭제규칙이 Nullify라 계정만 지우면 고아 데이터가 남으므로 직접 삭제)
     func deleteCurrentAccount() {
         guard let account = fetchCurrentAccount() else { return }
         for name in ["Bookmark", "Liked", "Comment"] {
@@ -173,7 +168,6 @@ final class CoreDataManager {
         }
     }
 
-    // 온보딩 미완료 이탈 시 선택값을 가입 직후 기본값(미선택)으로 되돌림
     func resetOnboardingSelections() {
         guard let account = fetchCurrentAccount() else { return }
         account.age = 19
@@ -240,7 +234,6 @@ extension CoreDataManager {
     }
 
     func getLikedCount(for isbn13: Int) -> Int {
-        // isbn13은 Int64이므로 %lld로 비교 (%d는 큰 값이 잘려 매칭 실패)
         let request: NSFetchRequest<Liked> = Liked.fetchRequest()
         request.predicate = NSPredicate(format: "isbn13 == %lld", Int64(isbn13))
 
@@ -264,7 +257,6 @@ extension CoreDataManager {
     func incrementLikeCount(for isbn13: Int) {
         guard let account = fetchCurrentAccount() else { return }
 
-        // isbn13은 Int64 → %lld
         let request: NSFetchRequest<Liked> = Liked.fetchRequest()
         request.predicate = NSPredicate(format: "isbn13 == %lld", Int64(isbn13))
 
@@ -292,7 +284,6 @@ extension CoreDataManager {
     }
 
     func decrementLikeCount(for isbn13: Int) {
-        // isbn13은 Int64 → %lld
         let request: NSFetchRequest<Liked> = Liked.fetchRequest()
         request.predicate = NSPredicate(format: "isbn13 == %lld", Int64(isbn13))
 
@@ -300,7 +291,6 @@ extension CoreDataManager {
             if let liked = try context.fetch(request).first {
                 liked.likedCount = max(Int64(0), liked.likedCount - 1)
                 liked.account = nil
-                // 좋아요 0 + book 없는 빈 레코드 정리
                 if liked.likedCount == 0 && liked.book == nil {
                     context.delete(liked)
                 }
@@ -330,8 +320,6 @@ extension CoreDataManager {
         }
     }
 
-    // book을 함께 넘기면 북마크 추가 시 표시용 정보를 로컬에 캐시한다(내책장 빠른 로딩).
-    // 북마크 해제 시에는 Bookmark→Book Cascade 규칙으로 캐시도 함께 삭제된다.
     func toggleBookmark(isbn13: Int, categoryId: Int64, book: BookData? = nil) {
         guard let account = fetchCurrentAccount() else { return }
 
@@ -340,7 +328,7 @@ extension CoreDataManager {
 
         do {
             if let existing = try context.fetch(request).first {
-                context.delete(existing)   // 연결된 Book 캐시도 Cascade로 삭제
+                context.delete(existing)
             } else {
                 let newBookmark = Bookmark(context: context)
                 newBookmark.isbn13 = Int64(isbn13)
@@ -429,10 +417,8 @@ extension CoreDataManager {
             return
         }
 
-        // 표시 순서(최신순) 보존
         let order = bookmarks.map { String($0.isbn13) }
 
-        // 캐시(Book) 적중분은 즉시, 누락분만 모아 네트워크로 보충
         var cached: [String: BookData] = [:]
         var missing: [String] = []
         for bookmark in bookmarks {
@@ -444,13 +430,11 @@ extension CoreDataManager {
             }
         }
 
-        // 모두 캐시 적중 → API 호출 없이 즉시 반환
         if missing.isEmpty {
             completion(order.compactMap { cached[$0] })
             return
         }
 
-        // 캐시 없는(과거 북마크) 책만 알라딘에서 보충하고, 받은 김에 캐시도 채운다.
         NetworkManager.shared.fetchBookmarkedBooks(isbns: missing) { [weak self] fetched in
             guard let self = self else { completion([]); return }
             for var book in fetched {
@@ -463,7 +447,6 @@ extension CoreDataManager {
         }
     }
 
-    // 과거(캐시 없이 생성된) 북마크에 표시 정보를 뒤늦게 채워 넣는다 → 다음 로딩부터 API 불필요.
     private func backfillCache(isbn13: String, with book: BookData, account: Account) {
         guard let isbnInt = Int64(isbn13) else { return }
         let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
@@ -524,7 +507,7 @@ extension CoreDataManager {
 
     func deleteBookmark(isbn13: Int) {
         guard let account = fetchCurrentAccount() else { return }
-        
+
         let request: NSFetchRequest<Bookmark> = Bookmark.fetchRequest()
         request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", Int64(isbn13), account)
 
