@@ -14,13 +14,12 @@ extension UIViewController {
         navigationController?.navigationBar.compactAppearance = appearance
         navigationController?.navigationBar.isTranslucent = true
 
-        let backButton = UIButton(type: .custom)
-        backButton.setImage(UIImage(named: imageName)?.withRenderingMode(.alwaysOriginal), for: .normal)
-        backButton.setImage(UIImage(named: imageName)?.withRenderingMode(.alwaysOriginal), for: .highlighted)
-        backButton.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-        backButton.addTarget(self, action: #selector(handleBackButton), for: .touchUpInside)
-
-        let backItem = UIBarButtonItem(customView: backButton)
+        let backItem = UIBarButtonItem(
+            image: UIImage(named: imageName)?.withRenderingMode(.alwaysOriginal),
+            style: .plain,
+            target: self,
+            action: #selector(handleBackButton)
+        )
         // iOS 26: 바 버튼 Liquid Glass 배경 제거
         if #available(iOS 26.0, *) {
             backItem.hidesSharedBackground = true
