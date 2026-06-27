@@ -256,6 +256,7 @@ class CommentPopUpViewController: UIViewController {
         setupStars()
         addTargetActions()
         commentField.delegate = self
+        datePicker.maximumDate = Date()
         setDefaultDateIfNeeded()
         updateSaveButtonState()
 
