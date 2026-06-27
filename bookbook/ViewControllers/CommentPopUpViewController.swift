@@ -126,6 +126,10 @@ class CommentPopUpViewController: UIViewController {
         picker.tintColor = .customMain
         picker.backgroundColor = .customWh
         picker.layer.cornerRadius = 12
+        picker.layer.shadowColor = UIColor.black.cgColor
+        picker.layer.shadowOffset = CGSize(width: 0, height: 4)
+        picker.layer.shadowOpacity = 0.15
+        picker.layer.shadowRadius = 8
         picker.isHidden = true
         return picker
     }()
