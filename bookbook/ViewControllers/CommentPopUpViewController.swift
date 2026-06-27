@@ -119,18 +119,26 @@ class CommentPopUpViewController: UIViewController {
         return button
     }()
 
+    private let datePickerContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .customWh
+        view.layer.cornerRadius = 16
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.layer.shadowOpacity = 0.15
+        view.layer.shadowRadius = 8
+        view.isHidden = true
+        return view
+    }()
+
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .inline
         picker.tintColor = .customMain
         picker.backgroundColor = .customWh
-        picker.layer.cornerRadius = 12
-        picker.layer.shadowColor = UIColor.black.cgColor
-        picker.layer.shadowOffset = CGSize(width: 0, height: 4)
-        picker.layer.shadowOpacity = 0.15
-        picker.layer.shadowRadius = 8
-        picker.isHidden = true
+        picker.layer.cornerRadius = 16
+        picker.clipsToBounds = true
         return picker
     }()
 
@@ -401,15 +409,15 @@ class CommentPopUpViewController: UIViewController {
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
     }
     @objc private func dateButtonTapped() {
-        datePicker.isHidden.toggle()
-        if !datePicker.isHidden {
-            popupView.bringSubviewToFront(datePicker)
+        datePickerContainer.isHidden.toggle()
+        if !datePickerContainer.isHidden {
+            popupView.bringSubviewToFront(datePickerContainer)
         }
     }
     @objc private func dateSelected() {
         hasSelectedDate = true
         dateButton.setTitle(DateFormatter.yyyyMMdd.string(from: datePicker.date), for: .normal)
-        datePicker.isHidden = true
+        datePickerContainer.isHidden = true
         updateSaveButtonState()
     }
     @objc func cancelButtonTapped() {
@@ -480,7 +488,8 @@ class CommentPopUpViewController: UIViewController {
 
     private func configureUI() {
         view.addSubview(popupView)
-        popupView.addSubviews([bookStack, separateLine, whenLabel, dateButton, datePicker, howLabel, starStackView, writeLabel, textfieldView, buttonLine, buttonStackView])
+        popupView.addSubviews([bookStack, separateLine, whenLabel, dateButton, datePickerContainer, howLabel, starStackView, writeLabel, textfieldView, buttonLine, buttonStackView])
+        datePickerContainer.addSubview(datePicker)
         bookStack.addArrangedSubviews([bookImage, titleAuthorStack])
         titleAuthorStack.addArrangedSubviews([bookTitle, bookAuthor])
         textfieldView.addSubviews([commentField, placeholderLabel])
@@ -511,9 +520,12 @@ class CommentPopUpViewController: UIViewController {
             make.top.equalTo(separateLine.snp.bottom).offset(24)
             make.trailing.equalToSuperview().inset(24)
         }
-        datePicker.snp.makeConstraints { make in
+        datePickerContainer.snp.makeConstraints { make in
             make.top.equalTo(dateButton.snp.bottom).offset(8)
             make.horizontalEdges.equalToSuperview().inset(16)
+        }
+        datePicker.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
         howLabel.snp.makeConstraints { make in
             make.top.equalTo(whenLabel.snp.bottom).offset(40)
