@@ -483,7 +483,7 @@ final class DetailViewController: UIViewController {
             case .success(let bookInfo):
                 guard let book = bookInfo.item.first else {
                     debugLog("네이버 검색 결과 없음")
-                    DispatchQueue.main.async { self?.showErrorAlert() }
+                    DispatchQueue.main.async { self?.showNoBookInfoAlert() }
                     return
                 }
                 DispatchQueue.main.async {
@@ -491,8 +491,23 @@ final class DetailViewController: UIViewController {
                 }
             case .failure(let error):
                 debugLog("네이버 API 에러: \(error)")
-                DispatchQueue.main.async { self?.showErrorAlert() }
+                DispatchQueue.main.async { self?.showNoBookInfoAlert() }
             }
+        }
+    }
+
+    private func showNoBookInfoAlert() {
+        setActionButtonsEnabled(false)
+        guard presentedViewController == nil else { return }
+        showAlert(message: "책 정보가 없습니다.\n잠시 후 시도해주세요.") { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        }
+    }
+
+    private func setActionButtonsEnabled(_ enabled: Bool) {
+        [likeButton, bookmarkButton, commentButton].forEach {
+            $0.isEnabled = enabled
+            $0.alpha = enabled ? 1.0 : 0.4
         }
     }
 
