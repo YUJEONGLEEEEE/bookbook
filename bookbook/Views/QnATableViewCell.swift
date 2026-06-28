@@ -73,7 +73,8 @@ class QnATableViewCell: UITableViewCell {
 
         answerView.addSubview(answerLabel)
         answerLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(24)
+            make.leading.top.trailing.equalToSuperview().inset(24)
+            make.bottom.equalToSuperview().inset(24).priority(999)
         }
 
         contentView.addSubview(mainStack)

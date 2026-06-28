@@ -193,7 +193,7 @@ final class QnaTableViewCell: UITableViewCell {
     private let answerSeparator: UIView = {
         let view = UIView()
         view.backgroundColor = .bk5
-        view.snp.makeConstraints { $0.height.equalTo(1) }
+        view.snp.makeConstraints { $0.height.equalTo(1).priority(999) }
         return view
     }()
 
@@ -269,7 +269,8 @@ final class QnaTableViewCell: UITableViewCell {
 
         expandedView.addSubview(contentStack)
         contentStack.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(32)
+            make.top.equalToSuperview().inset(32)
+            make.bottom.equalToSuperview().inset(32).priority(999)
             make.horizontalEdges.equalToSuperview().inset(24)
         }
 
