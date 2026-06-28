@@ -64,8 +64,18 @@ class QnAFormViewController: UIViewController {
         navigationItem.title = "문의하기"
         configureSubmitButton()
         contentTextView.delegate = self
+        titleField.addTarget(self, action: #selector(titleEditingBegan), for: .editingDidBegin)
+        titleField.addTarget(self, action: #selector(titleEditingEnded), for: .editingDidEnd)
         setupKeyboardDismissMode()
         configureUI()
+    }
+
+    @objc private func titleEditingBegan() {
+        titleField.layer.borderColor = UIColor.bk4.cgColor
+    }
+
+    @objc private func titleEditingEnded() {
+        titleField.layer.borderColor = UIColor.bk6.cgColor
     }
 
     private func configureSubmitButton() {
@@ -130,5 +140,13 @@ class QnAFormViewController: UIViewController {
 extension QnAFormViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         contentPlaceholder.isHidden = !textView.text.isEmpty
+    }
+
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        textView.layer.borderColor = UIColor.bk4.cgColor
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        textView.layer.borderColor = UIColor.bk6.cgColor
     }
 }

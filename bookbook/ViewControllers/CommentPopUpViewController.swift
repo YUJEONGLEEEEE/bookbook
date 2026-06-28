@@ -577,4 +577,12 @@ extension CommentPopUpViewController: UITextViewDelegate {
         placeholderLabel.isHidden = !textView.text.isEmpty
         updateSaveButtonState()
     }
+
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        textfieldView.layer.borderColor = UIColor.bk4.cgColor
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        textfieldView.layer.borderColor = UIColor.bk6.cgColor
+    }
 }
