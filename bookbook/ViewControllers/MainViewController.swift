@@ -16,6 +16,7 @@ class MainViewController: UIViewController {
 
     private var account: Account?
     private var usersChoices: [String] = []
+    private var excludesLightNovel = false
 
     private let bookLockQueue = DispatchQueue(label: "com.readdam.bookdata.lock")
 
@@ -175,6 +176,7 @@ class MainViewController: UIViewController {
     // MARK: - Data
 
     private func fetchAccountAndConfigure() {
+        excludesLightNovel = false
         guard let account = CoreDataManager.shared.fetchCurrentAccount() else {
             self.account = nil
             updatePreferredTitle()
@@ -209,14 +211,19 @@ class MainViewController: UIViewController {
         let selectedGenres = CoreDataManager.shared.fetchGenres()
         usersChoices = selectedGenres.isEmpty ? baseGenres : selectedGenres
 
-        fetchPrefferedBooks(for: usersChoices, excludeLightNovel: ageRange == .child)
+        excludesLightNovel = (ageRange == .child)
+        fetchPrefferedBooks(for: usersChoices)
     }
 
     private func filter(for genre: String) -> BookFilter? {
         return bookCategory.first { $0.name == genre }
     }
 
-    private func fetchPrefferedBooks(for genres: [String], excludeLightNovel: Bool = false) {
+    private func isLightNovel(_ categoryName: String) -> Bool {
+        return categoryName.replacingOccurrences(of: " ", with: "").contains("라이트노벨")
+    }
+
+    private func fetchPrefferedBooks(for genres: [String]) {
         let randomGenres = Array(genres.shuffled().prefix(3))
 
         guard !randomGenres.isEmpty else {
@@ -266,8 +273,8 @@ class MainViewController: UIViewController {
             LoadingManager.shared.hideLoading()
             guard let self else { return }
             var allBooks = collectedBooks.flatMap { $0 }
-            if excludeLightNovel {
-                allBooks = allBooks.filter { !$0.categoryName.contains("라이트 노벨") }
+            if self.excludesLightNovel {
+                allBooks = allBooks.filter { !self.isLightNovel($0.categoryName) }
             }
             self.preferredBooks = Array(allBooks.shuffled().prefix(10))
             self.preferredCollectionView.reloadData()
@@ -286,7 +293,11 @@ class MainViewController: UIViewController {
 
                     switch result {
                     case .success(let newBook):
-                        self.recentBooks = Array(newBook.item.prefix(10))
+                        var items = newBook.item
+                        if self.excludesLightNovel {
+                            items = items.filter { !self.isLightNovel($0.categoryName) }
+                        }
+                        self.recentBooks = Array(items.prefix(10))
                         self.recentCollectionView.reloadData()
                     case .failure(let error):
                         debugLog("신간 로드 실패: \(error)")
@@ -312,7 +323,10 @@ class MainViewController: UIViewController {
     private func handleBestsellerResult(_ result: Result<BookInfo, AFError>) {
         switch result {
         case .success(let bestsellerBook):
-            let items = bestsellerBook.item
+            var items = bestsellerBook.item
+            if excludesLightNovel {
+                items = items.filter { !isLightNovel($0.categoryName) }
+            }
             guard let randomBestseller = items.randomElement() else { return }
             bestsellerCache = items
             configureBestseller(with: randomBestseller)
@@ -369,7 +383,11 @@ class MainViewController: UIViewController {
     }
 
     private func loadTopBooks() {
-        rankedBooks = BookRepository.shared.getTopRankedBooks()
+        var top = BookRepository.shared.getTopRankedBooks()
+        if excludesLightNovel {
+            top = top.filter { !isLightNovel($0.categoryName ?? "") }
+        }
+        rankedBooks = top
         rankingCollectionView.reloadData()
         updateRankingLayout()
     }
