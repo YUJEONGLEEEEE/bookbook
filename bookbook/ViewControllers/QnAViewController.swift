@@ -115,7 +115,8 @@ class QnAViewController: UIViewController {
         }
         tableView.snp.makeConstraints { make in
             make.top.equalTo(subtitleLabel.snp.bottom).offset(20)
-            make.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()
         }
         emptyLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()

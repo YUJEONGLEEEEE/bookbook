@@ -120,7 +120,8 @@ class RecentSearchedViewController: UIViewController {
     private func configureUI() {
         view.addSubviews([collectionView, emptyLabel])
         collectionView.snp.makeConstraints { make in
-            make.top.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
         }
         emptyLabel.snp.makeConstraints { make in

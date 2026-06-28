@@ -213,7 +213,7 @@ class LikedViewController: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(24)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(32)
-            make.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()
         }
         emptyLabel.snp.makeConstraints { make in
             make.center.equalTo(view.safeAreaLayoutGuide)

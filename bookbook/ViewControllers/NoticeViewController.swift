@@ -31,7 +31,7 @@ class NoticeViewController: UIViewController {
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
+            make.bottom.equalToSuperview()
         }
     }
 }
