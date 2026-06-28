@@ -40,6 +40,12 @@ class QnATableViewCell: UITableViewCell {
 
     private let headerView = UIView()
 
+    private let separatorLine: UIView = {
+        let view = UIView()
+        view.addUnderline()
+        return view
+    }()
+
     private lazy var mainStack: UIStackView = {
         let view = UIStackView(arrangedSubviews: [headerView, answerView])
         view.axis = .vertical
@@ -77,9 +83,13 @@ class QnATableViewCell: UITableViewCell {
             make.bottom.equalToSuperview().inset(24).priority(999)
         }
 
-        contentView.addSubview(mainStack)
+        contentView.addSubviews([mainStack, separatorLine])
         mainStack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+        separatorLine.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview()
         }
     }
 

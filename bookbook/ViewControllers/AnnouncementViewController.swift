@@ -14,9 +14,7 @@ class AnnouncementViewController: UIViewController {
         view.register(NoticeATableViewCell.self, forCellReuseIdentifier: "NoticeATableViewCell")
         view.register(QnAHeaderView.self, forHeaderFooterViewReuseIdentifier: "QnAHeaderView")
         view.register(QnATableViewCell.self, forCellReuseIdentifier: "QnATableViewCell")
-        view.separatorStyle = .singleLine
-        view.separatorColor = .bk5
-        view.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        view.separatorStyle = .none
         view.backgroundColor = .customWh
         view.sectionHeaderTopPadding = 0
         view.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNormalMagnitude))

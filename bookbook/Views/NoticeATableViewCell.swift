@@ -13,6 +13,12 @@ class NoticeATableViewCell: UITableViewCell {
         return label
     }()
 
+    private let separatorLine: UIView = {
+        let view = UIView()
+        view.addUnderline()
+        return view
+    }()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
@@ -24,10 +30,14 @@ class NoticeATableViewCell: UITableViewCell {
     }
 
     private func configureUI() {
-        contentView.addSubview(titleLabel)
+        contentView.addSubviews([titleLabel, separatorLine])
         titleLabel.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
+        }
+        separatorLine.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview()
         }
     }
 
