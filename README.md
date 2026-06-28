@@ -78,10 +78,12 @@
 
 - 회원가입 · 로그인은 기기 내 로컬 계정으로 동작하며, 입력한 휴대폰 번호는 형식 검증만 수행함 (SMS 인증 · 비밀번호 없음).
 - 모든 데이터는 기기의 CoreData에 저장되어, 앱 삭제 또는 기기 변경 시 초기화됨.
+- **마음(좋아요) · 랭킹**: 원래 기획은 모든 사용자의 마음을 서버에 누적해 랭킹에 반영하는 구조이나, 백엔드가 없어 마음 랭킹은 **데모 시드 데이터를 기준으로 표시**되며 기기 내 마음을 누적·확장 가능한 형태로 설계함.
 
 > **실 서비스로 확장 시 필요한 작업**
 > - 휴대폰 번호 SMS(OTP) 인증
 > - 서버/클라우드 DB + 동기화(CloudKit · Firebase 등)를 통한 기기 간 데이터 이전
+> - 전체 사용자 마음(좋아요)을 합산한 실시간 랭킹 집계
 
 이는 데모 범위를 명확히 하기 위한 **의도적인 설계 선택임**.
 
@@ -175,10 +177,12 @@ Built as a portfolio demo — **local-only, backed by CoreData with no backend s
 
 - Sign-up / sign-in run as on-device local accounts; the entered phone number is only format-validated (no SMS verification or password).
 - All data is stored in the device's CoreData, so it is reset when the app is deleted or the device changes.
+- **Likes · ranking**: by design, all users' likes would accumulate on a server to drive the ranking; without a backend, the likes ranking is **shown from demo seed data** and is structured so on-device likes can be accumulated and extended later.
 
 > **What a production service would additionally need**
 > - Phone-number SMS (OTP) verification
 > - A server/cloud database with sync (CloudKit · Firebase, etc.) for cross-device data transfer
+> - Server-side aggregation of all users' likes for a live ranking
 
 This is an intentional design choice to keep the demo scope clear.
 
