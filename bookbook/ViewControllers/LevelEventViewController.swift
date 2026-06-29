@@ -1,7 +1,6 @@
 import UIKit
 import SnapKit
 import Kingfisher
-import ImageIO
 
 final class LevelEventViewController: UIViewController {
 
@@ -11,7 +10,6 @@ final class LevelEventViewController: UIViewController {
     private var playingLevel = 0
     private var gifCompletion: (() -> Void)?
     private var gifTimeoutWorkItem: DispatchWorkItem?
-    private var lastFrameCache: [Int: UIImage] = [:]
 
     private let backgroundImage: UIImageView = {
         let view = UIImageView()
@@ -285,19 +283,12 @@ final class LevelEventViewController: UIViewController {
     private func showStaticTower(level: Int) {
         towerView.stopAnimating()
         towerView.kf.cancelDownloadTask()
-        towerView.image = towerLastFrame(level: level)
+        towerView.image = towerStaticImage(level: level)
     }
 
-    private func towerLastFrame(level: Int) -> UIImage? {
+    private func towerStaticImage(level: Int) -> UIImage? {
         guard level >= 1, level <= 9 else { return nil }
-        if let cached = lastFrameCache[level] { return cached }
-        guard let url = Bundle.main.url(forResource: String(format: "booktop_ani_%02d", level), withExtension: "gif"),
-              let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-        let count = CGImageSourceGetCount(source)
-        guard count > 0, let cg = CGImageSourceCreateImageAtIndex(source, count - 1, nil) else { return nil }
-        let image = UIImage(cgImage: cg)
-        lastFrameCache[level] = image
-        return image
+        return UIImage(named: String(format: "booktop_%02d", level))
     }
 
     private func playTowerGif(level: Int, completion: @escaping () -> Void) {
