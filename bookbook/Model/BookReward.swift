@@ -6,6 +6,8 @@ struct BookReward {
     let name: String
     let imageName: String
 
+    var isFinal: Bool { count == BookReward.all.last?.count }
+
     static let all: [BookReward] = [
         BookReward(count: 3,  name: "전래동화",   imageName: "book_fairytale"),
         BookReward(count: 5,  name: "이솝우화",   imageName: "book_aesop"),
