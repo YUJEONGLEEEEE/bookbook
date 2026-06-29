@@ -110,7 +110,7 @@ final class LevelEventViewController: UIViewController {
         let earned = BookReward.earned(for: writtenCount)
         currentEarnedCount = earned.count
 
-        updateGoalLabel(latest: earned.last)
+        updateGoalLabel(writtenCount: writtenCount)
         updateGaugeLabels(writtenCount: writtenCount)
 
         if earned.count == 0 {
@@ -187,7 +187,7 @@ final class LevelEventViewController: UIViewController {
         var queue = rewards
         func step() {
             guard !queue.isEmpty else {
-                updateGoalLabel(latest: BookReward.earned(for: finalWrittenCount).last)
+                updateGoalLabel(writtenCount: finalWrittenCount)
                 updateGaugeLabels(writtenCount: finalWrittenCount)
                 setGauge(ratio: 0, animated: false)
                 setGauge(ratio: levelRatio(writtenCount: finalWrittenCount), animated: true)
@@ -228,11 +228,17 @@ final class LevelEventViewController: UIViewController {
     }
 
     // MARK: - 상단 문구 / 게이지 라벨
-    private func updateGoalLabel(latest: BookReward?) {
-        if let latest {
-            goalLabel.text = "목표 달성! \(latest.name)\(latest.name.objectParticle) 획득했어요."
-        } else {
+    private func updateGoalLabel(writtenCount: Int) {
+        guard writtenCount > 0 else {
             goalLabel.text = "책한줄을 작성하고 첫 번째 책을 받아보세요!"
+            return
+        }
+        let cumulative = "책한줄을 총 \(writtenCount)번 작성했어요!"
+        if let latest = BookReward.earned(for: writtenCount).last {
+            let achieved = "목표 달성! \(latest.name)\(latest.name.objectParticle) 획득했어요."
+            goalLabel.text = [achieved, cumulative].randomElement() ?? cumulative
+        } else {
+            goalLabel.text = cumulative
         }
     }
 
