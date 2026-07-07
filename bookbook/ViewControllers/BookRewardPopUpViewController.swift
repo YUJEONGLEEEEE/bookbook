@@ -163,9 +163,13 @@ final class BookRewardPopUpViewController: UIViewController {
             make.height.equalTo(52)
         }
         confettiView.snp.makeConstraints { make in
-            make.center.equalTo(card)
-            make.width.equalTo(reward.isFinal ? 828 : 346)
-            make.height.equalTo(464)
+            if reward.isFinal {
+                make.edges.equalToSuperview()
+            } else {
+                make.center.equalTo(card)
+                make.width.equalTo(346)
+                make.height.equalTo(464)
+            }
         }
     }
 }
