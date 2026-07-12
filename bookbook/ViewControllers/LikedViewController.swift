@@ -136,6 +136,7 @@ class LikedViewController: UIViewController {
             currentPage: currentPage,
             totalPages: totalPages,
             maxPagesShown: maxPagesShown,
+            availableWidth: view.bounds.width,
             pageTarget: self,
             pageAction: #selector(pageButtonTapped(_:))
         )
