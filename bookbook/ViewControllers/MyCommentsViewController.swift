@@ -146,37 +146,17 @@ class MyCommentsViewController: UIViewController {
     }
 
     private func setupPaginationButtons(totalPages: Int) {
-        paginationStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        pageButtons.removeAll()
-
-        let canGoPrevious = currentPage > 1
-        previousButton.isEnabled = canGoPrevious
-        previousButton.setTitleColor(canGoPrevious ? .bk2 : .bk4, for: .normal)
-        paginationStackView.addArrangedSubview(previousButton)
-
-        let startPage = max(1, currentPage - 4)
-        let endPage = min(totalPages, startPage + maxPagesShown - 1)
-
-        for page in startPage...endPage {
-            let button = UIButton(type: .system)
-            button.setTitle("\(page)", for: .normal)
-            button.tag = page
-            button.setTitleColor(page == currentPage ? .bk1 : .bk3, for: .normal)
-            button.titleLabel?.font = page == currentPage
-            ? UIFont.customFont(ofSize: 17, weight: .bold)
-            : UIFont.customFont(ofSize: 17, weight: .medium)
-            button.removeTarget(nil, action: nil, for: .touchUpInside)
-            button.addTarget(self,
-                             action: #selector(pageButtonTapped(_:)),
-                             for: .touchUpInside)
-            pageButtons.append(button)
-            paginationStackView.addArrangedSubview(button)
-        }
-
-        let canGoNext = currentPage < totalPages
-        nextButton.isEnabled = canGoNext
-        nextButton.setTitleColor(canGoNext ? .bk2 : .bk4, for: .normal)
-        paginationStackView.addArrangedSubview(nextButton)
+        PaginationBar.render(
+            stackView: paginationStackView,
+            previousButton: previousButton,
+            nextButton: nextButton,
+            pageButtons: &pageButtons,
+            currentPage: currentPage,
+            totalPages: totalPages,
+            maxPagesShown: maxPagesShown,
+            pageTarget: self,
+            pageAction: #selector(pageButtonTapped(_:))
+        )
     }
     @objc private func pageButtonTapped(_ sender: UIButton) {
         currentPage = sender.tag
