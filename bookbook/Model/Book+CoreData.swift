@@ -1,6 +1,5 @@
 
 import Foundation
-import CoreData
 
 extension Book {
 

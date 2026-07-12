@@ -8,6 +8,14 @@ private enum ButtonOverlayKey {
 
 extension UIButton {
 
+    static func paginationArrow(_ title: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(.bk2, for: .normal)
+        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
+        return button
+    }
+
     func confirmButton(
         title: String,
         titleColor: UIColor,

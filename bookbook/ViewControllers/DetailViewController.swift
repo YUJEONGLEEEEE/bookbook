@@ -1,6 +1,5 @@
 
 import UIKit
-import Alamofire
 import CoreData
 import Kingfisher
 import SnapKit
@@ -165,15 +164,6 @@ final class DetailViewController: UIViewController {
     private let secondSeparator: UIView = {
         let view = UIView()
         view.addUnderline()
-        return view
-    }()
-
-    private let fourthStack: UIStackView = {
-        let view = UIStackView()
-        view.axis = .horizontal
-        view.spacing = 12
-        view.alignment = .center
-        view.distribution = .fill
         return view
     }()
 

@@ -1,7 +1,6 @@
 
 import UIKit
 import CoreData
-import Kingfisher
 import SnapKit
 
 class CommentPopUpViewController: UIViewController {
@@ -35,7 +34,6 @@ class CommentPopUpViewController: UIViewController {
     }
 
     private let starWidth: CGFloat = 40
-    private let totalStars: CGFloat = 5
 
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
 

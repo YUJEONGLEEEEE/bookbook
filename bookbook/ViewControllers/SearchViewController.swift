@@ -1,7 +1,6 @@
 
 import UIKit
 import Alamofire
-import Kingfisher
 import SnapKit
 
 class SearchViewController: UIViewController {
@@ -175,21 +174,9 @@ class SearchViewController: UIViewController {
         return view
     }()
 
-    private let previousButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("<", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let previousButton = UIButton.paginationArrow("<")
 
-    private let nextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(">", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let nextButton = UIButton.paginationArrow(">")
 
     deinit {
         NotificationCenter.default.removeObserver(self)

@@ -1,8 +1,6 @@
 
 import UIKit
-import Alamofire
 import CoreData
-import Kingfisher
 import SnapKit
 
 class BookmarkViewController: UIViewController {
@@ -45,16 +43,7 @@ class BookmarkViewController: UIViewController {
         return view
     }()
 
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "아직 내책장에 담긴 책이 없어요"
-        label.font = UIFont.customFont(ofSize: 17, weight: .medium)
-        label.textColor = .bk3
-        label.textAlignment = .center
-        label.numberOfLines = 1
-        label.isHidden = true
-        return label
-    }()
+    private let emptyLabel = UILabel.emptyStateLabel(text: "아직 내책장에 담긴 책이 없어요", size: 17)
 
     private let paginationStackView: UIStackView = {
         let view = UIStackView()
@@ -66,21 +55,9 @@ class BookmarkViewController: UIViewController {
         return view
     }()
 
-    private let previousButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("<", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let previousButton = UIButton.paginationArrow("<")
 
-    private let nextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(">", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let nextButton = UIButton.paginationArrow(">")
 
     deinit {
         NotificationCenter.default.removeObserver(self)

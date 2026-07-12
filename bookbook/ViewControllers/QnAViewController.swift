@@ -39,15 +39,7 @@ class QnAViewController: UIViewController {
         return label
     }()
 
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "아직 남겨주신 문의 내역이 없어요"
-        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
-        label.textColor = .bk3
-        label.textAlignment = .center
-        label.isHidden = true
-        return label
-    }()
+    private let emptyLabel = UILabel.emptyStateLabel(text: "아직 남겨주신 문의 내역이 없어요", size: 16)
 
     private let tableView: UITableView = {
         let view = UITableView()

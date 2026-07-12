@@ -17,15 +17,7 @@ final class NotificationListViewController: UIViewController {
         return view
     }()
 
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "아직 도착한 알림이 없어요"
-        label.font = .customFont(ofSize: 17, weight: .medium)
-        label.textColor = .bk3
-        label.textAlignment = .center
-        label.isHidden = true
-        return label
-    }()
+    private let emptyLabel = UILabel.emptyStateLabel(text: "아직 도착한 알림이 없어요", size: 17)
 
     override func viewDidLoad() {
         super.viewDidLoad()

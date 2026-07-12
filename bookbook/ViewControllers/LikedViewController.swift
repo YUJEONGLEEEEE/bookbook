@@ -1,6 +1,5 @@
 
 import UIKit
-import Kingfisher
 import SnapKit
 
 class LikedViewController: UIViewController {
@@ -32,16 +31,7 @@ class LikedViewController: UIViewController {
         return view
     }()
 
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "아직 마음을 표현한 책이 없어요"
-        label.font = UIFont.customFont(ofSize: 17, weight: .medium)
-        label.textColor = .bk3
-        label.textAlignment = .center
-        label.numberOfLines = 1
-        label.isHidden = true
-        return label
-    }()
+    private let emptyLabel = UILabel.emptyStateLabel(text: "아직 마음을 표현한 책이 없어요", size: 17)
 
     private let paginationStackView: UIStackView = {
         let view = UIStackView()
@@ -53,21 +43,9 @@ class LikedViewController: UIViewController {
         return view
     }()
 
-    private let previousButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("<", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let previousButton = UIButton.paginationArrow("<")
 
-    private let nextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(">", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let nextButton = UIButton.paginationArrow(">")
 
     deinit {
         NotificationCenter.default.removeObserver(self)

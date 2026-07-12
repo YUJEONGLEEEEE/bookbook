@@ -1,6 +1,5 @@
 
 import UIKit
-import Kingfisher
 import SnapKit
 
 // MARK: - 최근 본 책 저장소 (UserDefaults)
@@ -60,15 +59,7 @@ class RecentSearchedViewController: UIViewController {
         return view
     }()
 
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "아직 본 책이 없어요"
-        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
-        label.textColor = .bk3
-        label.textAlignment = .center
-        label.isHidden = true
-        return label
-    }()
+    private let emptyLabel = UILabel.emptyStateLabel(text: "아직 본 책이 없어요", size: 16)
 
     deinit {
         NotificationCenter.default.removeObserver(self)

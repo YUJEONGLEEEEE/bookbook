@@ -27,16 +27,7 @@ class MyCommentsViewController: UIViewController {
         return view
     }()
 
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "아직 남겨진 책한줄이 없어요"
-        label.font = UIFont.customFont(ofSize: 16, weight: .medium)
-        label.textColor = .bk3
-        label.textAlignment = .center
-        label.numberOfLines = 1
-        label.isHidden = true
-        return label
-    }()
+    private let emptyLabel = UILabel.emptyStateLabel(text: "아직 남겨진 책한줄이 없어요", size: 16)
 
     private let paginationStackView: UIStackView = {
         let view = UIStackView()
@@ -48,21 +39,9 @@ class MyCommentsViewController: UIViewController {
         return view
     }()
 
-    private let previousButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("<", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let previousButton = UIButton.paginationArrow("<")
 
-    private let nextButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(">", for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
-        return button
-    }()
+    private let nextButton = UIButton.paginationArrow(">")
 
     private lazy var paginationFooter: UIView = {
         let container = UIView()
