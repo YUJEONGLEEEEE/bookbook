@@ -487,15 +487,15 @@ class SearchViewController: UIViewController {
         paginationStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         pageButtons.removeAll()
 
-        let canGoPrevious = currentPage > 1
+        let startPage = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let endPage = min(totalPages, startPage + maxPagesShown - 1)
+
+        let canGoPrevious = startPage > 1
         previousButton.isEnabled = canGoPrevious
         previousButton.setTitleColor(canGoPrevious ? .bk2 : .bk4, for: .normal)
         previousButton.removeTarget(nil, action: nil, for: .allEvents)
         previousButton.addTarget(self, action: #selector(previousPageTapped), for: .touchUpInside)
         paginationStackView.addArrangedSubview(previousButton)
-
-        let startPage = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
-        let endPage = min(totalPages, startPage + maxPagesShown - 1)
 
         let isFirstBlock = startPage == 1
         paginationStackView.spacing = isFirstBlock ? 8 : 4
@@ -539,7 +539,7 @@ class SearchViewController: UIViewController {
             paginationStackView.addArrangedSubview(button)
         }
 
-        let canGoNext = currentPage < totalPages
+        let canGoNext = startPage + maxPagesShown <= totalPages
         nextButton.isEnabled = canGoNext
         nextButton.setTitleColor(canGoNext ? .bk2 : .bk4, for: .normal)
         nextButton.removeTarget(nil, action: nil, for: .allEvents)
@@ -550,11 +550,15 @@ class SearchViewController: UIViewController {
         jumpToPage(sender.tag)
     }
     @objc private func previousPageTapped() {
-        if currentPage > 1 { jumpToPage(currentPage - 1) }
+        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let target = blockStart - maxPagesShown
+        if target >= 1 { jumpToPage(target) }
     }
     @objc private func nextPageTapped() {
         let totalPages = (totalResults + 19) / 20
-        if currentPage < totalPages { jumpToPage(currentPage + 1) }
+        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let target = blockStart + maxPagesShown
+        if target <= totalPages { jumpToPage(target) }
     }
 
     private func jumpToPage(_ page: Int) {
