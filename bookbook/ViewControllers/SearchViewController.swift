@@ -497,19 +497,41 @@ class SearchViewController: UIViewController {
         let startPage = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
         let endPage = min(totalPages, startPage + maxPagesShown - 1)
 
+        let isFirstBlock = startPage == 1
+        paginationStackView.spacing = isFirstBlock ? 8 : 4
+        paginationStackView.isLayoutMarginsRelativeArrangement = isFirstBlock
+        paginationStackView.directionalLayoutMargins = isFirstBlock
+        ? NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
+        : NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+
         guard startPage <= endPage else { return }
+
+        let cellCount = (endPage - startPage + 1) + 2
+        let firstBlockMargins: CGFloat = isFirstBlock ? 24 : 0
+        let contentWidth = view.bounds.width - 8 - firstBlockMargins - paginationStackView.spacing * CGFloat(cellCount - 1)
+        let cellWidth = contentWidth / CGFloat(cellCount)
+        let widestNumber = String(endPage) as NSString
+        let widestWidth = widestNumber.size(withAttributes: [.font: UIFont.customFont(ofSize: 17, weight: .bold)]).width
+        var pageFontSize: CGFloat = 17
+        if widestWidth > cellWidth - 4 {
+            pageFontSize = max(11, floor(17 * (cellWidth - 4) / widestWidth))
+        }
+        let pageFontMedium = UIFont.customFont(ofSize: pageFontSize, weight: .medium)
+        let pageFontBold = UIFont.customFont(ofSize: pageFontSize, weight: .bold)
+        previousButton.titleLabel?.font = UIFont.customFont(ofSize: pageFontSize, weight: .semibold)
+        nextButton.titleLabel?.font = UIFont.customFont(ofSize: pageFontSize, weight: .semibold)
 
         for page in startPage...endPage {
             let button = UIButton(type: .system)
             button.setTitle("\(page)", for: .normal)
-            button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .medium)
+            button.titleLabel?.font = pageFontMedium
             button.tag = page
 
             if page == currentPage {
-                button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .bold)
+                button.titleLabel?.font = pageFontBold
                 button.setTitleColor(.bk1, for: .normal)
             } else {
-                button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .medium)
+                button.titleLabel?.font = pageFontMedium
                 button.setTitleColor(.bk3, for: .normal)
             }
             button.addTarget(self, action: #selector(pageButtonTapped(_:)), for: .touchUpInside)
@@ -787,7 +809,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         if paginationStackView.superview !== footer {
             footer.addSubview(paginationStackView)
             paginationStackView.snp.remakeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(16)
+                make.leading.trailing.equalToSuperview().inset(4)
                 make.bottom.equalToSuperview().inset(64)
                 make.height.equalTo(24)
             }
