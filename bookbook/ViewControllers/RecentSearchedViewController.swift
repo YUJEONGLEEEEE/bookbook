@@ -152,7 +152,7 @@ class RecentSearchedViewController: UIViewController {
     private func removeSwipe(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard indexPath.item < books.count else { return nil }
         let isbn = books[indexPath.item].isbn13
-        let action = UIContextualAction(style: .normal, title: "삭제") { [weak self] _, _, done in
+        return .deleteSwipe { [weak self] done in
             guard let self else { done(false); return }
             RecentSearchStore.remove(isbn13: isbn)
             self.books.removeAll { $0.isbn13 == isbn }
@@ -160,11 +160,6 @@ class RecentSearchedViewController: UIViewController {
             self.updateEmptyState()
             done(true)
         }
-        action.image = UIImage(systemName: "trash.fill")
-        action.backgroundColor = .systemRed
-        let config = UISwipeActionsConfiguration(actions: [action])
-        config.performsFirstActionWithFullSwipe = true
-        return config
     }
 }
 

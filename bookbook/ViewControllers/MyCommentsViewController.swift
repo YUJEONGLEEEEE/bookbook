@@ -347,7 +347,7 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
         guard indexPath.row < pagedComments.count else { return nil }
         let comment = pagedComments[indexPath.row]
 
-        let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { [weak self] _, _, completion in
+        return .deleteSwipe { [weak self] completion in
             guard let self else {
                 completion(false)
                 return
@@ -374,6 +374,5 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
                 }
             )
         }
-        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }

@@ -90,12 +90,11 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let item = items[indexPath.row]
-        let delete = UIContextualAction(style: .destructive, title: "삭제") { [weak self] _, _, done in
+        return .deleteSwipe { [weak self] done in
             NotificationStore.remove(id: item.id)
             self?.reload()
             done(true)
         }
-        return UISwipeActionsConfiguration(actions: [delete])
     }
 }
 

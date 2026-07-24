@@ -280,7 +280,7 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
 
         let book = allLikedBooks[actualIndex]
 
-        let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { [weak self] _, _, completion in
+        return .deleteSwipe { [weak self] completion in
             guard let self else {
                 completion(false)
                 return
@@ -306,8 +306,6 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
                 }
             )
         }
-
-        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
     func collectionView(_ collectionView: UICollectionView,
