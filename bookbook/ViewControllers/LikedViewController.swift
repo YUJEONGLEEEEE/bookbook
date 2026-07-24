@@ -12,7 +12,7 @@ class LikedViewController: UIViewController {
     private let itemsPerPage = 30
 
     private var pageButtons: [UIButton] = []
-    private let maxPagesShown = 10
+    private let maxPagesShown = 5
 
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -43,9 +43,13 @@ class LikedViewController: UIViewController {
         return view
     }()
 
+    private let previousBlockButton = UIButton.paginationArrow("«")
+
     private let previousButton = UIButton.paginationArrow("<")
 
     private let nextButton = UIButton.paginationArrow(">")
+
+    private let nextBlockButton = UIButton.paginationArrow("»")
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -117,21 +121,31 @@ class LikedViewController: UIViewController {
     // MARK: - Pagination Buttons
 
     private func setupButtonActions() {
+        previousBlockButton.removeTarget(nil, action: nil, for: .touchUpInside)
         previousButton.removeTarget(nil, action: nil, for: .touchUpInside)
         nextButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        nextBlockButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        previousBlockButton.addTarget(self,
+                                      action: #selector(previousBlockTapped),
+                                      for: .touchUpInside)
         previousButton.addTarget(self,
                                  action: #selector(previousPageTapped),
                                  for: .touchUpInside)
         nextButton.addTarget(self,
                              action: #selector(nextPageTapped),
                              for: .touchUpInside)
+        nextBlockButton.addTarget(self,
+                                  action: #selector(nextBlockTapped),
+                                  for: .touchUpInside)
     }
 
     private func setupPaginationButtons(totalPages: Int) {
         PaginationBar.render(
             stackView: paginationStackView,
+            previousBlockButton: previousBlockButton,
             previousButton: previousButton,
             nextButton: nextButton,
+            nextBlockButton: nextBlockButton,
             pageButtons: &pageButtons,
             currentPage: currentPage,
             totalPages: totalPages,
@@ -158,6 +172,23 @@ class LikedViewController: UIViewController {
         let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
         guard currentPage < totalPages else { return }
         currentPage += 1
+        applyPagination()
+        scrollToTop()
+    }
+    @objc private func previousBlockTapped() {
+        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let target = blockStart - maxPagesShown
+        guard target >= 1 else { return }
+        currentPage = target
+        applyPagination()
+        scrollToTop()
+    }
+    @objc private func nextBlockTapped() {
+        let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
+        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let target = blockStart + maxPagesShown
+        guard target <= totalPages else { return }
+        currentPage = target
         applyPagination()
         scrollToTop()
     }

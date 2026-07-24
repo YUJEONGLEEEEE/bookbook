@@ -21,7 +21,7 @@ class SearchViewController: UIViewController {
     private var currentQuery = ""
 
     private var pageButtons: [UIButton] = []
-    private let maxPagesShown = 10
+    private let maxPagesShown = 5
 
     private var resultCollectionViewHeightConstraint: Constraint?
 
@@ -174,9 +174,13 @@ class SearchViewController: UIViewController {
         return view
     }()
 
+    private let previousBlockButton = UIButton.paginationArrow("«")
+
     private let previousButton = UIButton.paginationArrow("<")
 
     private let nextButton = UIButton.paginationArrow(">")
+
+    private let nextBlockButton = UIButton.paginationArrow("»")
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -490,7 +494,14 @@ class SearchViewController: UIViewController {
         let startPage = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
         let endPage = min(totalPages, startPage + maxPagesShown - 1)
 
-        let canGoPrevious = startPage > 1
+        let canGoPreviousBlock = startPage > 1
+        previousBlockButton.isEnabled = canGoPreviousBlock
+        previousBlockButton.setTitleColor(canGoPreviousBlock ? .bk2 : .bk4, for: .normal)
+        previousBlockButton.removeTarget(nil, action: nil, for: .allEvents)
+        previousBlockButton.addTarget(self, action: #selector(previousBlockTapped), for: .touchUpInside)
+        paginationStackView.addArrangedSubview(previousBlockButton)
+
+        let canGoPrevious = currentPage > 1
         previousButton.isEnabled = canGoPrevious
         previousButton.setTitleColor(canGoPrevious ? .bk2 : .bk4, for: .normal)
         previousButton.removeTarget(nil, action: nil, for: .allEvents)
@@ -506,7 +517,7 @@ class SearchViewController: UIViewController {
 
         guard startPage <= endPage else { return }
 
-        let cellCount = (endPage - startPage + 1) + 2
+        let cellCount = (endPage - startPage + 1) + 4
         let firstBlockMargins: CGFloat = isFirstBlock ? 24 : 0
         let contentWidth = view.bounds.width - 8 - firstBlockMargins - paginationStackView.spacing * CGFloat(cellCount - 1)
         let cellWidth = contentWidth / CGFloat(cellCount)
@@ -518,8 +529,11 @@ class SearchViewController: UIViewController {
         }
         let pageFontMedium = UIFont.customFont(ofSize: pageFontSize, weight: .medium)
         let pageFontBold = UIFont.customFont(ofSize: pageFontSize, weight: .bold)
-        previousButton.titleLabel?.font = UIFont.customFont(ofSize: pageFontSize, weight: .semibold)
-        nextButton.titleLabel?.font = UIFont.customFont(ofSize: pageFontSize, weight: .semibold)
+        let arrowFont = UIFont.customFont(ofSize: pageFontSize, weight: .semibold)
+        previousBlockButton.titleLabel?.font = arrowFont
+        previousButton.titleLabel?.font = arrowFont
+        nextButton.titleLabel?.font = arrowFont
+        nextBlockButton.titleLabel?.font = arrowFont
 
         for page in startPage...endPage {
             let button = UIButton(type: .system)
@@ -539,22 +553,36 @@ class SearchViewController: UIViewController {
             paginationStackView.addArrangedSubview(button)
         }
 
-        let canGoNext = startPage + maxPagesShown <= totalPages
+        let canGoNext = currentPage < totalPages
         nextButton.isEnabled = canGoNext
         nextButton.setTitleColor(canGoNext ? .bk2 : .bk4, for: .normal)
         nextButton.removeTarget(nil, action: nil, for: .allEvents)
         nextButton.addTarget(self, action: #selector(nextPageTapped), for: .touchUpInside)
         paginationStackView.addArrangedSubview(nextButton)
+
+        let canGoNextBlock = endPage < totalPages
+        nextBlockButton.isEnabled = canGoNextBlock
+        nextBlockButton.setTitleColor(canGoNextBlock ? .bk2 : .bk4, for: .normal)
+        nextBlockButton.removeTarget(nil, action: nil, for: .allEvents)
+        nextBlockButton.addTarget(self, action: #selector(nextBlockTapped), for: .touchUpInside)
+        paginationStackView.addArrangedSubview(nextBlockButton)
     }
     @objc private func pageButtonTapped(_ sender: UIButton) {
         jumpToPage(sender.tag)
     }
     @objc private func previousPageTapped() {
+        if currentPage > 1 { jumpToPage(currentPage - 1) }
+    }
+    @objc private func nextPageTapped() {
+        let totalPages = (totalResults + 19) / 20
+        if currentPage < totalPages { jumpToPage(currentPage + 1) }
+    }
+    @objc private func previousBlockTapped() {
         let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
         let target = blockStart - maxPagesShown
         if target >= 1 { jumpToPage(target) }
     }
-    @objc private func nextPageTapped() {
+    @objc private func nextBlockTapped() {
         let totalPages = (totalResults + 19) / 20
         let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
         let target = blockStart + maxPagesShown

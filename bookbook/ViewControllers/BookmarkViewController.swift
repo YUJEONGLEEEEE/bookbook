@@ -14,7 +14,7 @@ class BookmarkViewController: UIViewController {
     private var currentPage = 1
     private var totalResults = 0
     private var pageButtons: [UIButton] = []
-    private let maxPagesShown = 10
+    private let maxPagesShown = 5
     private let itemsPerPage = 20
 
     private let filterView = BookFilterView()
@@ -55,9 +55,13 @@ class BookmarkViewController: UIViewController {
         return view
     }()
 
+    private let previousBlockButton = UIButton.paginationArrow("«")
+
     private let previousButton = UIButton.paginationArrow("<")
 
     private let nextButton = UIButton.paginationArrow(">")
+
+    private let nextBlockButton = UIButton.paginationArrow("»")
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -139,17 +143,23 @@ class BookmarkViewController: UIViewController {
     }
 
     private func setupButtonActions() {
+        previousBlockButton.removeTarget(nil, action: nil, for: .touchUpInside)
         previousButton.removeTarget(nil, action: nil, for: .touchUpInside)
         nextButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        nextBlockButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        previousBlockButton.addTarget(self, action: #selector(previousBlockTapped), for: .touchUpInside)
         previousButton.addTarget(self, action: #selector(previousPageTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextPageTapped), for: .touchUpInside)
+        nextBlockButton.addTarget(self, action: #selector(nextBlockTapped), for: .touchUpInside)
     }
 
     private func setupPaginationButtons(totalPages: Int) {
         PaginationBar.render(
             stackView: paginationStackView,
+            previousBlockButton: previousBlockButton,
             previousButton: previousButton,
             nextButton: nextButton,
+            nextBlockButton: nextBlockButton,
             pageButtons: &pageButtons,
             currentPage: currentPage,
             totalPages: totalPages,
@@ -177,6 +187,28 @@ class BookmarkViewController: UIViewController {
         let totalPages = (totalResults + itemsPerPage - 1) / itemsPerPage
         if currentPage < totalPages {
             currentPage += 1
+            setupPaginationButtons(totalPages: totalPages)
+            collectionView.reloadData()
+            scrollToTopOfList()
+        }
+    }
+    @objc private func previousBlockTapped() {
+        let totalPages = (totalResults + itemsPerPage - 1) / itemsPerPage
+        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let target = blockStart - maxPagesShown
+        if target >= 1 {
+            currentPage = target
+            setupPaginationButtons(totalPages: totalPages)
+            collectionView.reloadData()
+            scrollToTopOfList()
+        }
+    }
+    @objc private func nextBlockTapped() {
+        let totalPages = (totalResults + itemsPerPage - 1) / itemsPerPage
+        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
+        let target = blockStart + maxPagesShown
+        if target <= totalPages {
+            currentPage = target
             setupPaginationButtons(totalPages: totalPages)
             collectionView.reloadData()
             scrollToTopOfList()
