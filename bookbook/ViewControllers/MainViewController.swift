@@ -112,6 +112,11 @@ class MainViewController: UIViewController {
         )
         bestsellerCard.isUserInteractionEnabled = true
 
+        quoteCard.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(didTapQuoteCard))
+        )
+        quoteCard.isUserInteractionEnabled = true
+
         BookRepository.shared.seedDemoRankedBooksIfNeeded()
 
         NotificationCenter.default.addObserver(
@@ -143,6 +148,30 @@ class MainViewController: UIViewController {
         guard let book = currentBestseller else { return }
         let detailVC = DetailViewController(isbn13: book.isbn13Int)
         navigationController?.pushViewController(detailVC, animated: true)
+    }
+
+    @objc private func didTapQuoteCard() {
+        guard let quote = quoteCard.currentQuote else { return }
+        let query = "\(quote.title) \(quote.author)"
+        LoadingManager.shared.showLoading(on: view)
+        NetworkManager.shared.searchBooks(query: query, sort: .accuracy) { [weak self] result in
+            DispatchQueue.main.async {
+                LoadingManager.shared.hideLoading()
+                guard let self else { return }
+                switch result {
+                case .success(let bookInfo):
+                    guard let book = bookInfo.item.first else {
+                        self.showErrorAlert()
+                        return
+                    }
+                    let detailVC = DetailViewController(isbn13: book.isbn13Int)
+                    self.navigationController?.pushViewController(detailVC, animated: true)
+                case .failure(let error):
+                    debugLog("오늘의 한 문장 검색 실패: \(error)")
+                    self.showErrorAlert()
+                }
+            }
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
