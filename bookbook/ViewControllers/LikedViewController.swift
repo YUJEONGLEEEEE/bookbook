@@ -43,13 +43,13 @@ class LikedViewController: UIViewController {
         return view
     }()
 
-    private let previousBlockButton = UIButton.paginationArrow("«")
+    private let previousBlockButton = UIButton.paginationArrow()
 
-    private let previousButton = UIButton.paginationArrow("<")
+    private let previousButton = UIButton.paginationArrow()
 
-    private let nextButton = UIButton.paginationArrow(">")
+    private let nextButton = UIButton.paginationArrow()
 
-    private let nextBlockButton = UIButton.paginationArrow("»")
+    private let nextBlockButton = UIButton.paginationArrow()
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -176,19 +176,15 @@ class LikedViewController: UIViewController {
         scrollToTop()
     }
     @objc private func previousBlockTapped() {
-        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
-        let target = blockStart - maxPagesShown
-        guard target >= 1 else { return }
-        currentPage = target
+        guard currentPage > 1 else { return }
+        currentPage = max(1, currentPage - maxPagesShown)
         applyPagination()
         scrollToTop()
     }
     @objc private func nextBlockTapped() {
         let totalPages = max(1, (totalResults + itemsPerPage - 1) / itemsPerPage)
-        let blockStart = ((currentPage - 1) / maxPagesShown) * maxPagesShown + 1
-        let target = blockStart + maxPagesShown
-        guard target <= totalPages else { return }
-        currentPage = target
+        guard currentPage < totalPages else { return }
+        currentPage = min(totalPages, currentPage + maxPagesShown)
         applyPagination()
         scrollToTop()
     }

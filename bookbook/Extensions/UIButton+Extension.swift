@@ -8,12 +8,24 @@ private enum ButtonOverlayKey {
 
 extension UIButton {
 
-    static func paginationArrow(_ title: String) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(.bk2, for: .normal)
-        button.titleLabel?.font = UIFont.customFont(ofSize: 17, weight: .semibold)
+    static func paginationArrow() -> UIButton {
+        let button = UIButton(type: .custom)
+        button.imageView?.contentMode = .scaleAspectFit
+        button.adjustsImageWhenDisabled = false
         return button
+    }
+
+    func setPaginationArrow(double: Bool, pointsLeft: Bool, active: Bool) {
+        let name: String
+        switch (double, active) {
+        case (false, true): name = "pagination_arrow_act"
+        case (false, false): name = "pagination_arrow_noact"
+        case (true, true): name = "pagination_double_arrow_act"
+        case (true, false): name = "pagination_double_arrow_noact"
+        }
+        var image = UIImage(named: name)
+        if pointsLeft { image = image?.withHorizontallyFlippedOrientation() }
+        setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
     }
 
     func confirmButton(
