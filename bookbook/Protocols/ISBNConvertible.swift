@@ -11,12 +11,6 @@ extension BookData: ISBNConvertible {
     }
 }
 
-extension NaverBook: ISBNConvertible {
-    var isbn13Int: Int {
-        Int(self.isbn) ?? 0
-    }
-}
-
 extension Book: ISBNConvertible {
     var isbn13Int: Int {
          Int(self.isbn13 ?? "") ?? 0

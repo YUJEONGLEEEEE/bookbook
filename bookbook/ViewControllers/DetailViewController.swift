@@ -7,7 +7,7 @@ import SnapKit
 final class DetailViewController: UIViewController {
 
     private let bookISBN: Int
-    private var bookData: NaverBook?
+    private var bookData: BookData?
 
     private var isLikedByUser: Bool = false
     private var isBookmarked: Bool = false
@@ -368,7 +368,7 @@ final class DetailViewController: UIViewController {
             isbn13: Int64(bookISBN),
             title: bookTitle.text ?? "",
             author: authorLabel.text ?? "",
-            imageURL: bookData?.image
+            imageURL: bookData?.cover
         )
         if let comment {
             popupVC.configureForEdit(comment: comment)
@@ -466,22 +466,16 @@ final class DetailViewController: UIViewController {
 
     private func callRequest(isbn: Int) {
         LoadingManager.shared.showLoading(on: view)
-        NetworkManager.shared.bookDetail(isbn: isbn) { [weak self] result in
+        NetworkManager.shared.bookDetail(isbn: isbn) { [weak self] book in
             LoadingManager.shared.hideLoading()
 
-            switch result {
-            case .success(let bookInfo):
-                guard let book = bookInfo.item.first else {
-                    debugLog("네이버 검색 결과 없음")
-                    DispatchQueue.main.async { self?.showNoBookInfoAlert() }
+            DispatchQueue.main.async {
+                guard let book else {
+                    debugLog("책 상세 조회 결과 없음: \(isbn)")
+                    self?.showNoBookInfoAlert()
                     return
                 }
-                DispatchQueue.main.async {
-                    self?.updateUI(with: book)
-                }
-            case .failure(let error):
-                debugLog("네이버 API 에러: \(error)")
-                DispatchQueue.main.async { self?.showNoBookInfoAlert() }
+                self?.updateUI(with: book)
             }
         }
     }
@@ -501,25 +495,25 @@ final class DetailViewController: UIViewController {
         }
     }
 
-    private func updateUI(with book: NaverBook) {
+    private func updateUI(with book: BookData) {
         bookData = book
-        bookTitle.text = book.title
+        bookTitle.text = book.title.cleanHTML()
         authorLabel.text = book.author.cleanAuthor()
         publisherLabel.text = book.publisher
-        pubDateLabel.text = DateFormatter.yearFormatter.string(from: book.pubdate.toDate())
-        isbnLabel.text = book.isbn.split(separator: " ").last.map(String.init) ?? book.isbn
-        descriptionLabel.text = book.description
+        pubDateLabel.text = DateFormatter.yearFormatter.string(from: book.pubDate.toDate())
+        isbnLabel.text = book.isbn13.isEmpty ? String(bookISBN) : book.isbn13
+        descriptionLabel.text = book.description.cleanHTML()
         descriptionLabel.setLineAndParagraphSpacing(lineSpacing: 6, paragraphSpacing: 12)
-        loadBookImages(bookCoverUrl: book.image)
+        loadBookImages(bookCoverUrl: book.cover)
         updateButtonUI()
 
         RecentSearchStore.add(RecentBook(
             isbn13: String(bookISBN),
-            title: book.title,
-            author: book.author,
+            title: book.title.cleanHTML(),
+            author: book.author.cleanAuthor(),
             publisher: book.publisher,
-            cover: book.image,
-            description: book.description
+            cover: book.cover,
+            description: book.description.cleanHTML()
         ))
     }
 

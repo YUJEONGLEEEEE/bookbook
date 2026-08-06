@@ -88,32 +88,8 @@ final class NetworkManager {
         }
     }
 
-    func bookDetail(isbn: Int, completion: @escaping (Result<naverBookInfo, AFError>) -> Void) {
-
-        let url = APIKey.naverDetailURL
-        let headers: HTTPHeaders = [
-            "X-Naver-Client-Id": APIKey.naverCliendId,
-            "X-Naver-Client-Secret": APIKey.naverClientSecret
-        ]
-        let parameter = [
-            "d_isbn": isbn,
-            "display": 1
-        ]
-
-        AF.request(url,
-                   method: .get,
-                   parameters: parameter,
-                   headers: headers)
-        .validate(statusCode: 200..<300)
-        .responseDecodable(of: naverBookInfo.self) { response in
-            switch response.result {
-            case .success(let value):
-                completion(.success(value))
-            case .failure(let error):
-                debugLog("네이버 검색 실패: \(isbn)")
-                completion(.failure(error))
-            }
-        }
+    func bookDetail(isbn: Int, completion: @escaping (BookData?) -> Void) {
+        fetchAladinBook(isbn13: String(isbn), completion: completion)
     }
 
     func fetchBookmarkedBooks(isbns: [String], completion: @escaping ([BookData]) -> Void) {
@@ -147,7 +123,7 @@ final class NetworkManager {
     }
 
     func fetchAladinBook(isbn13: String, completion: @escaping (BookData?) -> Void) {
-        let url = "https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx"
+        let url = APIKey.aladinLookUpURL
         let parameters: [String: Any] = [
             "TTBKey": APIKey.ttbKey,
             "Output": "JS",
