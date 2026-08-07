@@ -54,7 +54,7 @@ class RecentSearchedViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
         view.backgroundColor = .clear
-        view.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: "SearchCollectionViewCell")
+        view.register(SearchCollectionViewCell.self)
         view.alwaysBounceVertical = true
         return view
     }()
@@ -170,7 +170,7 @@ extension RecentSearchedViewController: UICollectionViewDelegate, UICollectionVi
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SearchCollectionViewCell", for: indexPath) as! SearchCollectionViewCell
+        let cell = collectionView.dequeue(SearchCollectionViewCell.self, for: indexPath)
         let book = books[indexPath.item]
 
         cell.bookImage.setBookCover(book.cover, coverMode: .scaleAspectFit)

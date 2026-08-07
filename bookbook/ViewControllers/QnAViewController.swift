@@ -43,7 +43,7 @@ class QnAViewController: UIViewController {
 
     private let tableView: UITableView = {
         let view = UITableView()
-        view.register(QnaTableViewCell.self, forCellReuseIdentifier: QnaTableViewCell.id)
+        view.register(QnaTableViewCell.self)
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
         view.estimatedRowHeight = 90
@@ -125,7 +125,7 @@ extension QnAViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: QnaTableViewCell.id, for: indexPath) as! QnaTableViewCell
+        let cell = tableView.dequeue(QnaTableViewCell.self, for: indexPath)
         cell.configure(item: items[indexPath.row], isExpanded: expandedRows.contains(indexPath.row))
         return cell
     }
@@ -142,8 +142,6 @@ extension QnAViewController: UITableViewDelegate, UITableViewDataSource {
 
 // MARK: - Cell (펼침 토글)
 final class QnaTableViewCell: UITableViewCell {
-
-    static let id = "QnaTableViewCell"
 
     private let dateLabel: UILabel = {
         let label = UILabel()

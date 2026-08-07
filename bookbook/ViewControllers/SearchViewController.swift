@@ -108,11 +108,11 @@ class SearchViewController: UIViewController {
     private lazy var resultCollectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: makeResultLayout())
         view.backgroundColor = .white
-        view.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: "SearchCollectionViewCell")
+        view.register(SearchCollectionViewCell.self)
         view.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
-            withReuseIdentifier: "PaginationFooter"
+            withReuseIdentifier: UICollectionView.paginationFooter
         )
         view.alwaysBounceVertical = true
         view.showsVerticalScrollIndicator = false
@@ -756,7 +756,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SearchCollectionViewCell", for: indexPath) as! SearchCollectionViewCell
+        let cell = collectionView.dequeue(SearchCollectionViewCell.self, for: indexPath)
         let book = searchBooks[indexPath.item]
 
         cell.bookImage.setBookCover(book.cover, coverMode: .scaleAspectFit)
@@ -776,7 +776,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
+            ofKind: kind, withReuseIdentifier: UICollectionView.paginationFooter, for: indexPath
         )
         if paginationStackView.superview !== footer {
             footer.addSubview(paginationStackView)

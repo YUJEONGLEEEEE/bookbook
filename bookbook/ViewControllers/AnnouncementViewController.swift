@@ -10,10 +10,10 @@ class AnnouncementViewController: UIViewController {
 
     private let tableView: UITableView = {
         let view = UITableView(frame: .zero, style: .grouped)
-        view.register(NoticeHeaderView.self, forHeaderFooterViewReuseIdentifier: "NoticeHeaderView")
-        view.register(NoticeATableViewCell.self, forCellReuseIdentifier: "NoticeATableViewCell")
-        view.register(QnAHeaderView.self, forHeaderFooterViewReuseIdentifier: "QnAHeaderView")
-        view.register(QnATableViewCell.self, forCellReuseIdentifier: "QnATableViewCell")
+        view.register(NoticeHeaderView.self)
+        view.register(NoticeATableViewCell.self)
+        view.register(QnAHeaderView.self)
+        view.register(QnATableViewCell.self)
         view.separatorStyle = .none
         view.backgroundColor = .customWh
         view.sectionHeaderTopPadding = 0
@@ -65,11 +65,11 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == 0 {
-            let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "NoticeHeaderView") as! NoticeHeaderView
+            let header = tableView.dequeue(NoticeHeaderView.self)
             header.delegate = self
             return header
         } else if section == 1 {
-            let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "QnAHeaderView") as! QnAHeaderView
+            let header = tableView.dequeue(QnAHeaderView.self)
             return header
         }
         return nil
@@ -86,13 +86,13 @@ extension AnnouncementViewController: NoticeHeaderViewProtocol, UITableViewDeleg
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeATableViewCell", for: indexPath) as! NoticeATableViewCell
+            let cell = tableView.dequeue(NoticeATableViewCell.self, for: indexPath)
             if indexPath.row < noticeList.count {
                 cell.titleLabel.text = noticeList[indexPath.row].title
             }
             return cell
         } else if indexPath.section == 1 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "QnATableViewCell", for: indexPath) as! QnATableViewCell
+            let cell = tableView.dequeue(QnATableViewCell.self, for: indexPath)
             let isExpanded = qnaExpandedStates[indexPath.row]
             cell.toggleAnswerView(isExpanded: isExpanded)
             let item = faqData[indexPath.row]

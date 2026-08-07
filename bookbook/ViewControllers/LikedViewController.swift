@@ -21,11 +21,11 @@ class LikedViewController: UIViewController {
         layout.minimumInteritemSpacing = 24
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
-        view.register(LikedCollectionViewCell.self, forCellWithReuseIdentifier: "LikedCollectionViewCell")
+        view.register(LikedCollectionViewCell.self)
         view.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
-            withReuseIdentifier: "PaginationFooter"
+            withReuseIdentifier: UICollectionView.paginationFooter
         )
         view.showsVerticalScrollIndicator = true
         return view
@@ -218,7 +218,7 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "LikedCollectionViewCell", for: indexPath) as! LikedCollectionViewCell
+        let cell = collectionView.dequeue(LikedCollectionViewCell.self, for: indexPath)
         let book = likedBooks[indexPath.item]
         cell.bookImage.setBookCover(book.cover, coverMode: .scaleAspectFit)
         cell.bookTitle.text = book.title.cleanHTML()
@@ -249,7 +249,7 @@ extension LikedViewController: UICollectionViewDelegate, UICollectionViewDataSou
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
+            ofKind: kind, withReuseIdentifier: UICollectionView.paginationFooter, for: indexPath
         )
         if paginationStackView.superview !== footer {
             paginationStackView.removeFromSuperview()

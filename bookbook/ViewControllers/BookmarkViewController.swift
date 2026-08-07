@@ -31,11 +31,11 @@ class BookmarkViewController: UIViewController {
         layout.minimumInteritemSpacing = 20
         layout.scrollDirection = .vertical
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        view.register(BookmarkCollectionViewCell.self, forCellWithReuseIdentifier: "BookmarkCollectionViewCell")
+        view.register(BookmarkCollectionViewCell.self)
         view.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter,
-            withReuseIdentifier: "PaginationFooter"
+            withReuseIdentifier: UICollectionView.paginationFooter
         )
         view.backgroundColor = .clear
         view.showsVerticalScrollIndicator = true
@@ -276,7 +276,7 @@ extension BookmarkViewController: UICollectionViewDelegate, UICollectionViewData
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BookmarkCollectionViewCell", for: indexPath) as! BookmarkCollectionViewCell
+        let cell = collectionView.dequeue(BookmarkCollectionViewCell.self, for: indexPath)
 
         let actualIndex = (currentPage - 1) * itemsPerPage + indexPath.item
         guard actualIndex < filteredBooks.count else { return cell }
@@ -313,7 +313,7 @@ extension BookmarkViewController: UICollectionViewDelegate, UICollectionViewData
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let footer = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind, withReuseIdentifier: "PaginationFooter", for: indexPath
+            ofKind: kind, withReuseIdentifier: UICollectionView.paginationFooter, for: indexPath
         )
         if paginationStackView.superview !== footer {
             paginationStackView.removeFromSuperview()

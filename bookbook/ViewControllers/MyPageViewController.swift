@@ -32,7 +32,7 @@ class MyPageViewController: UIViewController {
 
     private let tableView: UITableView = {
         let view = UITableView()
-        view.register(MyPageTableViewCell.self, forCellReuseIdentifier: "MyPageTableViewCell")
+        view.register(MyPageTableViewCell.self)
         view.separatorStyle = .none
         view.rowHeight = 56
         view.backgroundColor = .clear
@@ -215,7 +215,7 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MyPageTableViewCell", for: indexPath) as! MyPageTableViewCell
+        let cell = tableView.dequeue(MyPageTableViewCell.self, for: indexPath)
         let title = menuTitles[indexPath.row]
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let trailing = (title == "앱 버전") ? appVersion : nil

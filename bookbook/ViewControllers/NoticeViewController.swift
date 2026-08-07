@@ -10,7 +10,7 @@ class NoticeViewController: UIViewController {
 
     private let tableView: UITableView = {
         let view = UITableView()
-        view.register(NoticeBTableViewCell.self, forCellReuseIdentifier: "NoticeBTableViewCell")
+        view.register(NoticeBTableViewCell.self)
         view.separatorColor = .bk5
         view.separatorStyle = .singleLine
         view.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
@@ -43,7 +43,7 @@ extension  NoticeViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeBTableViewCell", for: indexPath) as! NoticeBTableViewCell
+        let cell = tableView.dequeue(NoticeBTableViewCell.self, for: indexPath)
         let isExpanded = noticeExpandedStates[indexPath.row]
         cell.toggleDescriptionView(isExpanded: isExpanded)
         let item = noticeData[indexPath.row]

@@ -17,7 +17,7 @@ class MyCommentsViewController: UIViewController {
 
     private let commentsTableView: UITableView = {
         let view = UITableView()
-        view.register(MyCommentsTableViewCell.self, forCellReuseIdentifier: "MyCommentsTableViewCell")
+        view.register(MyCommentsTableViewCell.self)
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
         view.estimatedRowHeight = 143
@@ -307,7 +307,7 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MyCommentsTableViewCell", for: indexPath) as! MyCommentsTableViewCell
+        let cell = tableView.dequeue(MyCommentsTableViewCell.self, for: indexPath)
         let comment = pagedComments[indexPath.row]
         configureCell(cell, with: comment)
 

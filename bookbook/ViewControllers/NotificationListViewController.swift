@@ -7,7 +7,7 @@ final class NotificationListViewController: UIViewController {
 
     private let tableView: UITableView = {
         let view = UITableView()
-        view.register(NotificationCell.self, forCellReuseIdentifier: "NotificationCell")
+        view.register(NotificationCell.self)
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
         view.estimatedRowHeight = 88
@@ -72,7 +72,7 @@ extension NotificationListViewController: UITableViewDelegate, UITableViewDataSo
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { items.count }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "NotificationCell", for: indexPath) as! NotificationCell
+        let cell = tableView.dequeue(NotificationCell.self, for: indexPath)
         cell.configure(with: items[indexPath.row], isLast: indexPath.row == items.count - 1)
         return cell
     }

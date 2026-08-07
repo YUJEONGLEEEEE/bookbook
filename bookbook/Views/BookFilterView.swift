@@ -32,7 +32,7 @@ class BookFilterView: UIView {
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
         view.showsHorizontalScrollIndicator = false
-        view.register(BookFilterCollectionViewCell.self, forCellWithReuseIdentifier: "BookFilterCollectionViewCell")
+        view.register(BookFilterCollectionViewCell.self)
         return view
     }()
 
@@ -71,7 +71,7 @@ extension BookFilterView: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BookFilterCollectionViewCell", for: indexPath) as! BookFilterCollectionViewCell
+        let cell = collectionView.dequeue(BookFilterCollectionViewCell.self, for: indexPath)
         let list = filters[indexPath.item]
         cell.filterTitle.text = list.name
         return cell

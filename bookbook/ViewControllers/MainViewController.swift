@@ -80,7 +80,7 @@ class MainViewController: UIViewController {
         cv.tag = Tag.ranking
         cv.backgroundColor = .clear
         cv.isScrollEnabled = false
-        cv.register(BookRankingCollectionViewCell.self, forCellWithReuseIdentifier: "BookRankingCollectionViewCell")
+        cv.register(BookRankingCollectionViewCell.self)
         cv.delegate = self
         cv.dataSource = self
         return cv
@@ -557,7 +557,7 @@ class MainViewController: UIViewController {
         cv.tag = tag
         cv.backgroundColor = .clear
         cv.showsHorizontalScrollIndicator = false
-        cv.register(MainCollectionViewCell.self, forCellWithReuseIdentifier: "MainCollectionViewCell")
+        cv.register(MainCollectionViewCell.self)
         cv.delegate = self
         cv.dataSource = self
         return cv
@@ -592,7 +592,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView.tag == Tag.ranking {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "BookRankingCollectionViewCell", for: indexPath) as! BookRankingCollectionViewCell
+            let cell = collectionView.dequeue(BookRankingCollectionViewCell.self, for: indexPath)
             let book = rankedBooks[indexPath.item]
             cell.bookImage.setBookCover(book.image)
             cell.bookRank.text = "\(indexPath.item + 1)"
@@ -602,7 +602,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
             return cell
         }
 
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MainCollectionViewCell", for: indexPath) as! MainCollectionViewCell
+        let cell = collectionView.dequeue(MainCollectionViewCell.self, for: indexPath)
         let book = (collectionView.tag == Tag.preferred) ? preferredBooks[indexPath.item] : recentBooks[indexPath.item]
         cell.bookImage.setBookCover(book.cover)
         cell.bookTitle.text = book.title.cleanHTML()

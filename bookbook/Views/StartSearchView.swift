@@ -17,9 +17,9 @@ final class StartSearchView: UIView {
         layout.minimumInteritemSpacing = 8
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .white
-        view.register(RecentSearchedCollectionViewCell.self, forCellWithReuseIdentifier: "RecentSearchedCollectionViewCell")
-        view.register(PopularSearchedCollectionViewCell.self, forCellWithReuseIdentifier: "PopularSearchedCollectionViewCell")
-        view.register(SearchedHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "SearchedHeaderView")
+        view.register(RecentSearchedCollectionViewCell.self)
+        view.register(PopularSearchedCollectionViewCell.self)
+        view.register(SearchedHeaderView.self, ofKind: UICollectionView.elementKindSectionHeader)
         return view
     }()
 
@@ -88,7 +88,7 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "RecentSearchedCollectionViewCell", for: indexPath) as! RecentSearchedCollectionViewCell
+            let cell = collectionView.dequeue(RecentSearchedCollectionViewCell.self, for: indexPath)
             let text = recentSearches[indexPath.item]
             cell.wordLabel.text = text
             cell.deleteAction = { [weak self, weak cell] in
@@ -102,7 +102,7 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
             }
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PopularSearchedCollectionViewCell", for: indexPath) as! PopularSearchedCollectionViewCell
+            let cell = collectionView.dequeue(PopularSearchedCollectionViewCell.self, for: indexPath)
             let text = popularSearches[indexPath.item]
             cell.configureKeywordLabel(with: text, index: indexPath.item)
             return cell
@@ -111,7 +111,7 @@ extension StartSearchView: UICollectionViewDelegate, UICollectionViewDataSource,
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "SearchedHeaderView", for: indexPath) as! SearchedHeaderView
+            let header = collectionView.dequeue(SearchedHeaderView.self, ofKind: kind, for: indexPath)
             let popularTitle = isEmptyResult ? "인기 키워드를 확인해보세요" : "인기 키워드"
             let titles = ["최근 검색어", popularTitle]
             header.configure(title: titles[indexPath.section])
