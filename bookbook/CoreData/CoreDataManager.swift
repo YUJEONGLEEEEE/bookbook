@@ -575,19 +575,33 @@ extension CoreDataManager {
     }
 
     func fetchComment(for isbn13: Int64) -> Comment? {
-        guard let account = fetchCurrentAccount() else { return nil }
+        guard let account = fetchCurrentAccount() else {
+            debugLog("책한줄 조회(isbn \(isbn13)): 로그인 계정 없음")
+            return nil
+        }
 
         let request: NSFetchRequest<Comment> = Comment.fetchRequest()
         request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", isbn13, account)
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Comment.createdAt, ascending: false)]
-        request.fetchLimit = 1
 
         do {
-            return try context.fetch(request).first
+            let scoped = try context.fetch(request)
+            logCommentLookup(isbn13: isbn13, scopedCount: scoped.count)
+            return scoped.first
         } catch {
             debugLog("fetchComment error: \(error)")
             return nil
         }
+    }
+
+    private func logCommentLookup(isbn13: Int64, scopedCount: Int) {
+        #if DEBUG
+        let all: NSFetchRequest<Comment> = Comment.fetchRequest()
+        all.predicate = NSPredicate(format: "isbn13 == %lld", isbn13)
+        let rows = (try? context.fetch(all)) ?? []
+        let orphaned = rows.filter { $0.account == nil }.count
+        debugLog("책한줄 조회(isbn \(isbn13)): 내 계정 \(scopedCount)건 / 전체 \(rows.count)건 / 계정없음 \(orphaned)건")
+        #endif
     }
 
     @discardableResult
@@ -602,7 +616,8 @@ extension CoreDataManager {
 
         do {
             let rows = try context.fetch(request)
-            debugLog("책한줄 삭제(isbn \(comment.isbn13)): \(rows.count)건")
+            debugLog("책한줄 삭제(isbn \(comment.isbn13)): 내 계정 \(rows.count)건 삭제")
+            logCommentLookup(isbn13: comment.isbn13, scopedCount: rows.count)
             rows.forEach { context.delete($0) }
         } catch {
             debugLog("deleteComment error: \(error)")
