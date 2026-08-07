@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>bookbook — iOS Portfolio</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { counter-reset: pg -1;
+    font-family: "Apple SD Gothic Neo", -apple-system, sans-serif;
+    color: #17171A; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { counter-increment: pg;
+    width: 210mm; min-height: 297mm; padding: 20mm 18mm 16mm;
+    page-break-after: always; position: relative; background: #fff;
+    display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+
+  h1 { font-size: 36pt; font-weight: 300; letter-spacing: -1.4pt; line-height: 1.15; }
+  h2 { font-size: 15pt; font-weight: 600; letter-spacing: -0.3pt;
+       padding-bottom: 2.5mm; margin-bottom: 5mm; border-bottom: 1px solid #17171A; }
+  h2 .num { display: block; font-size: 7.6pt; font-weight: 500; letter-spacing: 1.6pt;
+            color: #A8A8AE; margin-bottom: 2mm; }
+  h3 { font-size: 10pt; font-weight: 700; margin: 5.5mm 0 1.5mm; letter-spacing: -0.1pt; }
+  p, li, td, th { font-size: 8.8pt; line-height: 1.6; }
+  ul { padding-left: 4.5mm; }
+  li { margin-bottom: 0.8mm; }
+  strong { font-weight: 700; }
+  .muted { color: #A8A8AE; font-weight: 400 !important; letter-spacing: 0; }
+
+  .cover { justify-content: flex-end; padding: 28mm 18mm 22mm; }
+  .cover .sub { font-size: 10.5pt; color: #6A6A70; margin-top: 5mm; line-height: 1.75; }
+  .cover .rule { width: 100%; height: 1px; background: #17171A; margin: 11mm 0 7mm; }
+  .cover .meta { font-size: 8.8pt; line-height: 2.05; color: #3A3A3F; }
+  .cover .meta b { display: inline-block; width: 26mm; color: #A8A8AE;
+                   font-weight: 500; letter-spacing: 0.4pt; }
+
+  table { width: 100%; border-collapse: collapse; margin: 3.5mm 0; }
+  th, td { border: 0; border-bottom: 1px solid #E6E6E9;
+           padding: 2mm 4mm 2mm 0; text-align: left; vertical-align: top; }
+  tr:first-child th { border-bottom: 1px solid #17171A; }
+  th { font-weight: 600; font-size: 8pt; color: #6A6A70; letter-spacing: 0.4pt; }
+  td.num, th.num { text-align: right; padding-right: 0; }
+  td.ctr, th.ctr { text-align: center; }
+
+  pre { background: #FAFAFA; border-left: 1px solid #D8D8DC;
+        padding: 2.6mm 4mm; margin: 2.5mm 0; overflow: hidden; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 7.3pt;
+         line-height: 1.5; color: #2B2B30; }
+
+  .row { display: grid; grid-template-columns: 17mm 1fr; gap: 0 4mm; margin: 2.4mm 0; }
+  .row .lb { font-size: 8pt; font-weight: 600; color: #A8A8AE;
+             letter-spacing: 0.5pt; padding-top: 0.5mm; }
+  .row .tx { font-size: 8.8pt; line-height: 1.6; }
+
+  .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5mm 8mm; margin-top: 4mm; }
+  .note { border-top: 1px solid #17171A; padding-top: 2.2mm; }
+  .note h4 { font-size: 9pt; font-weight: 700; margin-bottom: 1.2mm; }
+  .note p { font-size: 8.2pt; line-height: 1.55; color: #3A3A3F; }
+
+  .flow { font-size: 8.8pt; line-height: 2.15; text-align: center; padding: 4.5mm 0;
+          margin: 3mm 0; border-top: 1px solid #E6E6E9; border-bottom: 1px solid #E6E6E9; }
+
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4.5mm; margin-top: 3.5mm; }
+  .shots.five { grid-template-columns: repeat(5, 1fr); }
+  .shot { display: flex; flex-direction: column; }
+  .shot img { width: 100%; height: auto; display: block; border: 1px solid #E6E6E9; }
+  .shot span { display: block; text-align: left; font-size: 7pt; color: #A8A8AE;
+               margin-top: auto; padding-top: 1.6mm; letter-spacing: 0.2pt; }
+
+  .foot .n::after { content: counter(pg); }
+  .foot { position: absolute; bottom: 11mm; left: 18mm; right: 18mm;
+          display: flex; justify-content: space-between;
+          font-size: 7.2pt; color: #B4B4BA; letter-spacing: 0.5pt;
+          border-top: 1px solid #EFEFF2; padding-top: 2mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ Cover ============ -->
+<section class="page cover">
+  <h1>bookbook <span class="muted" style="font-size:18pt;font-weight:500">읽담</span></h1>
+  <div class="rule"></div>
+  <p class="sub">A reading-record app for conversing with books<br>Search, save, jot a one-line review, and build a book tower</p>
+  <div class="meta">
+    <div><b>Duration</b> Sep 2025 – Jul 2026 (~10 months)</div>
+    <div><b>My role</b> Co-planning · sole iOS developer</div>
+    <div><b>Team</b> 2 people (1 designer · 1 iOS)</div>
+    <div><b>Platform</b> iOS 17.0+ · Swift · UIKit</div>
+    <div><b>Scale</b> 13,046 lines of Swift · 255 commits</div>
+  </div>
+</section>
+
+<!-- ============ 1. Why ============ -->
+<section class="page">
+  <h2><span class="num">01</span>Why This App</h2>
+
+  <h3>The Problem</h3>
+  <p>There is no shortage of reading-record apps, but most treat <strong>recording as the goal</strong>.
+     The real issue wasn't that logging is tedious — it was that there's
+     <strong>no reason to keep doing it</strong>.</p>
+  <ul>
+    <li>Asking for a long review feels like work, so people don't write one</li>
+    <li>Even after logging, nothing visibly changes, so people quit early</li>
+  </ul>
+
+  <h3>The Approach</h3>
+  <table>
+    <tr><th style="width:26%">Problem</th><th style="width:34%">Design decision</th><th>Implementation</th></tr>
+    <tr><td>Reviewing feels heavy</td><td>Shrink the unit to <strong>one line</strong></td>
+        <td>Rating + one sentence + read date, nothing else</td></tr>
+    <tr><td>No reason to continue</td><td>A reward loop that <strong>visibly accumulates</strong></td>
+        <td>Book tower — 9 books earned from collected reviews</td></tr>
+    <tr><td>Don't know what to read</td><td>Collect <strong>taste up front</strong> during onboarding</td>
+        <td>Recommendations by genre · age · gender</td></tr>
+  </table>
+
+  <h3>User Flow</h3>
+  <p class="flow">
+    Sign up · Sign in &nbsp;→&nbsp; <strong>Taste setup</strong> &nbsp;→&nbsp; Tutorial &nbsp;→&nbsp; Home<br>
+    → Search → Book detail → Save to shelf / <strong>Write a one-line review</strong> → <strong>Book tower · earn a reward</strong>
+  </p>
+  <p>Taste is collected <strong>before</strong> the home screen for a reason: without it, a first-time user's
+     home would be empty. Having preferences up front means the very first screen can be filled with
+     recommendations.</p>
+
+  <h3>Scope of My Work</h3>
+  <p>A <strong>two-person team</strong> with one designer. We planned the product together, and I <strong>built the entire iOS app single-handedly</strong>.</p>
+  <ul>
+    <li>All screens (onboarding · home · search · detail · shelf · reviews · book tower · my page)</li>
+    <li>Designed and implemented the gamification (book tower) reward system</li>
+    <li>Aladin open API integration and response sanitization (moved detail lookup to Aladin ItemLookUp after the Naver book API shut down)</li>
+    <li>CoreData model design and per-account data isolation</li>
+    <li>Shared components (custom alert · toast · loading view · pagination bar)</li>
+  </ul>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 2. Core design ============ -->
+<section class="page">
+  <h2><span class="num">02</span>Core Design — The Book Tower</h2>
+  <p>The app's key differentiator, and where most of the design effort went. Not "write a review, get a badge"
+     — a <strong>reward curve shaped around drop-off points</strong>.</p>
+
+  <h3>Reward Curve</h3>
+  <table>
+    <tr><th class="ctr" style="width:12%">Step</th><th>Book</th>
+        <th class="num" style="width:22%">Reviews (step)</th><th class="num" style="width:22%">Cumulative</th></tr>
+    <tr><td class="ctr">1</td><td>Folk Tales</td><td class="num">3</td><td class="num"><strong>3</strong></td></tr>
+    <tr><td class="ctr">2</td><td>Aesop's Fables</td><td class="num">5</td><td class="num">8</td></tr>
+    <tr><td class="ctr">3</td><td>English Book</td><td class="num">10</td><td class="num">18</td></tr>
+    <tr><td class="ctr">4</td><td>Autobiography</td><td class="num">15</td><td class="num">33</td></tr>
+    <tr><td class="ctr">5</td><td>Mystery Novel</td><td class="num">20</td><td class="num">53</td></tr>
+    <tr><td class="ctr">6</td><td>World Atlas</td><td class="num">25</td><td class="num">78</td></tr>
+    <tr><td class="ctr">7</td><td>Cookbook</td><td class="num">30</td><td class="num">108</td></tr>
+    <tr><td class="ctr">8</td><td>Space Science</td><td class="num">35</td><td class="num">143</td></tr>
+    <tr><td class="ctr">9</td><td>Encyclopedia</td><td class="num">40</td><td class="num"><strong>183</strong></td></tr>
+  </table>
+
+  <div class="notes">
+    <div class="note">
+      <h4>First reward at 3</h4>
+      <p>Drop-off is steepest at the start, so the user experiences success almost immediately.</p>
+    </div>
+    <div class="note">
+      <h4>Widening intervals</h4>
+      <p>Once the habit forms, rewards become scarcer to preserve their value.</p>
+    </div>
+    <div class="note">
+      <h4>The books are a growth narrative</h4>
+      <p>Folk tales (childhood) → encyclopedia (the sum of knowledge). Each step is a metaphor for reading maturity.</p>
+    </div>
+    <div class="note">
+      <h4>The final book is staged differently</h4>
+      <p>A gradient card and confetti that deliberately overflows the card, so "you made it" reads visually.</p>
+    </div>
+  </div>
+
+  <h3>Designing the Empty State</h3>
+  <p>A user with zero books earned would open the tower screen and see <strong>nothing</strong>.
+     If that becomes their first impression, they don't come back. So the zero state got its own screen:
+     a dimmed overlay with a Lottie light animation and a question-mark book — framing it not as
+     <strong>"there's nothing here"</strong> but as <strong>"a space about to be filled."</strong></p>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">03</span>Screens &amp; Features</h2>
+  <h3>Book Tower</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/10-tower-empty.png"><span>Empty state</span></div>
+    <div class="shot"><img src="screenshots/11-tower.png"><span>Book tower</span></div>
+    <div class="shot"><img src="screenshots/12-reward-popup.png"><span>Reward</span></div>
+    <div class="shot"><img src="screenshots/13-reward-final.png"><span>Final reward</span></div>
+    <div class="shot"><img src="screenshots/14-mypage.png"><span>My Space</span></div>
+  </div>
+
+  <h3>Main Screens</h3>
+
+  <div class="shots">
+    <div class="shot"><img src="screenshots/01-onboarding-signup.png"><span>Sign up</span></div>
+    <div class="shot"><img src="screenshots/02-onboarding-preference.png"><span>Taste setup</span></div>
+    <div class="shot"><img src="screenshots/03-home.png"><span>Home</span></div>
+    <div class="shot"><img src="screenshots/04-search.png"><span>Search</span></div>
+  </div>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="shots five" style="margin-top:5mm">
+    <div class="shot"><img src="screenshots/05-search-result.png"><span>Results</span></div>
+    <div class="shot"><img src="screenshots/06-detail.png"><span>Detail</span></div>
+    <div class="shot"><img src="screenshots/07-shelf.png"><span>Shelf</span></div>
+    <div class="shot"><img src="screenshots/08-review-list.png"><span>Reviews</span></div>
+    <div class="shot"><img src="screenshots/09-review-write.png"><span>Write a review</span></div>
+  </div>
+
+  <h3>Tabs &amp; Key Features</h3>
+  <table>
+    <tr><th style="width:20%">Screen</th><th>Features</th></tr>
+    <tr><td><strong>Onboarding</strong></td><td>Phone-number-based local sign-up, taste collection (genre · age · gender), first-launch tutorial</td></tr>
+    <tr><td><strong>Home</strong></td><td>Personalized recommendations / likes ranking / bestsellers · new releases (Aladin) / quote card / pull-to-refresh</td></tr>
+    <tr><td><strong>Search</strong></td><td>Aladin search, sort (accuracy · recommended · newest), genre filter, pagination, popular &amp; recent terms, swipe to save</td></tr>
+    <tr><td><strong>Book detail</strong></td><td>Aladin book details, like · save to shelf · write a one-line review</td></tr>
+    <tr><td><strong>Shelf</strong></td><td>Bookmarked / liked books with genre filter and pagination</td></tr>
+    <tr><td><strong>One-line review</strong></td><td>Create · edit · delete, with rating and read date</td></tr>
+    <tr><td><strong>Book tower</strong></td><td>9 reward steps, earn animation + progress gauge + reward popup</td></tr>
+    <tr><td><strong>Notifications</strong></td><td>Local push (book earned · reading reminder) + in-app inbox with unread badge; configurable repeat days · times · count</td></tr>
+    <tr><td><strong>My Space</strong></td><td>Profile card, my info · preferences · recently viewed · notices/FAQ · inquiry · terms</td></tr>
+  </table>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 4. Highlights 1 ============ -->
+<section class="page">
+  <h2><span class="num">03</span>Screens &amp; Features <span class="muted" style="font-size:11pt;font-weight:500">(continued)</span></h2>
+
+  <h3>Interactions &amp; Notifications</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/19-review-saved-push.png"><span>Push</span></div>
+    <div class="shot"><img src="screenshots/20-loading.png"><span>Loading</span></div>
+    <div class="shot"><img src="screenshots/21-notification-settings.png"><span>Reminder</span></div>
+    <div class="shot"><img src="screenshots/22-notification-inbox.png"><span>Inbox</span></div>
+    <div class="shot"><img src="screenshots/18-detail-liked.png"><span>Like</span></div>
+  </div>
+  <p style="margin-top:3mm">Saving a one-line review fires a <strong>system local push</strong> and adds an entry to the in-app inbox. The reminder lets you set repeat days, times, and how many times per day independently.</p>
+  <p>The loading view is a custom component that only appears once a response exceeds 0.4s (see highlights 2 and 3).</p>
+
+  <h3>Onboarding &amp; Discovery</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/15-onboarding-age.png"><span>Age</span></div>
+    <div class="shot"><img src="screenshots/16-onboarding-gender.png"><span>Gender</span></div>
+    <div class="shot"><img src="screenshots/17-home-ranking.png"><span>Ranking</span></div>
+    <div class="shot"><img src="screenshots/23-liked-drawer.png"><span>Likes drawer</span></div>
+    <div class="shot"><img src="screenshots/24-recent-books.png"><span>Recently viewed</span></div>
+  </div>
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">03</span>Screens &amp; Features <span class="muted" style="font-size:11pt;font-weight:500">(continued)</span></h2>
+
+  <h3>My Space</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/25-my-preference.png"><span>Preferences</span></div>
+    <div class="shot"><img src="screenshots/26-my-info.png"><span>My info</span></div>
+    <div class="shot"><img src="screenshots/27-notice-faq.png"><span>Notices · FAQ</span></div>
+    <div class="shot"><img src="screenshots/28-qna-list.png"><span>Inquiries</span></div>
+    <div class="shot"><img src="screenshots/29-qna-form.png"><span>New inquiry</span></div>
+  </div>
+  <p style="margin-top:3mm">My Space gathers account and preference management alongside support screens. Inquiries track a reply status.</p>
+
+  <h3>Policy &amp; Info</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/30-terms.png"><span>Terms</span></div>
+    <div class="shot"><img src="screenshots/31-app-version.png"><span>App version</span></div>
+  </div>
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">04</span>Implementation Highlights</h2>
+
+  <h3>1. Keeping State in Sync Across Every Screen</h3>
+  <div class="row"><span class="lb">Problem</span><div class="tx">the same book appears on home, search, detail, and the shelf simultaneously.
+    If a user likes a book on the detail screen and goes back to a stale list, they assume it didn't save and tap again.</div></div>
+  <div class="row"><span class="lb">Decision</span><div class="tx">patching each screen individually means a new screen is a new chance to forget.
+     Instead, publish <strong>once at the point of mutation</strong> and let interested screens subscribe.</div></div>
+<pre><code>func postBookStateChange(name: Notification.Name, isbn13: Int) {
+    NotificationCenter.default.post(name: name, object: nil,
+                                    userInfo: [BookSyncKey.isbn13: isbn13])
+}</code></pre>
+  <p>Every mutating function — <code>toggleBookmark</code>, <code>incrementLikeCount</code>,
+     <code>decrementLikeCount</code> — posts immediately after the CoreData save.
+     The <code>isbn13</code> rides along so subscribers refresh just the affected cell.</p>
+  <div class="row"><span class="lb">Result</span><div class="tx">a change anywhere propagates everywhere instantly,
+    and a new screen joins the system with a single subscription.</div></div>
+
+  <h3>2. The Flickering Loading Spinner</h3>
+  <div class="row"><span class="lb">Problem</span><div class="tx">showing a spinner on every request meant that on cache hits and fast
+    responses it appeared and vanished instantly, flashing the screen. It read as slower, not faster.</div></div>
+  <div class="row"><span class="lb">Decision</span><div class="tx">a spinner exists to say "please wait." For a short wait there's nothing to say.
+     So <strong>delay the spinner by 0.4s and skip it entirely if the response beats that.</strong></div></div>
+<pre><code>private let showDelay: TimeInterval = 0.4
+private var pendingShow: DispatchWorkItem?
+
+func hideLoading() {
+    loadingCount = max(0, loadingCount - 1)
+    guard loadingCount == 0 else { return }
+    pendingShow?.cancel()   // fast response — the spinner never appears
+    dismissOverlay()
+}</code></pre>
+  <p>Screens that fire several requests at once (home loads recommendations + ranking + new releases)
+     are handled by reference-counting with <code>loadingCount</code>, so the overlay drops
+     <strong>only when the last request finishes</strong>.</p>
+  <div class="row"><span class="lb">Follow-up</span><div class="tx">the custom spinner (a symbol that draws itself on and off) was left
+    half-drawn when a hide signal arrived mid-stroke. <code>finishGracefully</code> now completes the stroke
+    in flight before fading out.</div></div>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 5. Highlights 2 ============ -->
+<section class="page">
+  <h2><span class="num">04</span>Implementation Highlights <span class="muted" style="font-size:11pt;font-weight:500">(continued)</span></h2>
+
+  <h3>3. A SwiftUI Symbol Animation That Never Fired</h3>
+  <div class="row"><span class="lb">Problem</span><div class="tx">the loading view's draw effect was built with SwiftUI's
+    <code>.symbolEffect(.drawOn)</code> and presented via <code>UIHostingController</code>.
+    The transition never triggered, and the symbol rendered transparent.</div></div>
+  <div class="row"><span class="lb">Decision</span><div class="tx">rather than fight the hosting-controller overlay, move to the UIKit-native API.</div></div>
+<pre><code>imageView.addSymbolEffect(.drawOn)   // iOS 26+
+// falls back to .variableColor on iOS 17–25</code></pre>
+  <div class="row"><span class="lb">Result</span><div class="tx">works reliably, with a consistent loading experience back to iOS 17.</div></div>
+
+
+  <h3>4. Aladin Responses That Wouldn't Decode</h3>
+  <div class="row"><span class="lb">Problem</span><div class="tx">calling the Aladin API with <code>Output=JS</code> returns a body with a
+    trailing semicolon and whitespace, which makes <code>JSONDecoder</code> fail.</div></div>
+  <div class="row"><span class="lb">Decision</span><div class="tx">trimming the string at each call site would duplicate the same fix on every new
+     endpoint. Implementing Alamofire's <code>DataPreprocessor</code> handles it
+     <strong>once, right before decoding</strong>.</div></div>
+<pre><code>struct AladinJSPreprocessor: DataPreprocessor {
+    func preprocess(_ data: Data) throws -> Data {
+        var d = data
+        let trim: Set&lt;UInt8&gt; = [0x3B, 0x20, 0x09, 0x0A, 0x0D]  // ; space tab \n \r
+        while let last = d.last, trim.contains(last) { d.removeLast() }
+        return d
+    }
+}</code></pre>
+  <div class="row"><span class="lb">Result</span><div class="tx">call sites stay untouched; all four Aladin endpoints share the same handling.</div></div>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">04</span>Implementation Highlights <span class="muted" style="font-size:11pt;font-weight:500">(continued)</span></h2>
+
+  <h3>5. Unreadable Books Polluting Search Results</h3>
+  <div class="row"><span class="lb">Problem</span><div class="tx">searching "math" surfaced workbooks and textbooks; searching for fiction
+    surfaced box sets and e-books. None of these can be meaningfully saved or reviewed in a reading-record app.</div></div>
+  <div class="row"><span class="lb">Decision</span><div class="tx">treat it as a product requirement ("only show books you can actually read and log")
+     solved at the response layer, combining category IDs, category-name keywords, and title regexes.</div></div>
+<pre><code>var isSetBook: Bool {
+    if BookData.excludedTitleKeywords.contains(where: { title.contains($0) }) { return true }
+    return BookData.volumeSetPatterns.contains {
+        title.range(of: $0, options: .regularExpression) != nil
+    }
+}</code></pre>
+  <div class="row"><span class="lb">Result</span><div class="tx"><code>filteringExcluded()</code> lives on the response model, so every result
+    passing through the network layer is sanitized automatically.</div></div>
+
+  <h3>6. Multiple Accounts on One Device</h3>
+  <div class="row"><span class="lb">Problem</span><div class="tx">with no backend, everything lives on the device. Switching accounts still
+    showed the previous account's recent searches, popular terms, and tutorial-seen flag, because
+    <code>UserDefaults</code> was written without any account scoping.</div></div>
+  <div class="row"><span class="lb">Decision</span><div class="tx">a single entry point that namespaces keys by account UUID, with a rule that all
+     per-account storage must go through it.</div></div>
+<pre><code>static func scopedKey(_ base: String) -> String {
+    "\(base)_\(currentAccountUUID?.uuidString ?? "guest")"
+}
+
+// CoreData is separated via the Account relationship —
+// the current account is always part of the predicate
+request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@",
+                                Int64(isbn13), account)</code></pre>
+  <div class="row"><span class="lb">Result</span><div class="tx">deleting an account removes only its keys and rows, leaving other accounts
+    intact. If a server is added later, the per-account structure is already in place — only a sync layer needs
+    to go on top.</div></div>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 6. Stack & retro ============ -->
+<section class="page">
+  <h2><span class="num">05</span>Tech Stack &amp; Design Principles</h2>
+
+  <table>
+    <tr><th style="width:26%">Category</th><th>Technology</th></tr>
+    <tr><td>Language / Pattern</td><td>Swift · UIKit · MVC</td></tr>
+    <tr><td>Layout</td><td>SnapKit — fully programmatic Auto Layout (no storyboards)</td></tr>
+    <tr><td>Networking</td><td>Alamofire</td></tr>
+    <tr><td>Images</td><td>Kingfisher (GIF via AnimatedImageView)</td></tr>
+    <tr><td>Animation</td><td>Lottie · SF Symbols <code>drawOn</code>/<code>drawOff</code></td></tr>
+    <tr><td>Local storage</td><td>CoreData (<code>Account</code> · <code>Book</code> · <code>Bookmark</code> · <code>Comment</code> · <code>Liked</code>)</td></tr>
+    <tr><td>Notifications</td><td>UserNotifications (local push)</td></tr>
+    <tr><td>Open APIs</td><td>Aladin Book API (ItemSearch · ItemList · ItemLookUp)</td></tr>
+  </table>
+
+  <h3>Design Principles</h3>
+  <ul>
+    <li><strong>Design system</strong> — no hard-coded colors (named asset colors only), a single custom font entry point, Figma measurements applied 1:1</li>
+    <li><strong>Shared components</strong> — alert · toast · loading · pagination extracted as reusable components</li>
+    <li><strong>Security</strong> — API keys excluded from the repository via <code>.gitignore</code> and XOR-obfuscated; only a template file is committed</li>
+    <li><strong>Main-thread contract</strong> — CoreData uses <code>viewContext</code> only, with a thread assertion on save</li>
+  </ul>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2 style="margin-top:8mm"><span class="num">06</span>Designing Without a Backend</h2>
+  <p>Built as a portfolio demo, the app is <strong>local-only on CoreData with no server</strong>.
+     Rather than hide that, I chose to <strong>state the scope explicitly</strong>.</p>
+  <ul>
+    <li>Sign-up / sign-in are on-device local accounts; the phone number is only format-validated (no SMS verification or password)</li>
+    <li>All data lives in the device's CoreData and resets when the app is deleted or the device changes</li>
+    <li>The likes ranking originally assumed server-side aggregation; without a backend it is shown from demo seed
+        data, and the on-device counter is structured so that <strong>only a sync layer needs to be added</strong> later</li>
+  </ul>
+
+  <h3>What a Production Service Would Need</h3>
+  <ul>
+    <li>Phone-number SMS (OTP) verification</li>
+    <li>A server / cloud database with sync (CloudKit · Firebase) for cross-device data transfer</li>
+    <li>Server-side aggregation of all users' likes for a live ranking</li>
+  </ul>
+
+  <h2 style="margin-top:8mm"><span class="num">07</span>Reflection</h2>
+  <p>Ten months and 255 commits, from planning through implementation. The biggest lesson was that
+     <strong>"the feature works" and "the feature is usable" are different things</strong>.
+     The loading spinner worked, but it flickered and made the app feel slower. State was saved correctly,
+     but it didn't propagate between screens, so to the user it looked like a failure. Neither was a
+     functional defect — both were <strong>experience defects</strong>. Since then I make a habit of
+     re-checking finished work from the user's point of view, not just verifying that the code runs.</p>
+
+  <div class="foot"><span>bookbook</span><span class="n"></span></div>
+</section>
+
+</body>
+</html>

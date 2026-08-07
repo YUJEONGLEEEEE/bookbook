@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>읽담 (bookbook) — iOS 포트폴리오</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { counter-reset: pg -1;
+    font-family: "Apple SD Gothic Neo", -apple-system, sans-serif;
+    color: #17171A; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { counter-increment: pg;
+    width: 210mm; min-height: 297mm; padding: 20mm 18mm 16mm;
+    page-break-after: always; position: relative; background: #fff;
+    display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+
+  h1 { font-size: 36pt; font-weight: 300; letter-spacing: -1.4pt; line-height: 1.15; }
+  h2 { font-size: 15pt; font-weight: 600; letter-spacing: -0.3pt;
+       padding-bottom: 2.5mm; margin-bottom: 5mm; border-bottom: 1px solid #17171A; }
+  h2 .num { display: block; font-size: 7.6pt; font-weight: 500; letter-spacing: 1.6pt;
+            color: #A8A8AE; margin-bottom: 2mm; }
+  h3 { font-size: 10pt; font-weight: 700; margin: 5.5mm 0 1.5mm; letter-spacing: -0.1pt; }
+  p, li, td, th { font-size: 8.8pt; line-height: 1.6; }
+  ul { padding-left: 4.5mm; }
+  li { margin-bottom: 0.8mm; }
+  strong { font-weight: 700; }
+  .muted { color: #A8A8AE; font-weight: 400 !important; letter-spacing: 0; }
+
+  .cover { justify-content: flex-end; padding: 28mm 18mm 22mm; }
+  .cover .sub { font-size: 10.5pt; color: #6A6A70; margin-top: 5mm; line-height: 1.75; }
+  .cover .rule { width: 100%; height: 1px; background: #17171A; margin: 11mm 0 7mm; }
+  .cover .meta { font-size: 8.8pt; line-height: 2.05; color: #3A3A3F; }
+  .cover .meta b { display: inline-block; width: 26mm; color: #A8A8AE;
+                   font-weight: 500; letter-spacing: 0.4pt; }
+
+  table { width: 100%; border-collapse: collapse; margin: 3.5mm 0; }
+  th, td { border: 0; border-bottom: 1px solid #E6E6E9;
+           padding: 2mm 4mm 2mm 0; text-align: left; vertical-align: top; }
+  tr:first-child th { border-bottom: 1px solid #17171A; }
+  th { font-weight: 600; font-size: 8pt; color: #6A6A70; letter-spacing: 0.4pt; }
+  td.num, th.num { text-align: right; padding-right: 0; }
+  td.ctr, th.ctr { text-align: center; }
+
+  pre { background: #FAFAFA; border-left: 1px solid #D8D8DC;
+        padding: 2.6mm 4mm; margin: 2.5mm 0; overflow: hidden; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 7.3pt;
+         line-height: 1.5; color: #2B2B30; }
+
+  .row { display: grid; grid-template-columns: 17mm 1fr; gap: 0 4mm; margin: 2.4mm 0; }
+  .row .lb { font-size: 8pt; font-weight: 600; color: #A8A8AE;
+             letter-spacing: 0.5pt; padding-top: 0.5mm; }
+  .row .tx { font-size: 8.8pt; line-height: 1.6; }
+
+  .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5mm 8mm; margin-top: 4mm; }
+  .note { border-top: 1px solid #17171A; padding-top: 2.2mm; }
+  .note h4 { font-size: 9pt; font-weight: 700; margin-bottom: 1.2mm; }
+  .note p { font-size: 8.2pt; line-height: 1.55; color: #3A3A3F; }
+
+  .flow { font-size: 8.8pt; line-height: 2.15; text-align: center; padding: 4.5mm 0;
+          margin: 3mm 0; border-top: 1px solid #E6E6E9; border-bottom: 1px solid #E6E6E9; }
+
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4.5mm; margin-top: 3.5mm; }
+  .shots.five { grid-template-columns: repeat(5, 1fr); }
+  .shot { display: flex; flex-direction: column; }
+  .shot img { width: 100%; height: auto; display: block; border: 1px solid #E6E6E9; }
+  .shot span { display: block; text-align: left; font-size: 7pt; color: #A8A8AE;
+               margin-top: auto; padding-top: 1.6mm; letter-spacing: 0.2pt; }
+
+  .foot .n::after { content: counter(pg); }
+  .foot { position: absolute; bottom: 11mm; left: 18mm; right: 18mm;
+          display: flex; justify-content: space-between;
+          font-size: 7.2pt; color: #B4B4BA; letter-spacing: 0.5pt;
+          border-top: 1px solid #EFEFF2; padding-top: 2mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ 표지 ============ -->
+<section class="page cover">
+  <h1>읽담 <span class="muted" style="font-size:18pt;font-weight:500">(bookbook)</span></h1>
+  <div class="rule"></div>
+  <p class="sub">책과 대화하는 독서 기록 앱<br>검색하고, 담고, 한 줄로 기록하고, 책탑을 쌓다</p>
+  <div class="meta">
+    <div><b>기간</b> 2025.09 – 2026.07 (약 10개월)</div>
+    <div><b>담당</b> 기획 공동 · iOS 개발 전담</div>
+    <div><b>팀 구성</b> 2인 (디자이너 1 · iOS 1)</div>
+    <div><b>플랫폼</b> iOS 17.0+ · Swift · UIKit</div>
+    <div><b>규모</b> Swift 13,046 LOC · 커밋 255개</div>
+  </div>
+</section>
+
+<!-- ============ 1. 기획 배경 ============ -->
+<section class="page">
+  <h2><span class="num">01</span>기획 배경</h2>
+
+  <h3>문제 정의</h3>
+  <p>독서 기록 앱은 이미 많지만, 대부분 <strong>기록 자체가 목적</strong>이다. 문제는 기록이 귀찮다는 것보다
+     <strong>계속할 이유가 없다는 것</strong>이었다.</p>
+  <ul>
+    <li>리뷰를 길게 쓰라고 하면 부담스러워서 쓰지 않는다</li>
+    <li>기록을 쌓아도 눈에 보이는 변화가 없으니 금방 그만둔다</li>
+  </ul>
+
+  <h3>해결 방향</h3>
+  <table>
+    <tr><th style="width:26%">문제</th><th style="width:34%">기획적 해결</th><th>구현</th></tr>
+    <tr><td>기록이 부담스럽다</td><td>리뷰 단위를 <strong>“한 줄”</strong>로 축소</td>
+        <td>책한줄 — 별점 + 한 문장 + 읽은 날짜만 입력</td></tr>
+    <tr><td>계속할 이유가 없다</td><td>기록이 <strong>눈에 보이게 쌓이는</strong> 보상 구조</td>
+        <td>책탑쌓기 — 책한줄을 모아 9단계 책 획득</td></tr>
+    <tr><td>어떤 책을 읽을지 모른다</td><td>온보딩에서 <strong>취향을 먼저 수집</strong></td>
+        <td>장르 · 연령대 · 성별 기반 맞춤 추천</td></tr>
+  </table>
+
+  <h3>사용자 흐름</h3>
+  <p class="flow">
+    회원가입 · 로그인 &nbsp;→&nbsp; <strong>취향 선택</strong> &nbsp;→&nbsp; 튜토리얼 &nbsp;→&nbsp; 홈<br>
+    → 찾기 → 책 상세 → 내책장 담기 / <strong>책한줄 작성</strong> → <strong>책탑쌓기 · 보상 획득</strong>
+  </p>
+  <p>온보딩에서 취향을 <strong>먼저</strong> 받는 이유는 첫 진입 시 홈이 비어 보이지 않게 하기 위함이다.
+     취향 정보가 있어야 첫 화면부터 추천 도서를 채울 수 있다.</p>
+
+  <h3>담당 범위</h3>
+  <p>디자이너 1명과 <strong>2인 팀</strong>으로 진행했다. 기획은 함께 했고, <strong>iOS 앱은 전 화면 · 전 기능을 단독으로 구현</strong>했다.</p>
+  <ul>
+    <li>앱 전체 화면 구현 (온보딩 · 홈 · 검색 · 상세 · 내책장 · 책한줄 · 책탑쌓기 · 마이페이지)</li>
+    <li>게이미피케이션(책탑쌓기) 보상 구조 설계 및 구현</li>
+    <li>알라딘 오픈 API 연동 및 응답 정제 (네이버 책 API 종료 후 상세 조회를 알라딘 ItemLookUp으로 이관)</li>
+    <li>CoreData 데이터 모델 설계 및 계정별 데이터 격리</li>
+    <li>공통 컴포넌트 제작 (커스텀 얼럿 · 토스트 · 로딩 뷰 · 페이지네이션 바)</li>
+  </ul>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 2. 핵심 기획 ============ -->
+<section class="page">
+  <h2><span class="num">02</span>핵심 기획 — 책탑쌓기</h2>
+  <p>이 앱의 차별점이자 가장 공들인 기획. 단순히 “리뷰 쓰면 배지 준다”가 아니라
+     <strong>이탈 구간을 고려한 보상 곡선</strong>을 설계했다.</p>
+
+  <h3>보상 곡선</h3>
+  <table>
+    <tr><th class="ctr" style="width:12%">단계</th><th>획득 책</th>
+        <th class="num" style="width:22%">구간 필요 수</th><th class="num" style="width:22%">누적 필요 수</th></tr>
+    <tr><td class="ctr">1</td><td>전래동화</td><td class="num">3</td><td class="num"><strong>3</strong></td></tr>
+    <tr><td class="ctr">2</td><td>이솝우화</td><td class="num">5</td><td class="num">8</td></tr>
+    <tr><td class="ctr">3</td><td>영어책</td><td class="num">10</td><td class="num">18</td></tr>
+    <tr><td class="ctr">4</td><td>자서전</td><td class="num">15</td><td class="num">33</td></tr>
+    <tr><td class="ctr">5</td><td>추리소설</td><td class="num">20</td><td class="num">53</td></tr>
+    <tr><td class="ctr">6</td><td>세계지도</td><td class="num">25</td><td class="num">78</td></tr>
+    <tr><td class="ctr">7</td><td>요리책</td><td class="num">30</td><td class="num">108</td></tr>
+    <tr><td class="ctr">8</td><td>우주과학</td><td class="num">35</td><td class="num">143</td></tr>
+    <tr><td class="ctr">9</td><td>백과사전</td><td class="num">40</td><td class="num"><strong>183</strong></td></tr>
+  </table>
+
+  <div class="notes">
+    <div class="note">
+      <h4>첫 보상은 3개</h4>
+      <p>초기 이탈이 가장 심한 구간이라, 시작하자마자 성취를 경험하게 했다.</p>
+    </div>
+    <div class="note">
+      <h4>간격을 점진적으로 확대</h4>
+      <p>습관이 붙은 뒤에는 보상을 희소하게 만들어 가치를 유지한다.</p>
+    </div>
+    <div class="note">
+      <h4>책의 종류가 성장 서사</h4>
+      <p>전래동화(어린이) → 백과사전(지식의 총합). 단계가 곧 독서 수준의 은유다.</p>
+    </div>
+    <div class="note">
+      <h4>최종 책은 연출을 다르게</h4>
+      <p>그라데이션 카드 배경 + 카드 밖으로 넘치는 confetti로 “끝까지 왔다”를 시각적으로 구분했다.</p>
+    </div>
+  </div>
+
+  <h3>빈 상태(Empty State)를 기획하다</h3>
+  <p>책을 하나도 못 받은 사용자가 책탑 화면에 들어오면 <strong>아무것도 없는 화면</strong>을 보게 된다.
+     이게 첫인상이 되면 앱을 다시 열지 않는다. 그래서 0개 상태 전용 화면을 따로 설계했다 —
+     어두운 오버레이 위에 Lottie 조명 애니메이션과 물음표 책을 띄워,
+     <strong>“아직 없다”가 아니라 “곧 채워질 자리”</strong>로 읽히게 했다.</p>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">03</span>화면 및 기능</h2>
+  <h3>책탑쌓기 화면</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/10-tower-empty.png"><span>빈 상태</span></div>
+    <div class="shot"><img src="screenshots/11-tower.png"><span>책탑</span></div>
+    <div class="shot"><img src="screenshots/12-reward-popup.png"><span>보상 팝업</span></div>
+    <div class="shot"><img src="screenshots/13-reward-final.png"><span>최종 보상</span></div>
+    <div class="shot"><img src="screenshots/14-mypage.png"><span>내공간</span></div>
+  </div>
+
+  <h3>주요 화면</h3>
+
+  <div class="shots">
+    <div class="shot"><img src="screenshots/01-onboarding-signup.png"><span>회원가입</span></div>
+    <div class="shot"><img src="screenshots/02-onboarding-preference.png"><span>취향 선택</span></div>
+    <div class="shot"><img src="screenshots/03-home.png"><span>홈</span></div>
+    <div class="shot"><img src="screenshots/04-search.png"><span>찾기</span></div>
+  </div>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <div class="shots five" style="margin-top:5mm">
+    <div class="shot"><img src="screenshots/05-search-result.png"><span>검색 결과</span></div>
+    <div class="shot"><img src="screenshots/06-detail.png"><span>책 상세</span></div>
+    <div class="shot"><img src="screenshots/07-shelf.png"><span>내책장</span></div>
+    <div class="shot"><img src="screenshots/08-review-list.png"><span>책한줄</span></div>
+    <div class="shot"><img src="screenshots/09-review-write.png"><span>책한줄 작성</span></div>
+  </div>
+
+  <h3>탭 구성 · 주요 기능</h3>
+  <table>
+    <tr><th style="width:20%">화면</th><th>기능</th></tr>
+    <tr><td><strong>온보딩</strong></td><td>휴대폰 번호 기반 로컬 가입, 취향(장르 · 연령대 · 성별) 수집, 첫 진입 튜토리얼</td></tr>
+    <tr><td><strong>홈</strong></td><td>맞춤 추천 / 마음 랭킹 / 베스트셀러 · 신간(알라딘) / 명언 카드 / 당겨서 새로고침</td></tr>
+    <tr><td><strong>찾기</strong></td><td>알라딘 검색, 정렬(정확도 · 추천 · 최신), 장르 필터, 페이지네이션, 인기 · 최근 검색어, 스와이프로 담기</td></tr>
+    <tr><td><strong>책 상세</strong></td><td>알라딘 도서 상세 정보, 마음(좋아요) · 내책장 담기 · 책한줄 작성</td></tr>
+    <tr><td><strong>내책장</strong></td><td>북마크 / 좋아요한 책, 장르 필터 · 페이지네이션</td></tr>
+    <tr><td><strong>책한줄</strong></td><td>한 줄 리뷰 작성 · 수정 · 삭제, 별점 · 읽은 날짜 기록</td></tr>
+    <tr><td><strong>책탑쌓기</strong></td><td>9단계 보상, 획득 애니메이션 + 진행 게이지 + 보상 팝업</td></tr>
+    <tr><td><strong>알림</strong></td><td>로컬 푸시(새 책 획득 · 독서 리마인더) + 앱 내 알림함(안읽음 배지), 반복 요일 · 시간 · 횟수 설정</td></tr>
+    <tr><td><strong>내공간</strong></td><td>프로필 카드, 내 정보 · 내 취향 · 최근 본 책 · 공지/FAQ · 1:1 문의 · 이용약관</td></tr>
+  </table>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 4. 구현 하이라이트 1 ============ -->
+<section class="page">
+  <h2><span class="num">03</span>화면 및 기능 <span class="muted" style="font-size:11pt;font-weight:500">(이어서)</span></h2>
+
+  <h3>주요 인터랙션 · 알림</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/19-review-saved-push.png"><span>푸시 알림</span></div>
+    <div class="shot"><img src="screenshots/20-loading.png"><span>로딩</span></div>
+    <div class="shot"><img src="screenshots/21-notification-settings.png"><span>알림 설정</span></div>
+    <div class="shot"><img src="screenshots/22-notification-inbox.png"><span>알림함</span></div>
+    <div class="shot"><img src="screenshots/18-detail-liked.png"><span>마음 표현</span></div>
+  </div>
+  <p style="margin-top:3mm">책한줄을 저장하는 순간 <strong>시스템 로컬 푸시</strong>가 발송되고, 앱 내 알림함에도 함께 쌓인다. 리마인더는 반복 요일 · 시간 · 하루 횟수를 각각 지정할 수 있다.</p>
+  <p>로딩 뷰는 직접 만든 컴포넌트로, 응답이 0.4초를 넘길 때만 나타난다(구현 하이라이트 2 · 3 참고).</p>
+
+  <h3>온보딩 · 탐색</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/15-onboarding-age.png"><span>연령 선택</span></div>
+    <div class="shot"><img src="screenshots/16-onboarding-gender.png"><span>성별 선택</span></div>
+    <div class="shot"><img src="screenshots/17-home-ranking.png"><span>마음 랭킹</span></div>
+    <div class="shot"><img src="screenshots/23-liked-drawer.png"><span>마음서랍</span></div>
+    <div class="shot"><img src="screenshots/24-recent-books.png"><span>최근 본 책</span></div>
+  </div>
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">03</span>화면 및 기능 <span class="muted" style="font-size:11pt;font-weight:500">(이어서)</span></h2>
+
+  <h3>내공간</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/25-my-preference.png"><span>내 취향</span></div>
+    <div class="shot"><img src="screenshots/26-my-info.png"><span>내 정보</span></div>
+    <div class="shot"><img src="screenshots/27-notice-faq.png"><span>공지 · FAQ</span></div>
+    <div class="shot"><img src="screenshots/28-qna-list.png"><span>1:1 문의</span></div>
+    <div class="shot"><img src="screenshots/29-qna-form.png"><span>문의하기</span></div>
+  </div>
+  <p style="margin-top:3mm">내공간에는 계정 · 취향 관리와 고객 지원 화면을 모았다. 1:1 문의는 작성 후 답변 상태(답변대기 · 답변완료)로 관리된다.</p>
+
+  <h3>정책 · 정보</h3>
+  <div class="shots five">
+    <div class="shot"><img src="screenshots/30-terms.png"><span>이용약관</span></div>
+    <div class="shot"><img src="screenshots/31-app-version.png"><span>앱 버전</span></div>
+  </div>
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">04</span>구현 하이라이트</h2>
+
+  <h3>① 전 화면 상태 동기화</h3>
+  <div class="row"><span class="lb">문제</span><div class="tx">같은 책이 홈 · 검색 · 상세 · 내책장 네 곳에 동시에 보인다.
+    상세에서 마음을 눌렀는데 뒤로 가면 이전 상태 그대로면, 사용자는 저장이 안 된 줄 알고 다시 누른다.</div></div>
+  <div class="row"><span class="lb">판단</span><div class="tx">화면마다 갱신 코드를 넣으면 화면이 늘어날 때마다 누락이 생긴다.
+     상태 변경 <strong>지점</strong>에서 한 번만 알리고, 관심 있는 화면이 각자 구독하는 구조로 갔다.</div></div>
+<pre><code>func postBookStateChange(name: Notification.Name, isbn13: Int) {
+    NotificationCenter.default.post(name: name, object: nil,
+                                    userInfo: [BookSyncKey.isbn13: isbn13])
+}</code></pre>
+  <p>CoreData 저장 직후 항상 발행하도록 <code>toggleBookmark</code> · <code>incrementLikeCount</code> ·
+     <code>decrementLikeCount</code> 등 변경이 일어나는 모든 함수에 못 박았다.
+     <code>isbn13</code>을 함께 실어 보내 구독 측이 해당 셀만 갱신하게 했다.</p>
+  <div class="row"><span class="lb">결과</span><div class="tx">어느 화면에서 눌러도 나머지 전 화면에 즉시 반영.
+    새 화면을 추가해도 구독 한 줄이면 동기화에 편입된다.</div></div>
+
+  <h3>② 로딩 스피너가 깜빡이는 문제</h3>
+  <div class="row"><span class="lb">문제</span><div class="tx">요청마다 스피너를 띄웠더니, 캐시가 맞거나 응답이 빠를 때
+    스피너가 나타났다 즉시 사라지며 화면이 번쩍였다. 오히려 느려 보였다.</div></div>
+  <div class="row"><span class="lb">판단</span><div class="tx">스피너의 목적은 “기다리는 중”을 알리는 것인데, 짧은 대기에는 알릴 필요 자체가 없다.
+     <strong>표시를 0.4초 지연시키고, 그 전에 응답이 오면 아예 띄우지 않는다.</strong></div></div>
+<pre><code>private let showDelay: TimeInterval = 0.4
+private var pendingShow: DispatchWorkItem?
+
+func hideLoading() {
+    loadingCount = max(0, loadingCount - 1)
+    guard loadingCount == 0 else { return }
+    pendingShow?.cancel()   // 빠른 응답이면 예약 취소 — 스피너 자체를 생략
+    dismissOverlay()
+}</code></pre>
+  <p>동시에 여러 요청이 겹치는 화면(홈: 추천 + 랭킹 + 신간)을 위해 <code>loadingCount</code>로
+     참조 카운팅해 <strong>마지막 요청이 끝났을 때만</strong> 내린다.</p>
+  <div class="row"><span class="lb">추가 개선</span><div class="tx">직접 만든 스피너(심볼을 써내려갔다 지우는 애니메이션)가
+    획을 그리는 도중 사라져 어색했다. <code>finishGracefully</code>로 진행 중인 획을 완성한 뒤 페이드아웃하도록 했다.</div></div>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 5. 구현 하이라이트 2 ============ -->
+<section class="page">
+  <h2><span class="num">04</span>구현 하이라이트 <span class="muted" style="font-size:11pt;font-weight:500">(이어서)</span></h2>
+
+  <h3>③ SwiftUI 심볼 애니메이션이 동작하지 않던 문제</h3>
+  <div class="row"><span class="lb">문제</span><div class="tx">로딩 뷰의 그리기 효과를 SwiftUI <code>.symbolEffect(.drawOn)</code>으로
+    구현하고 <code>UIHostingController</code>로 올렸는데, 전환이 트리거되지 않고 심볼이 투명하게 렌더됐다.</div></div>
+  <div class="row"><span class="lb">판단</span><div class="tx">오버레이로 얹은 호스팅 컨트롤러에서는 상태 변화가 애니메이션으로 이어지지 않는다고 보고
+     UIKit 네이티브 API로 전환했다.</div></div>
+<pre><code>imageView.addSymbolEffect(.drawOn)   // iOS 26+
+// iOS 17~25는 .variableColor 로 폴백</code></pre>
+  <div class="row"><span class="lb">결과</span><div class="tx">정상 동작. 구버전 대응까지 포함해 iOS 17부터 동일한 로딩 경험을 제공한다.</div></div>
+
+
+  <h3>④ 알라딘 API 응답이 JSON으로 파싱되지 않던 문제</h3>
+  <div class="row"><span class="lb">문제</span><div class="tx">알라딘 API를 <code>Output=JS</code>로 호출하면 응답 끝에 세미콜론과 공백이 붙어 있어
+    <code>JSONDecoder</code>가 실패한다.</div></div>
+  <div class="row"><span class="lb">판단</span><div class="tx">호출부마다 문자열을 잘라내면 API를 추가할 때마다 같은 코드가 반복된다.
+     Alamofire의 <code>DataPreprocessor</code>를 구현해 <strong>디코딩 직전 단계에서 한 번만</strong> 처리했다.</div></div>
+<pre><code>struct AladinJSPreprocessor: DataPreprocessor {
+    func preprocess(_ data: Data) throws -> Data {
+        var d = data
+        let trim: Set&lt;UInt8&gt; = [0x3B, 0x20, 0x09, 0x0A, 0x0D]  // ; space tab \n \r
+        while let last = d.last, trim.contains(last) { d.removeLast() }
+        return d
+    }
+}</code></pre>
+  <div class="row"><span class="lb">결과</span><div class="tx">호출부 코드는 그대로 두고 파싱 계층에서만 해결.
+    알라딘 API를 쓰는 4개 엔드포인트가 전부 같은 처리를 공유한다.</div></div>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2><span class="num">04</span>구현 하이라이트 <span class="muted" style="font-size:11pt;font-weight:500">(이어서)</span></h2>
+
+  <h3>⑤ 검색 결과에 읽을 수 없는 책이 섞이는 문제</h3>
+  <div class="row"><span class="lb">문제</span><div class="tx">“수학”을 검색하면 문제집 · 교과서가, 소설을 검색하면 전집 세트와 e-book이
+    상위에 나온다. 독서 기록 앱에서 담을 수 없거나 담을 이유가 없는 결과다.</div></div>
+  <div class="row"><span class="lb">판단</span><div class="tx">기획 요구(“읽고 기록할 수 있는 책만 보이게”)를 API 응답 정제로 해결했다.
+     카테고리 ID · 카테고리명 키워드 · 제목 정규식 세 가지를 조합해 걸러낸다.</div></div>
+<pre><code>var isSetBook: Bool {
+    if BookData.excludedTitleKeywords.contains(where: { title.contains($0) }) { return true }
+    return BookData.volumeSetPatterns.contains {
+        title.range(of: $0, options: .regularExpression) != nil
+    }
+}</code></pre>
+  <div class="row"><span class="lb">결과</span><div class="tx">응답 모델에 <code>filteringExcluded()</code>를 두어,
+    네트워크 계층을 통과하는 모든 결과가 자동으로 정제된다.</div></div>
+
+  <h3>⑥ 한 기기에 여러 계정 — 데이터 격리</h3>
+  <div class="row"><span class="lb">문제</span><div class="tx">백엔드가 없어 모든 데이터가 기기에 저장된다. 계정을 바꿔 로그인했더니
+    이전 계정의 최근 검색어 · 인기 검색어 · 튜토리얼 노출 여부가 그대로 보였다.
+    <code>UserDefaults</code>를 계정 구분 없이 썼기 때문이다.</div></div>
+  <div class="row"><span class="lb">판단</span><div class="tx">키에 계정 UUID를 네임스페이스로 붙이는 단일 진입점을 만들고,
+     계정별 저장은 반드시 이 함수를 통하도록 규칙화했다.</div></div>
+<pre><code>static func scopedKey(_ base: String) -> String {
+    "\(base)_\(currentAccountUUID?.uuidString ?? "guest")"
+}
+
+// CoreData는 Account 관계로 분리 — 조회 시 항상 현재 계정을 조건에 포함
+request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@",
+                                Int64(isbn13), account)</code></pre>
+  <div class="row"><span class="lb">결과</span><div class="tx">탈퇴 시 해당 계정의 키와 CoreData만 삭제되고 다른 계정은 보존된다.
+    서버가 붙더라도 계정 단위 구조가 이미 잡혀 있어 동기화 계층만 얹으면 된다.</div></div>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<!-- ============ 6. 기술 스택 · 회고 ============ -->
+<section class="page">
+  <h2><span class="num">05</span>기술 스택 및 설계</h2>
+
+  <table>
+    <tr><th style="width:26%">구분</th><th>사용 기술</th></tr>
+    <tr><td>언어 / 패턴</td><td>Swift · UIKit · MVC</td></tr>
+    <tr><td>레이아웃</td><td>SnapKit — 코드 기반 오토레이아웃 (스토리보드 미사용)</td></tr>
+    <tr><td>네트워크</td><td>Alamofire</td></tr>
+    <tr><td>이미지</td><td>Kingfisher (GIF: AnimatedImageView)</td></tr>
+    <tr><td>애니메이션</td><td>Lottie · SF Symbols <code>drawOn</code>/<code>drawOff</code></td></tr>
+    <tr><td>로컬 저장</td><td>CoreData (<code>Account</code> · <code>Book</code> · <code>Bookmark</code> · <code>Comment</code> · <code>Liked</code>)</td></tr>
+    <tr><td>알림</td><td>UserNotifications (로컬 푸시)</td></tr>
+    <tr><td>오픈 API</td><td>알라딘 도서 API (ItemSearch · ItemList · ItemLookUp)</td></tr>
+  </table>
+
+  <h3>설계 원칙</h3>
+  <ul>
+    <li><strong>디자인 시스템</strong> — 색상 하드코딩 금지(네임드 에셋 컬러), 커스텀 폰트 일원화, Figma 시안 측정값 1:1 적용</li>
+    <li><strong>공통 컴포넌트화</strong> — 얼럿 · 토스트 · 로딩 · 페이지네이션을 재사용 컴포넌트로 분리</li>
+    <li><strong>보안</strong> — API 키는 <code>.gitignore</code>로 저장소에서 제외하고 XOR 난독화 적용, 템플릿 파일만 커밋</li>
+    <li><strong>메인 스레드 규약</strong> — CoreData <code>viewContext</code>만 사용하고 저장 시 스레드 검증</li>
+  </ul>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+<section class="page">
+  <h2 style="margin-top:8mm"><span class="num">06</span>백엔드 부재에 따른 설계 선택</h2>
+  <p>포트폴리오용 데모로, 별도 서버 없이 <strong>CoreData 기반 로컬 전용</strong>으로 구현했다.
+     이를 숨기지 않고 <strong>범위를 명시하는 쪽</strong>을 택했다.</p>
+  <ul>
+    <li>회원가입 · 로그인은 기기 내 로컬 계정. 휴대폰 번호는 형식 검증만 수행 (SMS 인증 · 비밀번호 없음)</li>
+    <li>모든 데이터는 기기의 CoreData에 저장되어 앱 삭제 · 기기 변경 시 초기화</li>
+    <li>마음(좋아요) 랭킹은 원래 서버 누적 집계가 전제였으나, 백엔드가 없어 데모 시드 데이터로 표시.
+        기기 내 카운터 위에 <strong>동기화 계층만 얹으면 확장 가능한 구조</strong>로 남겨뒀다</li>
+  </ul>
+
+  <h3>실 서비스 확장 시 필요한 작업</h3>
+  <ul>
+    <li>휴대폰 번호 SMS(OTP) 인증</li>
+    <li>서버 / 클라우드 DB + 동기화(CloudKit · Firebase 등)를 통한 기기 간 데이터 이전</li>
+    <li>전체 사용자 좋아요를 합산한 실시간 랭킹 집계</li>
+  </ul>
+
+  <h2 style="margin-top:8mm"><span class="num">07</span>회고</h2>
+  <p>10개월간 255개의 커밋으로 기획부터 구현까지 이어간 프로젝트다. 가장 크게 배운 것은
+     <strong>“기능이 동작한다”와 “사용자가 쓸 만하다”는 다르다</strong>는 점이었다.
+     로딩 스피너는 동작했지만 깜빡여서 오히려 느려 보였고, 상태 저장은 정상이었지만 화면 간에 반영되지 않아
+     사용자에겐 실패로 보였다. 두 문제 모두 기능 결함이 아니라 <strong>경험 결함</strong>이었고,
+     이후로는 구현을 마친 뒤 반드시 사용자 관점에서 다시 확인하는 습관을 들였다.</p>
+
+  <div class="foot"><span>읽담 (bookbook)</span><span class="n"></span></div>
+</section>
+
+</body>
+</html>
