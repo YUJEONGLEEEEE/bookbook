@@ -353,11 +353,14 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
                 message: "이 책한줄을 삭제할까요?",
                 cancelTitle: "유지하기",
                 confirmTitle: "삭제",
-                successMessage: "책한줄을 삭제했어요.",
                 okHandler: { [weak self] in
                     guard let self else { return }
 
-                    CoreDataManager.shared.deleteComment(comment)
+                    guard CoreDataManager.shared.deleteComment(comment) else {
+                        completion(false)
+                        self.showAlert(message: "삭제하지 못했어요.\n잠시 후 다시 시도해주세요.")
+                        return
+                    }
                     NotificationManager.syncRewardState()
 
                     self.allComments.removeAll { $0.objectID == comment.objectID }
@@ -367,6 +370,7 @@ extension MyCommentsViewController: UITableViewDelegate, UITableViewDataSource {
                     self.showEmptyState()
 
                     completion(true)
+                    self.showAlert(message: "책한줄을 삭제했어요.")
                 }
             )
         }

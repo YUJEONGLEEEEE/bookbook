@@ -353,7 +353,7 @@ final class DetailViewController: UIViewController {
             }) { [weak self] _ in
                 guard let self else { return }
 
-                if let existing = self.fetchComment(for: Int64(self.bookISBN)) {
+                if let existing = CoreDataManager.shared.fetchComment(for: Int64(self.bookISBN)) {
                     self.showAlert(message: "이미 작성된 책한줄이 있어요.") { [weak self] in
                         self?.presentCommentPopup(editing: existing)
                     }
@@ -380,23 +380,6 @@ final class DetailViewController: UIViewController {
         popupVC.modalPresentationStyle = .overFullScreen
         popupVC.modalTransitionStyle = .crossDissolve
         present(popupVC, animated: true)
-    }
-
-    private func fetchComment(for isbn13: Int64) -> Comment? {
-        let request: NSFetchRequest<Comment> = Comment.fetchRequest()
-        request.fetchLimit = 1
-        if let account = CoreDataManager.shared.fetchCurrentAccount() {
-            request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", isbn13, account)
-        } else {
-            request.predicate = NSPredicate(format: "isbn13 == %lld", isbn13)
-        }
-
-        do {
-            return try CoreDataManager.shared.context.fetch(request).first
-        } catch {
-            debugLog("comment fetch error: \(error)")
-            return nil
-        }
     }
 
     private func updateButtonUI() {

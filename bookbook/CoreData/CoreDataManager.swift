@@ -529,13 +529,15 @@ extension CoreDataManager {
     @discardableResult
     func saveComment(isbn13: Int64, readDate: Date, rating: Double, comment: String) -> Bool {
         guard let account = fetchCurrentAccount() else { return false }
-        let entity = Comment(context: context)
+        let entity = fetchComment(for: isbn13) ?? Comment(context: context)
         entity.account = account
         entity.isbn13 = isbn13
         entity.readDate = readDate
         entity.rating = rating
         entity.comment = comment
-        entity.createdAt = Date()
+        if entity.createdAt == nil {
+            entity.createdAt = Date()
+        }
         return saveContext()
     }
 
@@ -572,23 +574,47 @@ extension CoreDataManager {
         }
     }
 
-    func deleteComment(_ comment: Comment) {
-        context.delete(comment)
-        saveContext()
-    }
-
-    func hasComment(for isbn13: Int64) -> Bool {
-        guard let account = fetchCurrentAccount() else { return false }
+    func fetchComment(for isbn13: Int64) -> Comment? {
+        guard let account = fetchCurrentAccount() else { return nil }
 
         let request: NSFetchRequest<Comment> = Comment.fetchRequest()
         request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", isbn13, account)
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Comment.createdAt, ascending: false)]
         request.fetchLimit = 1
 
         do {
-            return try context.count(for: request) > 0
+            return try context.fetch(request).first
         } catch {
-            debugLog("hasComment error: \(error)")
-            return false
+            debugLog("fetchComment error: \(error)")
+            return nil
         }
+    }
+
+    @discardableResult
+    func deleteComment(_ comment: Comment) -> Bool {
+        guard comment.isbn13 != 0, let account = fetchCurrentAccount() else {
+            context.delete(comment)
+            return saveContext()
+        }
+
+        let request: NSFetchRequest<Comment> = Comment.fetchRequest()
+        request.predicate = NSPredicate(format: "isbn13 == %lld AND account == %@", comment.isbn13, account)
+
+        do {
+            let rows = try context.fetch(request)
+            debugLog("책한줄 삭제(isbn \(comment.isbn13)): \(rows.count)건")
+            rows.forEach { context.delete($0) }
+        } catch {
+            debugLog("deleteComment error: \(error)")
+            context.delete(comment)
+        }
+
+        let saved = saveContext()
+        if !saved { debugLog("책한줄 삭제 저장 실패(isbn \(comment.isbn13))") }
+        return saved
+    }
+
+    func hasComment(for isbn13: Int64) -> Bool {
+        fetchComment(for: isbn13) != nil
     }
 }
