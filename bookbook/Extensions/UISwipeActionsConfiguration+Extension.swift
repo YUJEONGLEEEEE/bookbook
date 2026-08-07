@@ -10,7 +10,7 @@ extension UISwipeActionsConfiguration {
             handler(done)
         }
         action.image = UIImage(systemName: "trash.fill")
-        action.backgroundColor = .systemRed
+        action.backgroundColor = .customAlert
 
         let config = UISwipeActionsConfiguration(actions: [action])
         config.performsFirstActionWithFullSwipe = true
